@@ -1,0 +1,40 @@
+[
+  {
+    "id": "phone-001",
+    "title": "iPhone 13, 128GB, Midnight",
+    "category": "phones",
+    "description": "Used for about 2 years, always with a screen protector. Selling because I upgraded. Self-collect at Tampines MRT or can meet along the East-West line.",
+    "condition_facts": [
+      "battery health 84%",
+      "small dent on the bottom-left corner",
+      "screen has no scratches",
+      "original box included, no charger"
+    ],
+    "asking_price": 650
+  },
+  {
+    "id": "console-001",
+    "title": "Nintendo Switch OLED with 2 games",
+    "category": "gaming",
+    "description": "White OLED model bought in 2023. Comes with Mario Kart 8 Deluxe and Animal Crossing. Moving overseas so need to clear. Meet at Jurong East.",
+    "condition_facts": [
+      "left Joy-Con has slight stick drift",
+      "minor scuffs on the dock",
+      "screen is perfect",
+      "both game cartridges included"
+    ],
+    "asking_price": 380
+  },
+  {
+    "id": "furniture-001",
+    "title": "Solid wood study desk, 120cm",
+    "category": "furniture",
+    "description": "Sturdy desk, good for WFH or studying. Need to clear before end of month as moving out of HDB. Buyer to self-collect from Bishan, 4th floor with lift.",
+    "condition_facts": [
+      "water ring stain on the top surface",
+      "one drawer sticks slightly",
+      "no wobble, all legs solid"
+    ],
+    "asking_price": 120
+  }
+]

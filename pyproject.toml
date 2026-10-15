@@ -1,0 +1,26 @@
+[project]
+name = "haggle-arena"
+version = "0.1.0"
+description = "Negotiation testbed for evaluating LLM seller agents on second-hand marketplace listings."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7",
+    "openai>=1.40",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "streamlit>=1.38",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["haggle"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
