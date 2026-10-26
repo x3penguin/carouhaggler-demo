@@ -21,6 +21,25 @@ class _Event:
     speaker: Side = field(compare=False)
 
 
+class _WithMarketContext:
+    """Forwards each engine call to the real agent with the orchestrator's context added.
+
+    The engine may call act() several times in one step (parse retries, guardrail re-asks),
+    each time with fresh feedback. Calling the agent again on each of those, rather than
+    replaying its first reply, is what lets retries and guardrails work in multi-buyer mode,
+    and keeps token counts to one per real model call.
+    """
+
+    def __init__(self, agent: Agent, context: dict):
+        self.agent = agent
+        self.name = agent.name
+        self.model = agent.model
+        self.context = context
+
+    def act(self, obs):
+        return self.agent.act(obs.model_copy(update=self.context))
+
+
 @dataclass
 class Session:
     session_id: str
@@ -158,26 +177,24 @@ class MultiGameOrchestrator:
         competing = self.highest_competing_offer(exclude_session_id=event.session_id)
         active_count = self.active_sessions_count()
 
-        # Step the game
-        # Note: we temporarily inject observation parameters
-        obs = game.observation(
+        # The market context the game itself doesn't know about. Merged into every
+        # observation the engine builds, including retries and guardrail re-asks.
+        base = game.observation(
             side=side,
             current_time_hours=self.simulated_time_hours,
             deadline_hours=self.deadline_hours,
             highest_competing_offer=competing,
             active_inquirers_count=active_count,
         )
-
-        reply = agent.act(obs)
-        # Apply step through game
-        class _ActingWrapper:
-            name = agent.name
-            model = agent.model
-
-            def act(self, _obs):
-                return reply
-
-        turn = game.step(_ActingWrapper())
+        context = {
+            "current_time_hours": base.current_time_hours,
+            "deadline_hours": base.deadline_hours,
+            "hours_remaining": base.hours_remaining,
+            "highest_competing_offer": competing,
+            "active_inquirers_count": active_count,
+            "session_id": event.session_id,
+        }
+        turn = game.step(_WithMarketContext(agent, context))
 
         # If deal closed, claim inventory and terminate other sessions
         if game.outcome == "deal":

@@ -119,3 +119,58 @@ def test_competitive_buyer_outbids_competing_offer():
     orch.step()  # b1 steps at hour 0 -> offers 500 (budget), next at 4h
     orch.step()  # b2 steps at hour 2 -> sees competing 500 -> offers 500 + 15 = 515
     assert orch.sessions["b2"].game.standing["buyer"] == 515
+
+
+# ---- regression: retries and guardrail re-asks in multi-buyer mode -------------
+
+
+class _ReaskAwareSeller:
+    """Tries to accept below floor; counters at 500 once the engine sends feedback."""
+
+    name = model = "reask_aware"
+
+    def __init__(self):
+        self.calls = 0
+        self.seen = []
+
+    def act(self, obs):
+        from haggle.agents.base import AgentReply
+
+        self.calls += 1
+        self.seen.append(obs)
+        if obs.feedback is None:
+            return AgentReply(action=Action(message="ok", action="accept"), tokens_in=100)
+        return AgentReply(action=Action(message="500?", action="offer", price=500), tokens_in=100)
+
+
+def test_guardrail_reask_calls_agent_again_with_feedback():
+    seller = _ReaskAwareSeller()
+    orch = MultiGameOrchestrator(LISTING, enforce_floor_protection=True)
+    sc = make_test_scenario("b1", floor=480)
+    orch.add_session("b1", sc, FloorBuyer(make_test_scenario("b1", floor=400)), seller)
+    orch.step()  # buyer offers 400 (below the real floor of 480)
+    orch.step()  # seller tries to accept, gets blocked, is asked again
+    turn = orch.sessions["b1"].game.turns[-1]
+    assert seller.calls == 2
+    assert turn.action.action == "offer" and turn.action.price == 500
+    assert "guardrail_forced_reject" not in turn.guardrail_events
+
+
+def test_tokens_counted_once_per_model_call():
+    seller = _ReaskAwareSeller()
+    orch = MultiGameOrchestrator(LISTING, enforce_floor_protection=True)
+    orch.add_session("b1", make_test_scenario("b1"), FloorBuyer(make_test_scenario("b1", floor=400)), seller)
+    orch.step()
+    orch.step()
+    assert orch.sessions["b1"].game.turns[-1].tokens_in == 100 * seller.calls
+
+
+def test_market_context_and_session_id_reach_every_attempt():
+    seller = _ReaskAwareSeller()
+    orch = MultiGameOrchestrator(LISTING, enforce_floor_protection=True)
+    orch.add_session("chat-7", make_test_scenario("chat-7"), FloorBuyer(make_test_scenario("x", floor=400)), seller)
+    orch.step()
+    orch.step()
+    assert [o.session_id for o in seller.seen] == ["chat-7", "chat-7"]
+    assert all(o.deadline_hours == orch.deadline_hours for o in seller.seen)
+    assert seller.seen[1].feedback is not None

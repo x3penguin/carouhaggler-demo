@@ -44,6 +44,10 @@ class Observation(BaseModel):
     highest_competing_offer: float | None = None
     active_inquirers_count: int = 1
 
+    # Which chat this is. Stateful agents key their memory on it so notes from one
+    # buyer's chat never leak into another's. None in plain 1-on-1 games.
+    session_id: str | None = None
+
 
 class AgentReply(BaseModel):
     """An agent's answer plus bookkeeping. action is None when the output couldn't be parsed."""
