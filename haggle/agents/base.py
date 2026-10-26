@@ -60,6 +60,8 @@ class AgentReply(BaseModel):
     tokens_out: int = 0
     latency_s: float = 0.0
     cost_usd: float = 0.0
+    # Agent-side guardrail events (guardrails.GuardedAgent); the engine copies them onto the Turn.
+    guardrail_events: list[str] = []
 
 
 class Agent(Protocol):

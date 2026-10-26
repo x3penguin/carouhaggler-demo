@@ -214,6 +214,7 @@ class Game:
             for key in usage:
                 usage[key] += getattr(reply, key)
             notes, tool_calls = reply.private_notes, reply.tool_calls
+            events.extend(reply.guardrail_events)
 
             error = reply.error if reply.action is None else self.rule_error(side, reply.action)
             if error:
