@@ -30,3 +30,15 @@ models:
     max_tokens: 300
     price_in_per_mtok: 0.0
     price_out_per_mtok: 0.0
+
+# Example hosted model through OpenRouter (OpenAI-compatible). Not used by the demo.
+# Names and prices are placeholders: set the real model and its price per million tokens.
+#  openrouter_example:
+#    provider: openai_compatible
+#    model: <openrouter model id>
+#    base_url: https://openrouter.ai/api/v1
+#    api_key_env: OPENROUTER_API_KEY
+#    temperature: 0.7
+#    max_tokens: 300
+#    price_in_per_mtok: 0.0
+#    price_out_per_mtok: 0.0

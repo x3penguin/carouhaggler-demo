@@ -18,6 +18,8 @@ class PublicTurn(BaseModel):
     message: str
     action: str
     price: float | None
+    wait_hours: int = 0
+    timestamp_hours: float = 0.0
 
 
 class Observation(BaseModel):
@@ -31,6 +33,16 @@ class Observation(BaseModel):
     turns_left: int
     # Set when the engine rejected the previous attempt (bad JSON, illegal move, guardrail).
     feedback: str | None = None
+
+    # Simulated Time extensions (optional, defaults allow 1v1 turn games to run unchanged)
+    current_time_hours: float = 0.0
+    deadline_hours: float | None = None
+    hours_remaining: float | None = None
+    last_delay_hours: float = 0.0
+
+    # Multi-party market dynamics (optional)
+    highest_competing_offer: float | None = None
+    active_inquirers_count: int = 1
 
 
 class AgentReply(BaseModel):

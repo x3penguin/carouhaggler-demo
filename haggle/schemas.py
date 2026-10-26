@@ -10,7 +10,14 @@ from pydantic import BaseModel, Field
 
 Side = Literal["buyer", "seller"]
 ActionType = Literal["offer", "accept", "reject", "walk_away"]
-Outcome = Literal["deal", "no_deal_walkaway", "no_deal_turn_limit", "error"]
+Outcome = Literal[
+    "deal",
+    "no_deal_walkaway",
+    "no_deal_turn_limit",
+    "no_deal_item_sold",
+    "no_deal_deadline",
+    "error",
+]
 
 
 class Listing(BaseModel):
@@ -30,6 +37,12 @@ class Scenario(BaseModel):
     buyer_budget: float  # private to buyer; always > seller_floor so a deal is possible
     buyer_persona: str
     seed: int
+    seller_deadline_days: float = 7.0  # private to seller: days to clear item
+    buyer_deadline_days: float = 5.0   # private to buyer: days needed to buy item
+
+    @property
+    def deadline_days(self) -> float:
+        return min(self.seller_deadline_days, self.buyer_deadline_days)
 
 
 class Action(BaseModel):
@@ -40,7 +53,12 @@ class Action(BaseModel):
         description="offer = propose a price; accept = take the other side's current offer; "
         "reject = decline without a new price; walk_away = end the negotiation."
     )
-    price: float | None = Field(description="Required for 'offer', otherwise null.")
+    price: float | None = Field(default=None, description="Required for 'offer', otherwise null.")
+    wait_hours: int = Field(
+        default=0,
+        ge=0,
+        description="Simulated hours to wait before sending this message/offer (e.g. 0 to 48).",
+    )
 
 
 class Turn(BaseModel):
@@ -67,3 +85,6 @@ class GameResult(BaseModel):
     outcome: Outcome
     deal_price: float | None
     config_hash: str
+    # Both fields are defaulted so older games.jsonl files still parse.
+    error: str | None = None
+    schema_version: int = 1

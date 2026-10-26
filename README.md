@@ -15,7 +15,7 @@ Requires Python 3.11+, [uv](https://docs.astral.sh/uv/) and [Ollama](https://oll
 ```bash
 ollama pull qwen2.5:3b
 uv sync                      # add --system-certs if you get "invalid peer certificate"
-cp .env.example .env         # only needed later for paid APIs
+cp .env.example .env         # only needed for hosted models (set OPENROUTER_API_KEY)
 ```
 
 ## Run
@@ -24,6 +24,12 @@ cp .env.example .env         # only needed later for paid APIs
 uv run streamlit run app/demo.py     # demo UI at http://localhost:8501
 uv run pytest                        # engine and metric tests
 ```
+
+`uv run pytest` includes the sanity-agent tests: rule-based agents play full games and the
+metrics must return their known values (e.g. surplus share 1.0 and 0.0) before any LLM result
+is trusted. Hosted models go through OpenRouter: add a `models:` entry with `base_url:
+https://openrouter.ai/api/v1` (example in `configs/demo.yaml`). Not every model honours the `seed`
+parameter, so replays against hosted models may not be bit-identical.
 
 Each app session writes to `runs/demo/<timestamp>/`: `games.jsonl` (one `GameResult` per finished
 game), `llm_calls.jsonl` (every model call with tokens and latency) and a copy of the config.
@@ -34,13 +40,17 @@ game), `llm_calls.jsonl` (every model call with tokens and latency) and a copy o
 |---|---|
 | `haggle/schemas.py` | Pydantic models: `Listing`, `Scenario`, `Action`, `Turn`, `GameResult` |
 | `haggle/engine.py` | Turn loop and rules: standing offers, accept/offer/reject/walk away, retries, guardrails |
-| `haggle/llm.py` | OpenAI-compatible client (Ollama) with JSON-schema output and usage logging |
+| `haggle/llm.py` | OpenAI-compatible client (Ollama, OpenRouter) with JSON-schema output, retries, usage logging and budget cap |
 | `haggle/agents/` | `prompted_seller.py` (Agent A), `buyers.py` (LLM personas), shared `llm_agent.py` |
 | `haggle/prompts/` | Prompt templates |
-| `haggle/scenarios.py` | Seeded floor/budget generation |
+| `haggle/agents/sanity.py` | Rule-based test agents with known outcomes (test-only) |
+| `haggle/tools/` | `price_lookup` (BM25 over comparables), calculator, walk-away estimator |
+| `haggle/scenarios.py` | Seeded floor/budget generation and scenario batches |
 | `haggle/metrics.py` | Surplus share, below-floor deals, floor leak, guardrail counts |
 | `configs/demo.yaml` | All model names, seeds and settings |
-| `data/listings_sg.json` | Starter listings, each with at least one flaw |
+| `data/listings_sg.json` | 30 listings, each with at least one flaw |
+| `data/comparables.json` | Price comparables for `price_lookup` (placeholder until real data is added, see `data/README.md`) |
+| `docs/INTERFACES.md` | Interface contract for teammates |
 
 ## Open decisions
 

@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 
-from haggle.llm import LLMClient
+from haggle.llm import CostTracker, LLMClient
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -27,7 +27,9 @@ def resolve(path: str) -> Path:
     return PROJECT_ROOT / path
 
 
-def make_client(cfg: dict, model_key: str, log_path: Path | None = None) -> LLMClient:
+def make_client(
+    cfg: dict, model_key: str, log_path: Path | None = None, tracker: CostTracker | None = None
+) -> LLMClient:
     m = cfg["models"][model_key]
     return LLMClient(
         provider=m["provider"],
@@ -40,4 +42,7 @@ def make_client(cfg: dict, model_key: str, log_path: Path | None = None) -> LLMC
         price_in_per_mtok=m["price_in_per_mtok"],
         price_out_per_mtok=m["price_out_per_mtok"],
         log_path=log_path,
+        tracker=tracker,
+        max_attempts=m.get("max_attempts", 4),
+        backoff_s=m.get("backoff_s", 1.0),
     )

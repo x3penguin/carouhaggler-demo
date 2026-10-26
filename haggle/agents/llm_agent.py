@@ -23,8 +23,14 @@ def money(x: float) -> str:
 
 def describe_turn(turn: PublicTurn) -> str:
     """How the opponent's turn appears to the agent: their words plus the structured move."""
-    move = f"offer ${money(turn.price)}" if turn.action == "offer" else turn.action
-    return f"{turn.message}\n\n[{turn.speaker.capitalize()}'s action: {move}]"
+    if turn.action == "offer":
+        move = f"offer ${money(turn.price)}"
+    elif turn.action == "reject":
+        move = "chat / no new offer"
+    else:
+        move = turn.action
+    delay_note = f" (after waiting {turn.wait_hours}h)" if turn.wait_hours > 0 else ""
+    return f"{turn.message}\n\n[{turn.speaker.capitalize()}'s action: {move}{delay_note}]"
 
 
 class PromptedAgent:
@@ -53,6 +59,13 @@ class PromptedAgent:
         theirs = "none yet" if obs.their_standing_offer is None else f"${money(obs.their_standing_offer)}"
         mine = "none yet" if obs.my_standing_offer is None else f"${money(obs.my_standing_offer)}"
         status = f"[Status: your current offer {mine}; their current offer {theirs}; your turns left {obs.turns_left}]"
+        if obs.deadline_hours is not None:
+            days_left = obs.hours_remaining / 24.0
+            status += f"\n[Timeline: Day {obs.current_time_hours / 24.0:.1f} of {obs.deadline_hours / 24.0:.1f} | {days_left:.1f} days ({obs.hours_remaining:.0f}h) remaining until listing deadline]"
+        if obs.last_delay_hours > 0:
+            status += f"\n[Pacing: The other party delayed {obs.last_delay_hours:.0f} hours before responding]"
+        if obs.highest_competing_offer is not None:
+            status += f"\n[Market Alert: Another buyer made an outside offer of ${money(obs.highest_competing_offer)}]"
         if obs.feedback:
             status += f"\n[Platform: {obs.feedback}]"
         msgs[-1]["content"] += "\n\n" + status

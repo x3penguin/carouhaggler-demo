@@ -14,11 +14,23 @@ from haggle.agents.base import FixedAgent
 from haggle.agents.buyers import PERSONAS, LLMBuyer
 from haggle.agents.llm_agent import money
 from haggle.agents.prompted_seller import PromptedSeller
+from haggle.agents.sanity import (
+    AcceptAboveFloorSeller,
+    CompetitiveBuyer,
+    DelayedBuyer,
+    FloorBuyer,
+    FullBudgetBuyer,
+    LinearConcessionBuyer,
+    StubbornSeller,
+)
 from haggle.config import PROJECT_ROOT, config_hash, load_config, make_client, resolve
 from haggle.engine import Game
 from haggle.metrics import below_floor, floor_leak, format_failures, guardrail_blocks, surplus_share
+from haggle.orchestrator import MultiGameOrchestrator
 from haggle.scenarios import load_listings, make_scenario
 from haggle.schemas import Action
+from haggle.tools.price_lookup import price_lookup
+from haggle.tools.walk_away import walk_away_value
 
 CONFIG_PATH = "configs/demo.yaml"
 ACTION_LABEL = {"offer": "💰 offer", "accept": "✅ accept", "reject": "✋ no new offer", "walk_away": "🚪 walk away"}
@@ -69,14 +81,27 @@ listings = load_listings(resolve(cfg["listings_path"]))
 ss = st.session_state
 
 
-def new_game(listing_idx: int, seed: int, model_key: str) -> None:
-    scenario = make_scenario(listings[listing_idx], seed)
+def new_game(
+    listing_idx: int,
+    seed: int,
+    model_key: str,
+    seller_deadline_days: float = 7.0,
+    buyer_deadline_days: float = 5.0,
+) -> None:
+    scenario = make_scenario(
+        listings[listing_idx],
+        seed,
+        seller_deadline_days=seller_deadline_days,
+        buyer_deadline_days=buyer_deadline_days,
+    )
     ss.game = Game(
         scenario,
         max_turns_per_side=cfg["engine"]["max_turns_per_side"],
         max_parse_retries=cfg["engine"]["max_parse_retries"],
         floor_protection=ss.get("floor_protection", cfg["guardrails"]["floor_protection"]),
         budget_protection=False,  # a human buyer may pay what they like
+        seller_deadline_days=seller_deadline_days,
+        buyer_deadline_days=buyer_deadline_days,
     )
     ss.seller = PromptedSeller(make_client(cfg, model_key, session_dir() / "llm_calls.jsonl"))
     ss.buyer = FixedAgent(Action(message="", action="reject", price=None))
@@ -112,10 +137,11 @@ def queue(action: Action) -> None:
 
 def queue_draft() -> None:
     price = ss.draft_price
+    wait_h = ss.get("draft_wait_hours", 0)
     if price > 0:
-        queue(Action(message=ss.draft_msg, action="offer", price=price))
+        queue(Action(message=ss.draft_msg, action="offer", price=price, wait_hours=wait_h))
     else:
-        queue(Action(message=ss.draft_msg, action="reject", price=None))
+        queue(Action(message=ss.draft_msg, action="reject", price=None, wait_hours=wait_h))
     ss.draft_msg, ss.draft_price = "", 0.0
 
 
@@ -147,6 +173,27 @@ with st.sidebar:
         "Listing", range(len(listings)), format_func=lambda i: listings[i].title, key="listing_idx"
     )
     seed = st.number_input("Scenario seed", value=cfg["seed"], step=1, key="seed")
+    c_s_dead, c_b_dead = st.columns(2)
+    with c_s_dead:
+        seller_deadline_days = st.number_input(
+            "Seller days",
+            min_value=1.0,
+            max_value=30.0,
+            value=7.0,
+            step=0.5,
+            key="sb_s_deadline",
+            help="Days seller has to sell item.",
+        )
+    with c_b_dead:
+        buyer_deadline_days = st.number_input(
+            "Buyer days",
+            min_value=1.0,
+            max_value=30.0,
+            value=5.0,
+            step=0.5,
+            key="sb_b_deadline",
+            help="Days buyer has to buy item.",
+        )
     model_key = st.selectbox(
         "Seller model",
         list(cfg["models"]),
@@ -154,8 +201,14 @@ with st.sidebar:
         format_func=lambda k: cfg["models"][k]["model"],
         key="model_key",
     )
-    # Changing the listing, seed or model starts a fresh game automatically.
-    game_key = (listing_idx, int(seed), model_key)
+    # Changing the listing, seed, model or deadlines starts a fresh game automatically.
+    game_key = (
+        listing_idx,
+        int(seed),
+        model_key,
+        float(seller_deadline_days),
+        float(buyer_deadline_days),
+    )
     if st.button("🔄 New game", use_container_width=True) or ss.get("game_key") != game_key:
         new_game(*game_key)
         ss.game_key = game_key
@@ -176,7 +229,13 @@ with st.sidebar:
     st.subheader("Autoplay")
     persona = st.selectbox("LLM buyer persona", list(PERSONAS), key="persona")
     if st.button("▶️ LLM buyer vs seller", use_container_width=True):
-        new_game(listing_idx, int(seed), model_key)
+        new_game(
+            listing_idx,
+            int(seed),
+            model_key,
+            float(seller_deadline_days),
+            float(buyer_deadline_days),
+        )
         run_safely(lambda: autoplay(persona))
 
 game: Game = ss.game
@@ -184,130 +243,277 @@ scenario = game.scenario
 listing = scenario.listing
 save_if_over()
 
-# ---- main layout -------------------------------------------------------------
+# ---- tabs --------------------------------------------------------------------
 
-left, right = st.columns([3, 2], gap="large")
+tab_1v1, tab_arena = st.tabs(["🤝 1-on-1 Negotiation", "🏟️ Multi-Buyer Arena"])
 
-with left:
-    with st.container(border=True):
-        st.subheader(listing.title)
-        st.markdown(f"### SGD {money(listing.asking_price)}")
-        st.caption(listing.category.capitalize())
-        st.write(listing.description)
+# ---- Tab 1: 1-on-1 Negotiation ------------------------------------------------
 
-    show_internals = ss.get("show_internals", True)
+with tab_1v1:
+    left, right = st.columns([3, 2], gap="large")
 
-    def render_turn(turn) -> None:
-        is_buyer = turn.speaker == "buyer"
-        with st.chat_message("user" if is_buyer else "assistant", avatar="🧑" if is_buyer else "🏷️"):
-            if turn.action.message:
-                st.write(turn.action.message)
-            elif "guardrail_forced_reject" in turn.guardrail_events:
-                st.markdown("_(reply blocked by the platform guardrail)_")
-            else:
-                st.markdown("_(no message)_")
-            label = ACTION_LABEL[turn.action.action]
-            if turn.action.action == "offer":
-                label += f" SGD {money(turn.action.price)}"
-            st.caption(label)
-            if show_internals:
-                for event in turn.guardrail_events:
-                    st.warning(event, icon="🛡️")
+    with left:
+        with st.container(border=True):
+            st.subheader(listing.title)
+            st.markdown(f"### SGD {money(listing.asking_price)}")
+            st.caption(listing.category.capitalize())
+            st.write(listing.description)
 
-    for turn in game.turns:
-        render_turn(turn)
+        show_internals = ss.get("show_internals", True)
 
-    # Play a queued buyer move: show it immediately, then let the seller reply.
-    pending = ss.pop("pending", None)
-    if pending is not None and not game.is_over:
-        ss.error = game.rule_error("buyer", pending)
-        if ss.error is None:
-            ss.buyer = FixedAgent(pending)
-            render_turn(game.step(ss.buyer))
-            if not game.is_over:
-                run_safely(seller_turn)
-        st.rerun()
+        def render_turn(turn) -> None:
+            is_buyer = turn.speaker == "buyer"
+            with st.chat_message("user" if is_buyer else "assistant", avatar="🧑" if is_buyer else "🏷️"):
+                if turn.action.message:
+                    st.write(turn.action.message)
+                elif "guardrail_forced_reject" in turn.guardrail_events:
+                    st.markdown("_(reply blocked by the platform guardrail)_")
+                else:
+                    st.markdown("_(no message)_")
+                label = ACTION_LABEL[turn.action.action]
+                if turn.action.action == "offer":
+                    label += f" SGD {money(turn.action.price)}"
+                if turn.action.wait_hours > 0:
+                    label += f" · waited {turn.action.wait_hours}h"
+                st.caption(label)
+                if show_internals:
+                    for event in turn.guardrail_events:
+                        st.warning(event, icon="🛡️")
 
-    if ss.error:
-        st.error(ss.error)
+        for turn in game.turns:
+            render_turn(turn)
 
-    if not game.is_over and game.next_speaker == "buyer":
-        st.caption(f"You are the buyer. Your private budget: **SGD {money(scenario.buyer_budget)}**")
-        st.text_area("Message to seller", key="draft_msg", height=90)
-        st.number_input("Your offer (SGD, 0 = message only)", min_value=0.0, step=10.0, key="draft_price")
-        st.button("Send", type="primary", use_container_width=True, on_click=queue_draft)
-        c1, c2 = st.columns(2)
-        c1.button(
-            f"✅ Accept seller's SGD {money(game.standing['seller'])}",
-            use_container_width=True,
-            on_click=queue,
-            args=(Action(message="Deal!", action="accept", price=None),),
-        )
-        c2.button(
-            "🚪 Walk away",
-            use_container_width=True,
-            on_click=queue,
-            args=(Action(message="Never mind, thanks.", action="walk_away", price=None),),
-        )
-    elif not game.is_over:
-        # The seller's reply failed last time (e.g. server down); let the user retry it.
-        if st.button("Retry seller reply"):
-            run_safely(seller_turn)
+        # Play a queued buyer move: show it immediately, then let the seller reply.
+        pending = ss.pop("pending", None)
+        if pending is not None and not game.is_over:
+            ss.error = game.rule_error("buyer", pending)
+            if ss.error is None:
+                ss.buyer = FixedAgent(pending)
+                render_turn(game.step(ss.buyer))
+                if not game.is_over:
+                    run_safely(seller_turn)
             st.rerun()
 
-with right:
-    st.toggle("🔍 Behind the scenes", value=True, key="show_internals")
+        if ss.error:
+            st.error(ss.error)
 
-    if game.is_over:
-        with st.container(border=True):
-            st.subheader("Scorecard")
-            outcome = {"deal": "🤝 Deal", "no_deal_walkaway": "🚪 Walked away", "no_deal_turn_limit": "⏱️ Turn limit"}
-            st.markdown(f"**Outcome:** {outcome.get(game.outcome, game.outcome)}")
-            if game.deal_price is not None:
-                share = surplus_share(game.deal_price, scenario)
-                c1, c2 = st.columns(2)
-                c1.metric("Deal price", f"SGD {money(game.deal_price)}")
-                c2.metric("Seller surplus share", f"{share:.2f}", help="0 = sold at floor, 1 = buyer paid full budget. Below 0 = sold under floor.")
-            flags = {
-                "Sold below floor": below_floor(game.deal_price, scenario),
-                "Floor leaked in chat": floor_leak(game.turns, scenario),
-            }
-            for label, bad in flags.items():
-                st.markdown(f"{'🚨' if bad else '✅'} {label}: **{'yes' if bad else 'no'}**")
-            st.markdown(f"🛡️ Guardrail blocks: **{guardrail_blocks(game.turns)}**")
-            st.markdown(f"⚠️ Seller format failures: **{format_failures(game.turns, 'seller')}**")
-
-    if ss.show_internals:
-        with st.container(border=True):
-            st.subheader("Private information")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Asking", f"${money(listing.asking_price)}")
-            c2.metric("Seller floor", f"${money(scenario.seller_floor)}")
-            c3.metric("Buyer budget", f"${money(scenario.buyer_budget)}")
-            st.caption(
-                f"Any price between ${money(scenario.seller_floor)} and ${money(scenario.buyer_budget)} "
-                "works for both sides. Neither agent sees the other's number."
-            )
-            st.markdown("**Ground-truth condition** (used for honesty checks)")
-            for fact in listing.condition_facts:
-                st.markdown(f"- {fact}")
-
-        with st.container(border=True):
-            st.subheader("Game state")
+        if not game.is_over and game.next_speaker == "buyer":
+            st.caption(f"You are the buyer. Your private budget: **SGD {money(scenario.buyer_budget)}**")
+            st.text_area("Message to seller", key="draft_msg", height=90)
+            c_price, c_wait = st.columns([2, 1])
+            with c_price:
+                st.number_input("Your offer (SGD, 0 = message only)", min_value=0.0, step=10.0, key="draft_price")
+            with c_wait:
+                st.number_input("Delay response (hours)", min_value=0, max_value=72, value=0, step=1, key="draft_wait_hours")
+            c_send, c_ghost = st.columns([2, 1])
+            with c_send:
+                st.button("Send", type="primary", use_container_width=True, on_click=queue_draft)
+            with c_ghost:
+                st.button(
+                    "⌛ Ghost (wait 24h)",
+                    use_container_width=True,
+                    help="Wait 24 hours without replying to test seller dynamic follow-up.",
+                    on_click=queue,
+                    args=(Action(message="", action="reject", price=None, wait_hours=24),),
+                )
             c1, c2 = st.columns(2)
-            buyer_offer = game.standing["buyer"]
-            c1.metric("Buyer's offer", "—" if buyer_offer is None else f"${money(buyer_offer)}")
-            c2.metric("Seller's offer", f"${money(game.standing['seller'])}")
-            st.caption(
-                f"Turns left: buyer {game.turns_left('buyer')}, seller {game.turns_left('seller')} · "
-                f"Guardrail {'ON' if game.floor_protection else 'OFF'} · Seller model `{ss.seller.model}`"
+            c1.button(
+                f"✅ Accept seller's SGD {money(game.standing['seller'])}",
+                use_container_width=True,
+                on_click=queue,
+                args=(Action(message="Deal!", action="accept", price=None),),
             )
-            seller_turns = [t for t in game.turns if t.speaker == "seller"]
-            if seller_turns:
-                tokens = sum(t.tokens_in + t.tokens_out for t in seller_turns)
-                latency = sum(t.latency_s for t in seller_turns) / len(seller_turns)
-                cost = sum(t.cost_usd for t in game.turns)
-                st.caption(f"Seller: {tokens} tokens · {latency:.1f}s avg reply · ${cost:.4f} total cost")
+            c2.button(
+                "🚪 Walk away",
+                use_container_width=True,
+                on_click=queue,
+                args=(Action(message="Never mind, thanks.", action="walk_away", price=None),),
+            )
+        elif not game.is_over:
+            # The seller's reply failed last time (e.g. server down); let the user retry it.
+            if st.button("Retry seller reply"):
+                run_safely(seller_turn)
+                st.rerun()
 
-        with st.expander("Raw turn log (JSON)"):
-            st.code(json.dumps([t.model_dump() for t in game.turns], indent=1), language="json")
+    with right:
+        st.toggle("🔍 Behind the scenes", value=True, key="show_internals")
+
+        if game.is_over:
+            with st.container(border=True):
+                st.subheader("Scorecard")
+                outcome = {
+                    "deal": "🤝 Deal",
+                    "no_deal_walkaway": "🚪 Walked away",
+                    "no_deal_turn_limit": "⏱️ Turn limit",
+                    "no_deal_item_sold": "🏷️ Sold to another buyer",
+                    "no_deal_deadline": "⌛ Expired",
+                }
+                st.markdown(f"**Outcome:** {outcome.get(game.outcome, game.outcome)}")
+                if game.deal_price is not None:
+                    share = surplus_share(game.deal_price, scenario)
+                    c1, c2 = st.columns(2)
+                    c1.metric("Deal price", f"SGD {money(game.deal_price)}")
+                    c2.metric("Seller surplus share", f"{share:.2f}", help="0 = sold at floor, 1 = buyer paid full budget. Below 0 = sold under floor.")
+                flags = {
+                    "Sold below floor": below_floor(game.deal_price, scenario),
+                    "Floor leaked in chat": floor_leak(game.turns, scenario),
+                }
+                for label, bad in flags.items():
+                    st.markdown(f"{'🚨' if bad else '✅'} {label}: **{'yes' if bad else 'no'}**")
+                st.markdown(f"🛡️ Guardrail blocks: **{guardrail_blocks(game.turns)}**")
+                st.markdown(f"⚠️ Seller format failures: **{format_failures(game.turns, 'seller')}**")
+
+        if ss.show_internals:
+            with st.container(border=True):
+                st.subheader("Private information")
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown("**🏷️ Seller Private Info**")
+                    st.metric("Asking price", f"${money(listing.asking_price)}")
+                    st.metric("Seller floor", f"${money(scenario.seller_floor)}")
+                    st.metric("Seller deadline", f"{scenario.seller_deadline_days:.1f} days")
+                with c2:
+                    st.markdown("**🧑 Buyer Private Info**")
+                    st.metric("Buyer budget", f"${money(scenario.buyer_budget)}")
+                    st.metric("Buyer deadline", f"{scenario.buyer_deadline_days:.1f} days")
+                st.caption(
+                    f"ZOPA: ${money(scenario.seller_floor)} to ${money(scenario.buyer_budget)}. "
+                    "Neither agent sees the other's floor, budget, or private deadline."
+                )
+                st.markdown("**Ground-truth condition** (used for honesty checks)")
+                for fact in listing.condition_facts:
+                    st.markdown(f"- {fact}")
+
+            with st.container(border=True):
+                st.subheader("Game state")
+                c1, c2, c3 = st.columns(3)
+                buyer_offer = game.standing["buyer"]
+                c1.metric("Buyer's offer", "—" if buyer_offer is None else f"${money(buyer_offer)}")
+                c2.metric("Seller's offer", f"${money(game.standing['seller'])}")
+                if game.deadline_hours:
+                    days_left = max(0.0, (game.deadline_hours - game.current_time_hours) / 24.0)
+                    c3.metric(
+                        "Timeline",
+                        f"Day {game.current_time_hours / 24.0:.1f} / {game.deadline_days:.1f}",
+                        f"{days_left:.1f}d left",
+                    )
+                else:
+                    c3.metric("Elapsed Time", f"{game.current_time_hours:.1f}h")
+                st.caption(
+                    f"Turns left: buyer {game.turns_left('buyer')}, seller {game.turns_left('seller')} · "
+                    f"Elapsed: {game.current_time_hours:.1f}h ({game.current_time_hours / 24.0:.1f} days) · "
+                    f"Guardrail {'ON' if game.floor_protection else 'OFF'} · Seller model `{ss.seller.model}`"
+                )
+                seller_turns = [t for t in game.turns if t.speaker == "seller"]
+                if seller_turns:
+                    tokens = sum(t.tokens_in + t.tokens_out for t in seller_turns)
+                    latency = sum(t.latency_s for t in seller_turns) / len(seller_turns)
+                    cost = sum(t.cost_usd for t in game.turns)
+                    st.caption(f"Seller: {tokens} tokens · {latency:.1f}s avg reply · ${cost:.4f} total cost")
+
+            with st.expander("🛠️ Deterministic Tools (Role 1)"):
+                st.caption("Live lookup and valuation tools for Agent B and evaluation.")
+                comps_res = price_lookup(listing.title, category=listing.category)
+                med_val = comps_res["median"]
+                med_str = f"SGD {money(med_val)}" if med_val is not None else "N/A"
+                t_col1, t_col2 = st.columns(2)
+                t_col1.metric("Market Median", med_str)
+                t_col2.metric("Comparables Found", comps_res["n"])
+
+                buyer_offers = [t.action.price for t in game.turns if t.speaker == "buyer" and t.action.price is not None]
+                days_rem = max(0.0, (game.deadline_hours - game.current_time_hours) / 24.0) if game.deadline_hours else None
+                walk_res = walk_away_value(
+                    floor=scenario.seller_floor,
+                    buyer_offers=buyer_offers,
+                    market_median=med_val,
+                    turns_left=game.turns_left("seller"),
+                    days_remaining=days_rem,
+                )
+                st.metric("Expected Final Price", f"SGD {money(walk_res['expected_final'])}")
+                if walk_res["accept_now_advised"]:
+                    st.info(f"💡 Advice: Accept now ({walk_res['reason']})")
+                else:
+                    st.caption(f"💡 Advice: {walk_res['reason']}")
+
+                st.markdown("**Closest Comparables**")
+                for m in comps_res["examples"]:
+                    cond_str = f" ({m['condition']})" if m.get("condition") else ""
+                    st.markdown(f"- **{m['title']}**: SGD {money(m['price_sgd'])}{cond_str}")
+
+            with st.expander("Raw turn log (JSON)"):
+                st.code(json.dumps([t.model_dump() for t in game.turns], indent=1), language="json")
+
+
+# ---- Tab 2: Multi-Buyer Arena ------------------------------------------------
+
+with tab_arena:
+    st.subheader("🏟️ Multi-Buyer Orchestrator Simulation")
+    st.caption("Simulates multiple buyers competing for a single item across virtual time (hours/days).")
+
+    col_cfg1, col_cfg2, col_cfg3 = st.columns(3)
+    with col_cfg1:
+        arena_listing_idx = st.selectbox(
+            "Item", range(len(listings)), format_func=lambda i: listings[i].title, key="arena_listing_idx"
+        )
+        arena_listing = listings[arena_listing_idx]
+    with col_cfg2:
+        deadline_days = st.slider("Clearance Deadline (days)", min_value=1.0, max_value=14.0, value=7.0, step=0.5)
+    with col_cfg3:
+        b1_delay_days = st.slider("Buyer 1 Arrival (day)", min_value=0.0, max_value=3.0, value=0.0, step=0.5)
+        b2_delay_days = st.slider("Buyer 2 Arrival (day)", min_value=0.0, max_value=5.0, value=1.0, step=0.5)
+
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+        st.markdown("**Buyer 1 (Early Conceder)**")
+        b1_persona = st.selectbox("Buyer 1 Persona", list(PERSONAS), index=0, key="arena_b1_persona")
+        b1_wait_h = st.slider("Buyer 1 Response Delay (hours)", 0, 24, 4, key="arena_b1_wait")
+    with col_b2:
+        st.markdown("**Buyer 2 (Competitive / Reacts to outside offers)**")
+        b2_persona = st.selectbox("Buyer 2 Persona", list(PERSONAS), index=1, key="arena_b2_persona")
+
+    if st.button("▶️ Run Multi-Buyer Tournament", type="primary", use_container_width=True):
+        orch = MultiGameOrchestrator(
+            arena_listing,
+            deadline_days=deadline_days,
+            enforce_floor_protection=ss.floor_protection,
+        )
+        sc1 = make_scenario(arena_listing, seed=int(seed) * 10 + 1, buyer_persona=b1_persona)
+        sc2 = make_scenario(arena_listing, seed=int(seed) * 10 + 2, buyer_persona=b2_persona)
+
+        buyer1 = DelayedBuyer(sc1, wait_hours=b1_wait_h)
+        buyer2 = CompetitiveBuyer(sc2, increment=15.0)
+
+        orch.add_session("Buyer 1 (Early)", sc1, buyer1, AcceptAboveFloorSeller(), arrival_hours=b1_delay_days * 24.0)
+        orch.add_session("Buyer 2 (Competitive)", sc2, buyer2, AcceptAboveFloorSeller(), arrival_hours=b2_delay_days * 24.0)
+
+        with st.spinner("Simulating multi-party timeline..."):
+            results = orch.run()
+
+        st.markdown("---")
+        st.subheader("Tournament Result")
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Inventory Status", orch.inventory_status.upper())
+        m2.metric("Elapsed Simulated Time", f"{orch.simulated_day:.1f} days ({orch.simulated_time_hours:.1f}h)")
+        m3.metric("Deal Price", f"SGD {money(orch.deal_price)}" if orch.deal_price else "No deal")
+
+        if orch.sold_to:
+            st.success(f"🏆 Sold to **{orch.sold_to}** at **SGD {money(orch.deal_price)}**")
+        else:
+            st.warning("No deal closed before deadline.")
+
+        t_res1, t_res2 = st.columns(2)
+        with t_res1:
+            st.markdown(f"##### Buyer 1 Session ({results['Buyer 1 (Early)'].outcome})")
+            s1 = orch.sessions["Buyer 1 (Early)"]
+            for t in s1.game.turns:
+                label = ACTION_LABEL.get(t.action.action, t.action.action)
+                price_str = f" SGD {money(t.action.price)}" if t.action.price else ""
+                st.write(f"**{t.speaker.capitalize()}:** {t.action.message} `{label}{price_str}`")
+
+        with t_res2:
+            st.markdown(f"##### Buyer 2 Session ({results['Buyer 2 (Competitive)'].outcome})")
+            s2 = orch.sessions["Buyer 2 (Competitive)"]
+            for t in s2.game.turns:
+                label = ACTION_LABEL.get(t.action.action, t.action.action)
+                price_str = f" SGD {money(t.action.price)}" if t.action.price else ""
+                st.write(f"**{t.speaker.capitalize()}:** {t.action.message} `{label}{price_str}`")

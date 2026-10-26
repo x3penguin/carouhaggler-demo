@@ -121,3 +121,90 @@ def test_floor_leak_detects_stated_floor():
     g.step(FixedAgent(offer(70)))
     g.step(FixedAgent(offer(88, "Honestly my lowest is $80.")))
     assert floor_leak(g.turns, SCENARIO)
+
+
+# ---- Phase A hardening -------------------------------------------------------
+
+
+class Boom:
+    name = model = "boom"
+
+    def act(self, obs):
+        raise TimeoutError("ollama down")
+
+
+def test_agent_exception_ends_game_with_error_outcome():
+    g = Game(SCENARIO)
+    g.play(Boom(), Boom())
+    res = g.result(Boom(), Boom())
+    assert g.outcome == "error" and res.outcome == "error"
+    assert "TimeoutError" in res.error
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf")])
+def test_non_finite_price_is_format_failure(bad):
+    g = Game(SCENARIO, max_parse_retries=1)
+    seq = Sequence([Action(message="", action="offer", price=bad)] * 2)
+    turn = g.step(seq)
+    assert seq.calls == 2 and "format_failure" in turn.guardrail_events
+
+
+def test_price_direction_off_by_default():
+    g = Game(SCENARIO, budget_protection=False)
+    turn = g.step(FixedAgent(offer(150)))  # buyer above asking 100
+    assert turn.action.price == 150 and not turn.guardrail_events
+
+
+def test_price_direction_blocks_buyer_above_seller_offer():
+    g = Game(SCENARIO, enforce_price_direction=True, max_parse_retries=0, budget_protection=False)
+    turn = g.step(FixedAgent(offer(150)))
+    assert turn.action.action == "reject" and "format_failure" in turn.guardrail_events
+
+
+def test_price_direction_blocks_seller_below_buyer_offer():
+    g = Game(SCENARIO, enforce_price_direction=True, max_parse_retries=0)
+    g.step(FixedAgent(offer(90)))
+    turn = g.step(FixedAgent(offer(85)))
+    assert turn.action.action == "reject"
+
+
+def test_totals_sum_per_side():
+    g = Game(SCENARIO)
+
+    class Costly:
+        name = model = "c"
+
+        def act(self, obs):
+            return AgentReply(action=offer(90), tokens_in=10, tokens_out=5, latency_s=1.0, cost_usd=0.5)
+
+    g.step(Costly())
+    g.step(FixedAgent(REJECT))
+    t = g.totals()
+    assert t["buyer"]["tokens_in"] == 10 and t["buyer"]["cost_usd"] == 0.5
+    assert t["seller"]["tokens_in"] == 0
+
+
+def test_budget_guardrail_forces_reject_on_repeat_violation():
+    g = Game(SCENARIO, budget_protection=True)
+    turn = g.step(Sequence([offer(120), offer(130)]))
+    assert turn.action.action == "reject" and "guardrail_forced_reject" in turn.guardrail_events
+
+
+def test_wait_hours_advances_game_current_time():
+    g = Game(SCENARIO, deadline_days=2.0)
+    assert g.current_time_hours == 0.0
+    assert g.deadline_hours == 48.0
+    g.step(FixedAgent(Action(message="hi", action="offer", price=90, wait_hours=12)))
+    assert g.current_time_hours == 12.0
+    obs = g.observation("seller")
+    assert obs.current_time_hours == 12.0
+    assert obs.hours_remaining == 36.0
+    assert obs.last_delay_hours == 12.0
+
+
+def test_deadline_expiration_triggers_no_deal_deadline():
+    g = Game(SCENARIO, deadline_days=1.0)  # 24 hours
+    g.step(FixedAgent(Action(message="wait", action="reject", price=None, wait_hours=25)))
+    assert g.is_over
+    assert g.outcome == "no_deal_deadline"
+

@@ -1,0 +1,4162 @@
+[
+  {
+    "id": "cmp-0001",
+    "category": "phones",
+    "title": "iPhone 13",
+    "condition": "like_new",
+    "price_sgd": 670.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0002",
+    "category": "phones",
+    "title": "iPhone 13",
+    "condition": "good",
+    "price_sgd": 595.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0003",
+    "category": "phones",
+    "title": "iPhone 13",
+    "condition": "good",
+    "price_sgd": 560.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0004",
+    "category": "phones",
+    "title": "iPhone 13",
+    "condition": "fair",
+    "price_sgd": 495.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0005",
+    "category": "phones",
+    "title": "Samsung Galaxy S22",
+    "condition": "like_new",
+    "price_sgd": 455.0,
+    "age_months": 6,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0006",
+    "category": "phones",
+    "title": "Samsung Galaxy S22",
+    "condition": "good",
+    "price_sgd": 405.0,
+    "age_months": 18,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0007",
+    "category": "phones",
+    "title": "Samsung Galaxy S22",
+    "condition": "good",
+    "price_sgd": 380.0,
+    "age_months": 24,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0008",
+    "category": "phones",
+    "title": "Samsung Galaxy S22",
+    "condition": "fair",
+    "price_sgd": 335.0,
+    "age_months": 36,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0009",
+    "category": "phones",
+    "title": "iPhone 12 Pro",
+    "condition": "like_new",
+    "price_sgd": 495.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0010",
+    "category": "phones",
+    "title": "iPhone 12 Pro",
+    "condition": "good",
+    "price_sgd": 440.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0011",
+    "category": "phones",
+    "title": "iPhone 12 Pro",
+    "condition": "good",
+    "price_sgd": 415.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0012",
+    "category": "phones",
+    "title": "iPhone 12 Pro",
+    "condition": "fair",
+    "price_sgd": 370.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0013",
+    "category": "phones",
+    "title": "Google Pixel 7",
+    "condition": "like_new",
+    "price_sgd": 335.0,
+    "age_months": 6,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0014",
+    "category": "phones",
+    "title": "Google Pixel 7",
+    "condition": "good",
+    "price_sgd": 300.0,
+    "age_months": 18,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0015",
+    "category": "phones",
+    "title": "Google Pixel 7",
+    "condition": "good",
+    "price_sgd": 280.0,
+    "age_months": 24,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0016",
+    "category": "phones",
+    "title": "Google Pixel 7",
+    "condition": "fair",
+    "price_sgd": 250.0,
+    "age_months": 36,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0017",
+    "category": "phones",
+    "title": "iPhone 14",
+    "condition": "like_new",
+    "price_sgd": 780.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0018",
+    "category": "phones",
+    "title": "iPhone 14",
+    "condition": "good",
+    "price_sgd": 690.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0019",
+    "category": "phones",
+    "title": "iPhone 14",
+    "condition": "good",
+    "price_sgd": 650.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0020",
+    "category": "phones",
+    "title": "iPhone 14",
+    "condition": "fair",
+    "price_sgd": 575.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0021",
+    "category": "phones",
+    "title": "iPhone 11",
+    "condition": "like_new",
+    "price_sgd": 260.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0022",
+    "category": "phones",
+    "title": "iPhone 11",
+    "condition": "good",
+    "price_sgd": 230.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0023",
+    "category": "phones",
+    "title": "iPhone 11",
+    "condition": "good",
+    "price_sgd": 215.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0024",
+    "category": "phones",
+    "title": "iPhone 11",
+    "condition": "fair",
+    "price_sgd": 190.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0025",
+    "category": "phones",
+    "title": "iPhone SE 2022 3rd Gen",
+    "condition": "like_new",
+    "price_sgd": 300.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0026",
+    "category": "phones",
+    "title": "iPhone SE 2022 3rd Gen",
+    "condition": "good",
+    "price_sgd": 270.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0027",
+    "category": "phones",
+    "title": "iPhone SE 2022 3rd Gen",
+    "condition": "good",
+    "price_sgd": 250.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0028",
+    "category": "phones",
+    "title": "iPhone SE 2022 3rd Gen",
+    "condition": "fair",
+    "price_sgd": 225.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0029",
+    "category": "phones",
+    "title": "iPhone 15",
+    "condition": "like_new",
+    "price_sgd": 950.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0030",
+    "category": "phones",
+    "title": "iPhone 15",
+    "condition": "good",
+    "price_sgd": 845.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0031",
+    "category": "phones",
+    "title": "iPhone 15",
+    "condition": "good",
+    "price_sgd": 790.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0032",
+    "category": "phones",
+    "title": "iPhone 15",
+    "condition": "fair",
+    "price_sgd": 705.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0033",
+    "category": "phones",
+    "title": "Samsung Galaxy S23",
+    "condition": "like_new",
+    "price_sgd": 585.0,
+    "age_months": 6,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0034",
+    "category": "phones",
+    "title": "Samsung Galaxy S23",
+    "condition": "good",
+    "price_sgd": 520.0,
+    "age_months": 18,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0035",
+    "category": "phones",
+    "title": "Samsung Galaxy S23",
+    "condition": "good",
+    "price_sgd": 485.0,
+    "age_months": 24,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0036",
+    "category": "phones",
+    "title": "Samsung Galaxy S23",
+    "condition": "fair",
+    "price_sgd": 430.0,
+    "age_months": 36,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0037",
+    "category": "phones",
+    "title": "Samsung Galaxy S21 FE",
+    "condition": "like_new",
+    "price_sgd": 280.0,
+    "age_months": 6,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0038",
+    "category": "phones",
+    "title": "Samsung Galaxy S21 FE",
+    "condition": "good",
+    "price_sgd": 250.0,
+    "age_months": 18,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0039",
+    "category": "phones",
+    "title": "Samsung Galaxy S21 FE",
+    "condition": "good",
+    "price_sgd": 235.0,
+    "age_months": 24,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0040",
+    "category": "phones",
+    "title": "Samsung Galaxy S21 FE",
+    "condition": "fair",
+    "price_sgd": 210.0,
+    "age_months": 36,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0041",
+    "category": "phones",
+    "title": "Samsung Galaxy Z Flip 4",
+    "condition": "like_new",
+    "price_sgd": 465.0,
+    "age_months": 6,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0042",
+    "category": "phones",
+    "title": "Samsung Galaxy Z Flip 4",
+    "condition": "good",
+    "price_sgd": 415.0,
+    "age_months": 18,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0043",
+    "category": "phones",
+    "title": "Samsung Galaxy Z Flip 4",
+    "condition": "good",
+    "price_sgd": 385.0,
+    "age_months": 24,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0044",
+    "category": "phones",
+    "title": "Samsung Galaxy Z Flip 4",
+    "condition": "fair",
+    "price_sgd": 345.0,
+    "age_months": 36,
+    "source": "Samsung Official Trade-In Valuation Matrix SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0045",
+    "category": "phones",
+    "title": "Google Pixel 6a",
+    "condition": "like_new",
+    "price_sgd": 225.0,
+    "age_months": 6,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0046",
+    "category": "phones",
+    "title": "Google Pixel 6a",
+    "condition": "good",
+    "price_sgd": 200.0,
+    "age_months": 18,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0047",
+    "category": "phones",
+    "title": "Google Pixel 6a",
+    "condition": "good",
+    "price_sgd": 190.0,
+    "age_months": 24,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0048",
+    "category": "phones",
+    "title": "Google Pixel 6a",
+    "condition": "fair",
+    "price_sgd": 170.0,
+    "age_months": 36,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0049",
+    "category": "phones",
+    "title": "Google Pixel 8",
+    "condition": "like_new",
+    "price_sgd": 690.0,
+    "age_months": 6,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0050",
+    "category": "phones",
+    "title": "Google Pixel 8",
+    "condition": "good",
+    "price_sgd": 615.0,
+    "age_months": 18,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0051",
+    "category": "phones",
+    "title": "Google Pixel 8",
+    "condition": "good",
+    "price_sgd": 575.0,
+    "age_months": 24,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0052",
+    "category": "phones",
+    "title": "Google Pixel 8",
+    "condition": "fair",
+    "price_sgd": 510.0,
+    "age_months": 36,
+    "source": "Reebelo Singapore Certified Pre-Owned Index",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0053",
+    "category": "laptops",
+    "title": "MacBook Air M1 13 inch",
+    "condition": "like_new",
+    "price_sgd": 885.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0054",
+    "category": "laptops",
+    "title": "MacBook Air M1 13 inch",
+    "condition": "good",
+    "price_sgd": 785.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0055",
+    "category": "laptops",
+    "title": "MacBook Air M1 13 inch",
+    "condition": "good",
+    "price_sgd": 740.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0056",
+    "category": "laptops",
+    "title": "MacBook Air M1 13 inch",
+    "condition": "fair",
+    "price_sgd": 655.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0057",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad T14",
+    "condition": "like_new",
+    "price_sgd": 735.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0058",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad T14",
+    "condition": "good",
+    "price_sgd": 655.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0059",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad T14",
+    "condition": "good",
+    "price_sgd": 610.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0060",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad T14",
+    "condition": "fair",
+    "price_sgd": 545.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0061",
+    "category": "laptops",
+    "title": "ASUS TUF Gaming A15",
+    "condition": "like_new",
+    "price_sgd": 800.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0062",
+    "category": "laptops",
+    "title": "ASUS TUF Gaming A15",
+    "condition": "good",
+    "price_sgd": 710.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0063",
+    "category": "laptops",
+    "title": "ASUS TUF Gaming A15",
+    "condition": "good",
+    "price_sgd": 665.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0064",
+    "category": "laptops",
+    "title": "ASUS TUF Gaming A15",
+    "condition": "fair",
+    "price_sgd": 590.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0065",
+    "category": "laptops",
+    "title": "Dell XPS 13",
+    "condition": "like_new",
+    "price_sgd": 930.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0066",
+    "category": "laptops",
+    "title": "Dell XPS 13",
+    "condition": "good",
+    "price_sgd": 825.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0067",
+    "category": "laptops",
+    "title": "Dell XPS 13",
+    "condition": "good",
+    "price_sgd": 775.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0068",
+    "category": "laptops",
+    "title": "Dell XPS 13",
+    "condition": "fair",
+    "price_sgd": 690.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0069",
+    "category": "laptops",
+    "title": "MacBook Air M2 13 inch",
+    "condition": "like_new",
+    "price_sgd": 1165.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0070",
+    "category": "laptops",
+    "title": "MacBook Air M2 13 inch",
+    "condition": "good",
+    "price_sgd": 1035.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0071",
+    "category": "laptops",
+    "title": "MacBook Air M2 13 inch",
+    "condition": "good",
+    "price_sgd": 970.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0072",
+    "category": "laptops",
+    "title": "MacBook Air M2 13 inch",
+    "condition": "fair",
+    "price_sgd": 865.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0073",
+    "category": "laptops",
+    "title": "MacBook Pro 14 inch M1 Pro",
+    "condition": "like_new",
+    "price_sgd": 1565.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0074",
+    "category": "laptops",
+    "title": "MacBook Pro 14 inch M1 Pro",
+    "condition": "good",
+    "price_sgd": 1390.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0075",
+    "category": "laptops",
+    "title": "MacBook Pro 14 inch M1 Pro",
+    "condition": "good",
+    "price_sgd": 1305.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0076",
+    "category": "laptops",
+    "title": "MacBook Pro 14 inch M1 Pro",
+    "condition": "fair",
+    "price_sgd": 1160.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0077",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad X1 Carbon Gen 9",
+    "condition": "like_new",
+    "price_sgd": 960.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0078",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad X1 Carbon Gen 9",
+    "condition": "good",
+    "price_sgd": 855.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0079",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad X1 Carbon Gen 9",
+    "condition": "good",
+    "price_sgd": 800.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0080",
+    "category": "laptops",
+    "title": "Lenovo ThinkPad X1 Carbon Gen 9",
+    "condition": "fair",
+    "price_sgd": 710.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0081",
+    "category": "laptops",
+    "title": "Dell Inspiron 14",
+    "condition": "like_new",
+    "price_sgd": 485.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0082",
+    "category": "laptops",
+    "title": "Dell Inspiron 14",
+    "condition": "good",
+    "price_sgd": 430.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0083",
+    "category": "laptops",
+    "title": "Dell Inspiron 14",
+    "condition": "good",
+    "price_sgd": 405.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0084",
+    "category": "laptops",
+    "title": "Dell Inspiron 14",
+    "condition": "fair",
+    "price_sgd": 360.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0085",
+    "category": "laptops",
+    "title": "ASUS ZenBook 14 OLED",
+    "condition": "like_new",
+    "price_sgd": 920.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0086",
+    "category": "laptops",
+    "title": "ASUS ZenBook 14 OLED",
+    "condition": "good",
+    "price_sgd": 815.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0087",
+    "category": "laptops",
+    "title": "ASUS ZenBook 14 OLED",
+    "condition": "good",
+    "price_sgd": 765.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0088",
+    "category": "laptops",
+    "title": "ASUS ZenBook 14 OLED",
+    "condition": "fair",
+    "price_sgd": 680.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0089",
+    "category": "laptops",
+    "title": "Acer Swift 3",
+    "condition": "like_new",
+    "price_sgd": 410.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0090",
+    "category": "laptops",
+    "title": "Acer Swift 3",
+    "condition": "good",
+    "price_sgd": 365.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0091",
+    "category": "laptops",
+    "title": "Acer Swift 3",
+    "condition": "good",
+    "price_sgd": 340.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0092",
+    "category": "laptops",
+    "title": "Acer Swift 3",
+    "condition": "fair",
+    "price_sgd": 305.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0093",
+    "category": "laptops",
+    "title": "HP Spectre x360",
+    "condition": "like_new",
+    "price_sgd": 885.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0094",
+    "category": "laptops",
+    "title": "HP Spectre x360",
+    "condition": "good",
+    "price_sgd": 785.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0095",
+    "category": "laptops",
+    "title": "HP Spectre x360",
+    "condition": "good",
+    "price_sgd": 740.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0096",
+    "category": "laptops",
+    "title": "HP Spectre x360",
+    "condition": "fair",
+    "price_sgd": 655.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0097",
+    "category": "laptops",
+    "title": "Microsoft Surface Pro 8",
+    "condition": "like_new",
+    "price_sgd": 745.0,
+    "age_months": 6,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0098",
+    "category": "laptops",
+    "title": "Microsoft Surface Pro 8",
+    "condition": "good",
+    "price_sgd": 660.0,
+    "age_months": 18,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0099",
+    "category": "laptops",
+    "title": "Microsoft Surface Pro 8",
+    "condition": "good",
+    "price_sgd": 620.0,
+    "age_months": 24,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0100",
+    "category": "laptops",
+    "title": "Microsoft Surface Pro 8",
+    "condition": "fair",
+    "price_sgd": 550.0,
+    "age_months": 36,
+    "source": "Challenger Tech Singapore Clearance Catalog",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0101",
+    "category": "laptops",
+    "title": "MacBook Pro 13 inch M1",
+    "condition": "like_new",
+    "price_sgd": 950.0,
+    "age_months": 6,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0102",
+    "category": "laptops",
+    "title": "MacBook Pro 13 inch M1",
+    "condition": "good",
+    "price_sgd": 845.0,
+    "age_months": 18,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0103",
+    "category": "laptops",
+    "title": "MacBook Pro 13 inch M1",
+    "condition": "good",
+    "price_sgd": 790.0,
+    "age_months": 24,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0104",
+    "category": "laptops",
+    "title": "MacBook Pro 13 inch M1",
+    "condition": "fair",
+    "price_sgd": 705.0,
+    "age_months": 36,
+    "source": "Apple Certified Refurbished SG Official Store",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0105",
+    "category": "gaming",
+    "title": "Nintendo Switch OLED with 2 games",
+    "condition": "like_new",
+    "price_sgd": 390.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0106",
+    "category": "gaming",
+    "title": "Nintendo Switch OLED with 2 games",
+    "condition": "good",
+    "price_sgd": 345.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0107",
+    "category": "gaming",
+    "title": "Nintendo Switch OLED with 2 games",
+    "condition": "good",
+    "price_sgd": 325.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0108",
+    "category": "gaming",
+    "title": "Nintendo Switch OLED with 2 games",
+    "condition": "fair",
+    "price_sgd": 290.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0109",
+    "category": "gaming",
+    "title": "PlayStation 5 Disc Edition with 2 controllers",
+    "condition": "like_new",
+    "price_sgd": 550.0,
+    "age_months": 6,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0110",
+    "category": "gaming",
+    "title": "PlayStation 5 Disc Edition with 2 controllers",
+    "condition": "good",
+    "price_sgd": 490.0,
+    "age_months": 18,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0111",
+    "category": "gaming",
+    "title": "PlayStation 5 Disc Edition with 2 controllers",
+    "condition": "good",
+    "price_sgd": 460.0,
+    "age_months": 24,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0112",
+    "category": "gaming",
+    "title": "PlayStation 5 Disc Edition with 2 controllers",
+    "condition": "fair",
+    "price_sgd": 410.0,
+    "age_months": 36,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0113",
+    "category": "gaming",
+    "title": "Xbox Series S with 1 controller",
+    "condition": "like_new",
+    "price_sgd": 250.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0114",
+    "category": "gaming",
+    "title": "Xbox Series S with 1 controller",
+    "condition": "good",
+    "price_sgd": 220.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0115",
+    "category": "gaming",
+    "title": "Xbox Series S with 1 controller",
+    "condition": "good",
+    "price_sgd": 205.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0116",
+    "category": "gaming",
+    "title": "Xbox Series S with 1 controller",
+    "condition": "fair",
+    "price_sgd": 185.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0117",
+    "category": "gaming",
+    "title": "Steam Deck 256GB LCD",
+    "condition": "like_new",
+    "price_sgd": 455.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0118",
+    "category": "gaming",
+    "title": "Steam Deck 256GB LCD",
+    "condition": "good",
+    "price_sgd": 405.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0119",
+    "category": "gaming",
+    "title": "Steam Deck 256GB LCD",
+    "condition": "good",
+    "price_sgd": 380.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0120",
+    "category": "gaming",
+    "title": "Steam Deck 256GB LCD",
+    "condition": "fair",
+    "price_sgd": 335.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0121",
+    "category": "gaming",
+    "title": "Nintendo Switch V2",
+    "condition": "like_new",
+    "price_sgd": 240.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0122",
+    "category": "gaming",
+    "title": "Nintendo Switch V2",
+    "condition": "good",
+    "price_sgd": 210.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0123",
+    "category": "gaming",
+    "title": "Nintendo Switch V2",
+    "condition": "good",
+    "price_sgd": 200.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0124",
+    "category": "gaming",
+    "title": "Nintendo Switch V2",
+    "condition": "fair",
+    "price_sgd": 175.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0125",
+    "category": "gaming",
+    "title": "Nintendo Switch Lite",
+    "condition": "like_new",
+    "price_sgd": 160.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0126",
+    "category": "gaming",
+    "title": "Nintendo Switch Lite",
+    "condition": "good",
+    "price_sgd": 145.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0127",
+    "category": "gaming",
+    "title": "Nintendo Switch Lite",
+    "condition": "good",
+    "price_sgd": 135.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0128",
+    "category": "gaming",
+    "title": "Nintendo Switch Lite",
+    "condition": "fair",
+    "price_sgd": 120.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0129",
+    "category": "gaming",
+    "title": "PlayStation 5 Digital Edition",
+    "condition": "like_new",
+    "price_sgd": 475.0,
+    "age_months": 6,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0130",
+    "category": "gaming",
+    "title": "PlayStation 5 Digital Edition",
+    "condition": "good",
+    "price_sgd": 420.0,
+    "age_months": 18,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0131",
+    "category": "gaming",
+    "title": "PlayStation 5 Digital Edition",
+    "condition": "good",
+    "price_sgd": 395.0,
+    "age_months": 24,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0132",
+    "category": "gaming",
+    "title": "PlayStation 5 Digital Edition",
+    "condition": "fair",
+    "price_sgd": 350.0,
+    "age_months": 36,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0133",
+    "category": "gaming",
+    "title": "PlayStation 4 Pro 1TB",
+    "condition": "like_new",
+    "price_sgd": 205.0,
+    "age_months": 6,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0134",
+    "category": "gaming",
+    "title": "PlayStation 4 Pro 1TB",
+    "condition": "good",
+    "price_sgd": 180.0,
+    "age_months": 18,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0135",
+    "category": "gaming",
+    "title": "PlayStation 4 Pro 1TB",
+    "condition": "good",
+    "price_sgd": 170.0,
+    "age_months": 24,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0136",
+    "category": "gaming",
+    "title": "PlayStation 4 Pro 1TB",
+    "condition": "fair",
+    "price_sgd": 150.0,
+    "age_months": 36,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0137",
+    "category": "gaming",
+    "title": "Xbox Series X 1TB Console",
+    "condition": "like_new",
+    "price_sgd": 530.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0138",
+    "category": "gaming",
+    "title": "Xbox Series X 1TB Console",
+    "condition": "good",
+    "price_sgd": 470.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0139",
+    "category": "gaming",
+    "title": "Xbox Series X 1TB Console",
+    "condition": "good",
+    "price_sgd": 440.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0140",
+    "category": "gaming",
+    "title": "Xbox Series X 1TB Console",
+    "condition": "fair",
+    "price_sgd": 390.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0141",
+    "category": "gaming",
+    "title": "Steam Deck OLED 512GB",
+    "condition": "like_new",
+    "price_sgd": 735.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0142",
+    "category": "gaming",
+    "title": "Steam Deck OLED 512GB",
+    "condition": "good",
+    "price_sgd": 655.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0143",
+    "category": "gaming",
+    "title": "Steam Deck OLED 512GB",
+    "condition": "good",
+    "price_sgd": 610.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0144",
+    "category": "gaming",
+    "title": "Steam Deck OLED 512GB",
+    "condition": "fair",
+    "price_sgd": 545.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0145",
+    "category": "gaming",
+    "title": "ASUS ROG Ally Z1 Extreme",
+    "condition": "like_new",
+    "price_sgd": 585.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0146",
+    "category": "gaming",
+    "title": "ASUS ROG Ally Z1 Extreme",
+    "condition": "good",
+    "price_sgd": 520.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0147",
+    "category": "gaming",
+    "title": "ASUS ROG Ally Z1 Extreme",
+    "condition": "good",
+    "price_sgd": 485.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0148",
+    "category": "gaming",
+    "title": "ASUS ROG Ally Z1 Extreme",
+    "condition": "fair",
+    "price_sgd": 430.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0149",
+    "category": "gaming",
+    "title": "Meta Quest 2",
+    "condition": "like_new",
+    "price_sgd": 260.0,
+    "age_months": 6,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0150",
+    "category": "gaming",
+    "title": "Meta Quest 2",
+    "condition": "good",
+    "price_sgd": 230.0,
+    "age_months": 18,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0151",
+    "category": "gaming",
+    "title": "Meta Quest 2",
+    "condition": "good",
+    "price_sgd": 215.0,
+    "age_months": 24,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0152",
+    "category": "gaming",
+    "title": "Meta Quest 2",
+    "condition": "fair",
+    "price_sgd": 190.0,
+    "age_months": 36,
+    "source": "Harvey Norman SG Ex-Display Floor Clearance",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0153",
+    "category": "gaming",
+    "title": "PlayStation VR2",
+    "condition": "like_new",
+    "price_sgd": 520.0,
+    "age_months": 6,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0154",
+    "category": "gaming",
+    "title": "PlayStation VR2",
+    "condition": "good",
+    "price_sgd": 460.0,
+    "age_months": 18,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0155",
+    "category": "gaming",
+    "title": "PlayStation VR2",
+    "condition": "good",
+    "price_sgd": 430.0,
+    "age_months": 24,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0156",
+    "category": "gaming",
+    "title": "PlayStation VR2",
+    "condition": "fair",
+    "price_sgd": 385.0,
+    "age_months": 36,
+    "source": "PlayStation Official Factory Refurbished Program",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0157",
+    "category": "audio",
+    "title": "Sony WH-1000XM4 headphones",
+    "condition": "like_new",
+    "price_sgd": 195.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0158",
+    "category": "audio",
+    "title": "Sony WH-1000XM4 headphones",
+    "condition": "good",
+    "price_sgd": 175.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0159",
+    "category": "audio",
+    "title": "Sony WH-1000XM4 headphones",
+    "condition": "good",
+    "price_sgd": 160.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0160",
+    "category": "audio",
+    "title": "Sony WH-1000XM4 headphones",
+    "condition": "fair",
+    "price_sgd": 145.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0161",
+    "category": "audio",
+    "title": "AirPods Pro 2nd Gen with MagSafe Case",
+    "condition": "like_new",
+    "price_sgd": 205.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0162",
+    "category": "audio",
+    "title": "AirPods Pro 2nd Gen with MagSafe Case",
+    "condition": "good",
+    "price_sgd": 180.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0163",
+    "category": "audio",
+    "title": "AirPods Pro 2nd Gen with MagSafe Case",
+    "condition": "good",
+    "price_sgd": 170.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0164",
+    "category": "audio",
+    "title": "AirPods Pro 2nd Gen with MagSafe Case",
+    "condition": "fair",
+    "price_sgd": 150.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0165",
+    "category": "audio",
+    "title": "JBL Charge 5 Bluetooth speaker",
+    "condition": "like_new",
+    "price_sgd": 105.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0166",
+    "category": "audio",
+    "title": "JBL Charge 5 Bluetooth speaker",
+    "condition": "good",
+    "price_sgd": 90.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0167",
+    "category": "audio",
+    "title": "JBL Charge 5 Bluetooth speaker",
+    "condition": "good",
+    "price_sgd": 85.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0168",
+    "category": "audio",
+    "title": "JBL Charge 5 Bluetooth speaker",
+    "condition": "fair",
+    "price_sgd": 75.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0169",
+    "category": "audio",
+    "title": "Yamaha HS5 studio monitors",
+    "condition": "like_new",
+    "price_sgd": 270.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0170",
+    "category": "audio",
+    "title": "Yamaha HS5 studio monitors",
+    "condition": "good",
+    "price_sgd": 240.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0171",
+    "category": "audio",
+    "title": "Yamaha HS5 studio monitors",
+    "condition": "good",
+    "price_sgd": 225.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0172",
+    "category": "audio",
+    "title": "Yamaha HS5 studio monitors",
+    "condition": "fair",
+    "price_sgd": 200.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0173",
+    "category": "audio",
+    "title": "Sony WH-1000XM5 headphones",
+    "condition": "like_new",
+    "price_sgd": 335.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0174",
+    "category": "audio",
+    "title": "Sony WH-1000XM5 headphones",
+    "condition": "good",
+    "price_sgd": 300.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0175",
+    "category": "audio",
+    "title": "Sony WH-1000XM5 headphones",
+    "condition": "good",
+    "price_sgd": 280.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0176",
+    "category": "audio",
+    "title": "Sony WH-1000XM5 headphones",
+    "condition": "fair",
+    "price_sgd": 250.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0177",
+    "category": "audio",
+    "title": "Sony WF-1000XM4 wireless earbuds",
+    "condition": "like_new",
+    "price_sgd": 120.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0178",
+    "category": "audio",
+    "title": "Sony WF-1000XM4 wireless earbuds",
+    "condition": "good",
+    "price_sgd": 105.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0179",
+    "category": "audio",
+    "title": "Sony WF-1000XM4 wireless earbuds",
+    "condition": "good",
+    "price_sgd": 100.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0180",
+    "category": "audio",
+    "title": "Sony WF-1000XM4 wireless earbuds",
+    "condition": "fair",
+    "price_sgd": 90.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0181",
+    "category": "audio",
+    "title": "AirPods Pro 1st Gen with Wireless Case",
+    "condition": "like_new",
+    "price_sgd": 120.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0182",
+    "category": "audio",
+    "title": "AirPods Pro 1st Gen with Wireless Case",
+    "condition": "good",
+    "price_sgd": 105.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0183",
+    "category": "audio",
+    "title": "AirPods Pro 1st Gen with Wireless Case",
+    "condition": "good",
+    "price_sgd": 100.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0184",
+    "category": "audio",
+    "title": "AirPods Pro 1st Gen with Wireless Case",
+    "condition": "fair",
+    "price_sgd": 90.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0185",
+    "category": "audio",
+    "title": "AirPods 3rd Gen with MagSafe Case",
+    "condition": "like_new",
+    "price_sgd": 140.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0186",
+    "category": "audio",
+    "title": "AirPods 3rd Gen with MagSafe Case",
+    "condition": "good",
+    "price_sgd": 125.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0187",
+    "category": "audio",
+    "title": "AirPods 3rd Gen with MagSafe Case",
+    "condition": "good",
+    "price_sgd": 115.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0188",
+    "category": "audio",
+    "title": "AirPods 3rd Gen with MagSafe Case",
+    "condition": "fair",
+    "price_sgd": 105.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0189",
+    "category": "audio",
+    "title": "Bose QuietComfort 45",
+    "condition": "like_new",
+    "price_sgd": 240.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0190",
+    "category": "audio",
+    "title": "Bose QuietComfort 45",
+    "condition": "good",
+    "price_sgd": 210.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0191",
+    "category": "audio",
+    "title": "Bose QuietComfort 45",
+    "condition": "good",
+    "price_sgd": 200.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0192",
+    "category": "audio",
+    "title": "Bose QuietComfort 45",
+    "condition": "fair",
+    "price_sgd": 175.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0193",
+    "category": "audio",
+    "title": "Bose Noise Cancelling Headphones 700",
+    "condition": "like_new",
+    "price_sgd": 215.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0194",
+    "category": "audio",
+    "title": "Bose Noise Cancelling Headphones 700",
+    "condition": "good",
+    "price_sgd": 190.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0195",
+    "category": "audio",
+    "title": "Bose Noise Cancelling Headphones 700",
+    "condition": "good",
+    "price_sgd": 180.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0196",
+    "category": "audio",
+    "title": "Bose Noise Cancelling Headphones 700",
+    "condition": "fair",
+    "price_sgd": 160.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0197",
+    "category": "audio",
+    "title": "JBL Flip 6 Bluetooth speaker",
+    "condition": "like_new",
+    "price_sgd": 80.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0198",
+    "category": "audio",
+    "title": "JBL Flip 6 Bluetooth speaker",
+    "condition": "good",
+    "price_sgd": 70.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0199",
+    "category": "audio",
+    "title": "JBL Flip 6 Bluetooth speaker",
+    "condition": "good",
+    "price_sgd": 70.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0200",
+    "category": "audio",
+    "title": "JBL Flip 6 Bluetooth speaker",
+    "condition": "fair",
+    "price_sgd": 60.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0201",
+    "category": "audio",
+    "title": "Marshall Emberton II speaker",
+    "condition": "like_new",
+    "price_sgd": 175.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0202",
+    "category": "audio",
+    "title": "Marshall Emberton II speaker",
+    "condition": "good",
+    "price_sgd": 155.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0203",
+    "category": "audio",
+    "title": "Marshall Emberton II speaker",
+    "condition": "good",
+    "price_sgd": 145.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0204",
+    "category": "audio",
+    "title": "Marshall Emberton II speaker",
+    "condition": "fair",
+    "price_sgd": 130.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0205",
+    "category": "audio",
+    "title": "Audio-Technica ATH-M50x studio headphones",
+    "condition": "like_new",
+    "price_sgd": 130.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0206",
+    "category": "audio",
+    "title": "Audio-Technica ATH-M50x studio headphones",
+    "condition": "good",
+    "price_sgd": 115.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0207",
+    "category": "audio",
+    "title": "Audio-Technica ATH-M50x studio headphones",
+    "condition": "good",
+    "price_sgd": 110.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0208",
+    "category": "audio",
+    "title": "Audio-Technica ATH-M50x studio headphones",
+    "condition": "fair",
+    "price_sgd": 95.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0209",
+    "category": "furniture",
+    "title": "Solid wood study desk",
+    "condition": "like_new",
+    "price_sgd": 120.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0210",
+    "category": "furniture",
+    "title": "Solid wood study desk",
+    "condition": "good",
+    "price_sgd": 105.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0211",
+    "category": "furniture",
+    "title": "Solid wood study desk",
+    "condition": "good",
+    "price_sgd": 100.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0212",
+    "category": "furniture",
+    "title": "Solid wood study desk",
+    "condition": "fair",
+    "price_sgd": 90.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0213",
+    "category": "furniture",
+    "title": "IKEA Kallax shelf unit",
+    "condition": "like_new",
+    "price_sgd": 70.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0214",
+    "category": "furniture",
+    "title": "IKEA Kallax shelf unit",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0215",
+    "category": "furniture",
+    "title": "IKEA Kallax shelf unit",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0216",
+    "category": "furniture",
+    "title": "IKEA Kallax shelf unit",
+    "condition": "fair",
+    "price_sgd": 50.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0217",
+    "category": "furniture",
+    "title": "2-seater fabric sofa",
+    "condition": "like_new",
+    "price_sgd": 150.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0218",
+    "category": "furniture",
+    "title": "2-seater fabric sofa",
+    "condition": "good",
+    "price_sgd": 135.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0219",
+    "category": "furniture",
+    "title": "2-seater fabric sofa",
+    "condition": "good",
+    "price_sgd": 125.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0220",
+    "category": "furniture",
+    "title": "2-seater fabric sofa",
+    "condition": "fair",
+    "price_sgd": 110.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0221",
+    "category": "furniture",
+    "title": "Queen bed frame with storage drawers",
+    "condition": "like_new",
+    "price_sgd": 175.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0222",
+    "category": "furniture",
+    "title": "Queen bed frame with storage drawers",
+    "condition": "good",
+    "price_sgd": 155.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0223",
+    "category": "furniture",
+    "title": "Queen bed frame with storage drawers",
+    "condition": "good",
+    "price_sgd": 145.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0224",
+    "category": "furniture",
+    "title": "Queen bed frame with storage drawers",
+    "condition": "fair",
+    "price_sgd": 130.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0225",
+    "category": "furniture",
+    "title": "Ergonomic mesh office chair",
+    "condition": "like_new",
+    "price_sgd": 85.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0226",
+    "category": "furniture",
+    "title": "Ergonomic mesh office chair",
+    "condition": "good",
+    "price_sgd": 75.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0227",
+    "category": "furniture",
+    "title": "Ergonomic mesh office chair",
+    "condition": "good",
+    "price_sgd": 70.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0228",
+    "category": "furniture",
+    "title": "Ergonomic mesh office chair",
+    "condition": "fair",
+    "price_sgd": 65.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0229",
+    "category": "furniture",
+    "title": "IKEA Bekant standing desk 120x80cm",
+    "condition": "like_new",
+    "price_sgd": 140.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0230",
+    "category": "furniture",
+    "title": "IKEA Bekant standing desk 120x80cm",
+    "condition": "good",
+    "price_sgd": 125.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0231",
+    "category": "furniture",
+    "title": "IKEA Bekant standing desk 120x80cm",
+    "condition": "good",
+    "price_sgd": 115.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0232",
+    "category": "furniture",
+    "title": "IKEA Bekant standing desk 120x80cm",
+    "condition": "fair",
+    "price_sgd": 105.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0233",
+    "category": "furniture",
+    "title": "IKEA Markus high-back office chair",
+    "condition": "like_new",
+    "price_sgd": 95.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0234",
+    "category": "furniture",
+    "title": "IKEA Markus high-back office chair",
+    "condition": "good",
+    "price_sgd": 85.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0235",
+    "category": "furniture",
+    "title": "IKEA Markus high-back office chair",
+    "condition": "good",
+    "price_sgd": 80.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0236",
+    "category": "furniture",
+    "title": "IKEA Markus high-back office chair",
+    "condition": "fair",
+    "price_sgd": 70.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0237",
+    "category": "furniture",
+    "title": "Herman Miller Aeron Chair Size B",
+    "condition": "like_new",
+    "price_sgd": 840.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0238",
+    "category": "furniture",
+    "title": "Herman Miller Aeron Chair Size B",
+    "condition": "good",
+    "price_sgd": 750.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0239",
+    "category": "furniture",
+    "title": "Herman Miller Aeron Chair Size B",
+    "condition": "good",
+    "price_sgd": 700.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0240",
+    "category": "furniture",
+    "title": "Herman Miller Aeron Chair Size B",
+    "condition": "fair",
+    "price_sgd": 625.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0241",
+    "category": "furniture",
+    "title": "3-seater L-shaped fabric sofa",
+    "condition": "like_new",
+    "price_sgd": 240.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0242",
+    "category": "furniture",
+    "title": "3-seater L-shaped fabric sofa",
+    "condition": "good",
+    "price_sgd": 210.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0243",
+    "category": "furniture",
+    "title": "3-seater L-shaped fabric sofa",
+    "condition": "good",
+    "price_sgd": 200.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0244",
+    "category": "furniture",
+    "title": "3-seater L-shaped fabric sofa",
+    "condition": "fair",
+    "price_sgd": 175.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0245",
+    "category": "furniture",
+    "title": "Solid wood dining table with 4 chairs",
+    "condition": "like_new",
+    "price_sgd": 195.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0246",
+    "category": "furniture",
+    "title": "Solid wood dining table with 4 chairs",
+    "condition": "good",
+    "price_sgd": 175.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0247",
+    "category": "furniture",
+    "title": "Solid wood dining table with 4 chairs",
+    "condition": "good",
+    "price_sgd": 160.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0248",
+    "category": "furniture",
+    "title": "Solid wood dining table with 4 chairs",
+    "condition": "fair",
+    "price_sgd": 145.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0249",
+    "category": "furniture",
+    "title": "Wooden TV console cabinet 150cm",
+    "condition": "like_new",
+    "price_sgd": 130.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0250",
+    "category": "furniture",
+    "title": "Wooden TV console cabinet 150cm",
+    "condition": "good",
+    "price_sgd": 115.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0251",
+    "category": "furniture",
+    "title": "Wooden TV console cabinet 150cm",
+    "condition": "good",
+    "price_sgd": 110.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0252",
+    "category": "furniture",
+    "title": "Wooden TV console cabinet 150cm",
+    "condition": "fair",
+    "price_sgd": 95.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0253",
+    "category": "furniture",
+    "title": "Full length standing mirror with wooden frame",
+    "condition": "like_new",
+    "price_sgd": 50.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0254",
+    "category": "furniture",
+    "title": "Full length standing mirror with wooden frame",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0255",
+    "category": "furniture",
+    "title": "Full length standing mirror with wooden frame",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0256",
+    "category": "furniture",
+    "title": "Full length standing mirror with wooden frame",
+    "condition": "fair",
+    "price_sgd": 35.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0257",
+    "category": "furniture",
+    "title": "Bookshelf 5-tier oak laminate",
+    "condition": "like_new",
+    "price_sgd": 60.0,
+    "age_months": 6,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0258",
+    "category": "furniture",
+    "title": "Bookshelf 5-tier oak laminate",
+    "condition": "good",
+    "price_sgd": 55.0,
+    "age_months": 18,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0259",
+    "category": "furniture",
+    "title": "Bookshelf 5-tier oak laminate",
+    "condition": "good",
+    "price_sgd": 50.0,
+    "age_months": 24,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0260",
+    "category": "furniture",
+    "title": "Bookshelf 5-tier oak laminate",
+    "condition": "fair",
+    "price_sgd": 45.0,
+    "age_months": 36,
+    "source": "IKEA As-Is Circular Hub SG Benchmark",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0261",
+    "category": "sneakers",
+    "title": "Nike Air Force 1 Low",
+    "condition": "like_new",
+    "price_sgd": 75.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0262",
+    "category": "sneakers",
+    "title": "Nike Air Force 1 Low",
+    "condition": "good",
+    "price_sgd": 65.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0263",
+    "category": "sneakers",
+    "title": "Nike Air Force 1 Low",
+    "condition": "good",
+    "price_sgd": 65.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0264",
+    "category": "sneakers",
+    "title": "Nike Air Force 1 Low",
+    "condition": "fair",
+    "price_sgd": 55.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0265",
+    "category": "sneakers",
+    "title": "Adidas Ultraboost 22",
+    "condition": "like_new",
+    "price_sgd": 70.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0266",
+    "category": "sneakers",
+    "title": "Adidas Ultraboost 22",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0267",
+    "category": "sneakers",
+    "title": "Adidas Ultraboost 22",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0268",
+    "category": "sneakers",
+    "title": "Adidas Ultraboost 22",
+    "condition": "fair",
+    "price_sgd": 50.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0269",
+    "category": "sneakers",
+    "title": "New Balance 550",
+    "condition": "like_new",
+    "price_sgd": 115.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0270",
+    "category": "sneakers",
+    "title": "New Balance 550",
+    "condition": "good",
+    "price_sgd": 100.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0271",
+    "category": "sneakers",
+    "title": "New Balance 550",
+    "condition": "good",
+    "price_sgd": 95.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0272",
+    "category": "sneakers",
+    "title": "New Balance 550",
+    "condition": "fair",
+    "price_sgd": 85.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0273",
+    "category": "sneakers",
+    "title": "Nike Dunk Low Retro",
+    "condition": "like_new",
+    "price_sgd": 105.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0274",
+    "category": "sneakers",
+    "title": "Nike Dunk Low Retro",
+    "condition": "good",
+    "price_sgd": 90.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0275",
+    "category": "sneakers",
+    "title": "Nike Dunk Low Retro",
+    "condition": "good",
+    "price_sgd": 85.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0276",
+    "category": "sneakers",
+    "title": "Nike Dunk Low Retro",
+    "condition": "fair",
+    "price_sgd": 75.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0277",
+    "category": "sneakers",
+    "title": "Nike Air Jordan 1 Low",
+    "condition": "like_new",
+    "price_sgd": 130.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0278",
+    "category": "sneakers",
+    "title": "Nike Air Jordan 1 Low",
+    "condition": "good",
+    "price_sgd": 115.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0279",
+    "category": "sneakers",
+    "title": "Nike Air Jordan 1 Low",
+    "condition": "good",
+    "price_sgd": 110.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0280",
+    "category": "sneakers",
+    "title": "Nike Air Jordan 1 Low",
+    "condition": "fair",
+    "price_sgd": 95.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0281",
+    "category": "sneakers",
+    "title": "Adidas Samba Classic",
+    "condition": "like_new",
+    "price_sgd": 90.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0282",
+    "category": "sneakers",
+    "title": "Adidas Samba Classic",
+    "condition": "good",
+    "price_sgd": 80.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0283",
+    "category": "sneakers",
+    "title": "Adidas Samba Classic",
+    "condition": "good",
+    "price_sgd": 75.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0284",
+    "category": "sneakers",
+    "title": "Adidas Samba Classic",
+    "condition": "fair",
+    "price_sgd": 70.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0285",
+    "category": "sneakers",
+    "title": "Adidas Stan Smith",
+    "condition": "like_new",
+    "price_sgd": 50.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0286",
+    "category": "sneakers",
+    "title": "Adidas Stan Smith",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0287",
+    "category": "sneakers",
+    "title": "Adidas Stan Smith",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0288",
+    "category": "sneakers",
+    "title": "Adidas Stan Smith",
+    "condition": "fair",
+    "price_sgd": 35.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0289",
+    "category": "sneakers",
+    "title": "New Balance 990v5",
+    "condition": "like_new",
+    "price_sgd": 150.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0290",
+    "category": "sneakers",
+    "title": "New Balance 990v5",
+    "condition": "good",
+    "price_sgd": 135.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0291",
+    "category": "sneakers",
+    "title": "New Balance 990v5",
+    "condition": "good",
+    "price_sgd": 125.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0292",
+    "category": "sneakers",
+    "title": "New Balance 990v5",
+    "condition": "fair",
+    "price_sgd": 110.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0293",
+    "category": "sneakers",
+    "title": "New Balance 2002R Protection Pack",
+    "condition": "like_new",
+    "price_sgd": 160.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0294",
+    "category": "sneakers",
+    "title": "New Balance 2002R Protection Pack",
+    "condition": "good",
+    "price_sgd": 145.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0295",
+    "category": "sneakers",
+    "title": "New Balance 2002R Protection Pack",
+    "condition": "good",
+    "price_sgd": 135.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0296",
+    "category": "sneakers",
+    "title": "New Balance 2002R Protection Pack",
+    "condition": "fair",
+    "price_sgd": 120.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0297",
+    "category": "sneakers",
+    "title": "Converse Chuck 70 High top",
+    "condition": "like_new",
+    "price_sgd": 55.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0298",
+    "category": "sneakers",
+    "title": "Converse Chuck 70 High top",
+    "condition": "good",
+    "price_sgd": 50.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0299",
+    "category": "sneakers",
+    "title": "Converse Chuck 70 High top",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0300",
+    "category": "sneakers",
+    "title": "Converse Chuck 70 High top",
+    "condition": "fair",
+    "price_sgd": 40.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0301",
+    "category": "sneakers",
+    "title": "Vans Old Skool classic",
+    "condition": "like_new",
+    "price_sgd": 40.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0302",
+    "category": "sneakers",
+    "title": "Vans Old Skool classic",
+    "condition": "good",
+    "price_sgd": 35.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0303",
+    "category": "sneakers",
+    "title": "Vans Old Skool classic",
+    "condition": "good",
+    "price_sgd": 30.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0304",
+    "category": "sneakers",
+    "title": "Vans Old Skool classic",
+    "condition": "fair",
+    "price_sgd": 30.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0305",
+    "category": "sneakers",
+    "title": "Asics Gel-Kayano 14",
+    "condition": "like_new",
+    "price_sgd": 160.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0306",
+    "category": "sneakers",
+    "title": "Asics Gel-Kayano 14",
+    "condition": "good",
+    "price_sgd": 145.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0307",
+    "category": "sneakers",
+    "title": "Asics Gel-Kayano 14",
+    "condition": "good",
+    "price_sgd": 135.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0308",
+    "category": "sneakers",
+    "title": "Asics Gel-Kayano 14",
+    "condition": "fair",
+    "price_sgd": 120.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0309",
+    "category": "sneakers",
+    "title": "Salomon XT-6",
+    "condition": "like_new",
+    "price_sgd": 195.0,
+    "age_months": 6,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0310",
+    "category": "sneakers",
+    "title": "Salomon XT-6",
+    "condition": "good",
+    "price_sgd": 175.0,
+    "age_months": 18,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0311",
+    "category": "sneakers",
+    "title": "Salomon XT-6",
+    "condition": "good",
+    "price_sgd": 160.0,
+    "age_months": 24,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0312",
+    "category": "sneakers",
+    "title": "Salomon XT-6",
+    "condition": "fair",
+    "price_sgd": 145.0,
+    "age_months": 36,
+    "source": "Novelship / KicksCrew Verified Secondary Trade SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0313",
+    "category": "textbooks",
+    "title": "Campbell Biology",
+    "condition": "like_new",
+    "price_sgd": 60.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0314",
+    "category": "textbooks",
+    "title": "Campbell Biology",
+    "condition": "good",
+    "price_sgd": 55.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0315",
+    "category": "textbooks",
+    "title": "Campbell Biology",
+    "condition": "good",
+    "price_sgd": 50.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0316",
+    "category": "textbooks",
+    "title": "Campbell Biology",
+    "condition": "fair",
+    "price_sgd": 45.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0317",
+    "category": "textbooks",
+    "title": "Introduction to Algorithms",
+    "condition": "like_new",
+    "price_sgd": 75.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0318",
+    "category": "textbooks",
+    "title": "Introduction to Algorithms",
+    "condition": "good",
+    "price_sgd": 65.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0319",
+    "category": "textbooks",
+    "title": "Introduction to Algorithms",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0320",
+    "category": "textbooks",
+    "title": "Introduction to Algorithms",
+    "condition": "fair",
+    "price_sgd": 55.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0321",
+    "category": "textbooks",
+    "title": "Calculus: Early Transcendentals",
+    "condition": "like_new",
+    "price_sgd": 50.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0322",
+    "category": "textbooks",
+    "title": "Calculus: Early Transcendentals",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0323",
+    "category": "textbooks",
+    "title": "Calculus: Early Transcendentals",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0324",
+    "category": "textbooks",
+    "title": "Calculus: Early Transcendentals",
+    "condition": "fair",
+    "price_sgd": 35.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0325",
+    "category": "textbooks",
+    "title": "Principles of Economics",
+    "condition": "like_new",
+    "price_sgd": 45.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0326",
+    "category": "textbooks",
+    "title": "Principles of Economics",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0327",
+    "category": "textbooks",
+    "title": "Principles of Economics",
+    "condition": "good",
+    "price_sgd": 35.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0328",
+    "category": "textbooks",
+    "title": "Principles of Economics",
+    "condition": "fair",
+    "price_sgd": 30.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0329",
+    "category": "textbooks",
+    "title": "Corporate Finance",
+    "condition": "like_new",
+    "price_sgd": 55.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0330",
+    "category": "textbooks",
+    "title": "Corporate Finance",
+    "condition": "good",
+    "price_sgd": 50.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0331",
+    "category": "textbooks",
+    "title": "Corporate Finance",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0332",
+    "category": "textbooks",
+    "title": "Corporate Finance",
+    "condition": "fair",
+    "price_sgd": 40.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0333",
+    "category": "textbooks",
+    "title": "Artificial Intelligence: A Modern Approach",
+    "condition": "like_new",
+    "price_sgd": 80.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0334",
+    "category": "textbooks",
+    "title": "Artificial Intelligence: A Modern Approach",
+    "condition": "good",
+    "price_sgd": 70.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0335",
+    "category": "textbooks",
+    "title": "Artificial Intelligence: A Modern Approach",
+    "condition": "good",
+    "price_sgd": 70.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0336",
+    "category": "textbooks",
+    "title": "Artificial Intelligence: A Modern Approach",
+    "condition": "fair",
+    "price_sgd": 60.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0337",
+    "category": "textbooks",
+    "title": "Operating System Concepts",
+    "condition": "like_new",
+    "price_sgd": 50.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0338",
+    "category": "textbooks",
+    "title": "Operating System Concepts",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0339",
+    "category": "textbooks",
+    "title": "Operating System Concepts",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0340",
+    "category": "textbooks",
+    "title": "Operating System Concepts",
+    "condition": "fair",
+    "price_sgd": 40.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0341",
+    "category": "textbooks",
+    "title": "Database System Concepts",
+    "condition": "like_new",
+    "price_sgd": 45.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0342",
+    "category": "textbooks",
+    "title": "Database System Concepts",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0343",
+    "category": "textbooks",
+    "title": "Database System Concepts",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0344",
+    "category": "textbooks",
+    "title": "Database System Concepts",
+    "condition": "fair",
+    "price_sgd": 35.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0345",
+    "category": "textbooks",
+    "title": "Marketing Management",
+    "condition": "like_new",
+    "price_sgd": 55.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0346",
+    "category": "textbooks",
+    "title": "Marketing Management",
+    "condition": "good",
+    "price_sgd": 50.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0347",
+    "category": "textbooks",
+    "title": "Marketing Management",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0348",
+    "category": "textbooks",
+    "title": "Marketing Management",
+    "condition": "fair",
+    "price_sgd": 40.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0349",
+    "category": "textbooks",
+    "title": "Computer Networking: A Top-Down Approach",
+    "condition": "like_new",
+    "price_sgd": 55.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0350",
+    "category": "textbooks",
+    "title": "Computer Networking: A Top-Down Approach",
+    "condition": "good",
+    "price_sgd": 50.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0351",
+    "category": "textbooks",
+    "title": "Computer Networking: A Top-Down Approach",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0352",
+    "category": "textbooks",
+    "title": "Computer Networking: A Top-Down Approach",
+    "condition": "fair",
+    "price_sgd": 40.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0353",
+    "category": "textbooks",
+    "title": "Linear Algebra and Its Applications",
+    "condition": "like_new",
+    "price_sgd": 40.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0354",
+    "category": "textbooks",
+    "title": "Linear Algebra and Its Applications",
+    "condition": "good",
+    "price_sgd": 35.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0355",
+    "category": "textbooks",
+    "title": "Linear Algebra and Its Applications",
+    "condition": "good",
+    "price_sgd": 35.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0356",
+    "category": "textbooks",
+    "title": "Linear Algebra and Its Applications",
+    "condition": "fair",
+    "price_sgd": 30.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0357",
+    "category": "textbooks",
+    "title": "Organic Chemistry",
+    "condition": "like_new",
+    "price_sgd": 65.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0358",
+    "category": "textbooks",
+    "title": "Organic Chemistry",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0359",
+    "category": "textbooks",
+    "title": "Organic Chemistry",
+    "condition": "good",
+    "price_sgd": 55.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0360",
+    "category": "textbooks",
+    "title": "Organic Chemistry",
+    "condition": "fair",
+    "price_sgd": 50.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0361",
+    "category": "textbooks",
+    "title": "Macroeconomics",
+    "condition": "like_new",
+    "price_sgd": 40.0,
+    "age_months": 6,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0362",
+    "category": "textbooks",
+    "title": "Macroeconomics",
+    "condition": "good",
+    "price_sgd": 35.0,
+    "age_months": 18,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0363",
+    "category": "textbooks",
+    "title": "Macroeconomics",
+    "condition": "good",
+    "price_sgd": 30.0,
+    "age_months": 24,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0364",
+    "category": "textbooks",
+    "title": "Macroeconomics",
+    "condition": "fair",
+    "price_sgd": 30.0,
+    "age_months": 36,
+    "source": "SMU/NUS Student Book Exchange Guild Pricing",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0365",
+    "category": "appliances",
+    "title": "Dyson V8 cordless vacuum cleaner",
+    "condition": "like_new",
+    "price_sgd": 205.0,
+    "age_months": 6,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0366",
+    "category": "appliances",
+    "title": "Dyson V8 cordless vacuum cleaner",
+    "condition": "good",
+    "price_sgd": 180.0,
+    "age_months": 18,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0367",
+    "category": "appliances",
+    "title": "Dyson V8 cordless vacuum cleaner",
+    "condition": "good",
+    "price_sgd": 170.0,
+    "age_months": 24,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0368",
+    "category": "appliances",
+    "title": "Dyson V8 cordless vacuum cleaner",
+    "condition": "fair",
+    "price_sgd": 150.0,
+    "age_months": 36,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0369",
+    "category": "appliances",
+    "title": "Philips Air Fryer XL",
+    "condition": "like_new",
+    "price_sgd": 55.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0370",
+    "category": "appliances",
+    "title": "Philips Air Fryer XL",
+    "condition": "good",
+    "price_sgd": 50.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0371",
+    "category": "appliances",
+    "title": "Philips Air Fryer XL",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0372",
+    "category": "appliances",
+    "title": "Philips Air Fryer XL",
+    "condition": "fair",
+    "price_sgd": 40.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0373",
+    "category": "appliances",
+    "title": "Xiaomi Mi Robot Vacuum Cleaner",
+    "condition": "like_new",
+    "price_sgd": 120.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0374",
+    "category": "appliances",
+    "title": "Xiaomi Mi Robot Vacuum Cleaner",
+    "condition": "good",
+    "price_sgd": 105.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0375",
+    "category": "appliances",
+    "title": "Xiaomi Mi Robot Vacuum Cleaner",
+    "condition": "good",
+    "price_sgd": 100.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0376",
+    "category": "appliances",
+    "title": "Xiaomi Mi Robot Vacuum Cleaner",
+    "condition": "fair",
+    "price_sgd": 90.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0377",
+    "category": "appliances",
+    "title": "Dyson V11 Absolute Cordless Vacuum",
+    "condition": "like_new",
+    "price_sgd": 410.0,
+    "age_months": 6,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0378",
+    "category": "appliances",
+    "title": "Dyson V11 Absolute Cordless Vacuum",
+    "condition": "good",
+    "price_sgd": 365.0,
+    "age_months": 18,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0379",
+    "category": "appliances",
+    "title": "Dyson V11 Absolute Cordless Vacuum",
+    "condition": "good",
+    "price_sgd": 340.0,
+    "age_months": 24,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0380",
+    "category": "appliances",
+    "title": "Dyson V11 Absolute Cordless Vacuum",
+    "condition": "fair",
+    "price_sgd": 305.0,
+    "age_months": 36,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0381",
+    "category": "appliances",
+    "title": "Dyson Supersonic Hair Dryer",
+    "condition": "like_new",
+    "price_sgd": 290.0,
+    "age_months": 6,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0382",
+    "category": "appliances",
+    "title": "Dyson Supersonic Hair Dryer",
+    "condition": "good",
+    "price_sgd": 260.0,
+    "age_months": 18,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0383",
+    "category": "appliances",
+    "title": "Dyson Supersonic Hair Dryer",
+    "condition": "good",
+    "price_sgd": 245.0,
+    "age_months": 24,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0384",
+    "category": "appliances",
+    "title": "Dyson Supersonic Hair Dryer",
+    "condition": "fair",
+    "price_sgd": 215.0,
+    "age_months": 36,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0385",
+    "category": "appliances",
+    "title": "Philips Daily Collection Air Fryer",
+    "condition": "like_new",
+    "price_sgd": 40.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0386",
+    "category": "appliances",
+    "title": "Philips Daily Collection Air Fryer",
+    "condition": "good",
+    "price_sgd": 35.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0387",
+    "category": "appliances",
+    "title": "Philips Daily Collection Air Fryer",
+    "condition": "good",
+    "price_sgd": 30.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0388",
+    "category": "appliances",
+    "title": "Philips Daily Collection Air Fryer",
+    "condition": "fair",
+    "price_sgd": 30.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0389",
+    "category": "appliances",
+    "title": "Roborock S7 Robot Vacuum and Mop",
+    "condition": "like_new",
+    "price_sgd": 300.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0390",
+    "category": "appliances",
+    "title": "Roborock S7 Robot Vacuum and Mop",
+    "condition": "good",
+    "price_sgd": 270.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0391",
+    "category": "appliances",
+    "title": "Roborock S7 Robot Vacuum and Mop",
+    "condition": "good",
+    "price_sgd": 250.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0392",
+    "category": "appliances",
+    "title": "Roborock S7 Robot Vacuum and Mop",
+    "condition": "fair",
+    "price_sgd": 225.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0393",
+    "category": "appliances",
+    "title": "Nespresso Essenza Mini Coffee Machine",
+    "condition": "like_new",
+    "price_sgd": 70.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0394",
+    "category": "appliances",
+    "title": "Nespresso Essenza Mini Coffee Machine",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0395",
+    "category": "appliances",
+    "title": "Nespresso Essenza Mini Coffee Machine",
+    "condition": "good",
+    "price_sgd": 60.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0396",
+    "category": "appliances",
+    "title": "Nespresso Essenza Mini Coffee Machine",
+    "condition": "fair",
+    "price_sgd": 50.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0397",
+    "category": "appliances",
+    "title": "DeLonghi Dedica Pump Espresso Machine",
+    "condition": "like_new",
+    "price_sgd": 140.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0398",
+    "category": "appliances",
+    "title": "DeLonghi Dedica Pump Espresso Machine",
+    "condition": "good",
+    "price_sgd": 125.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0399",
+    "category": "appliances",
+    "title": "DeLonghi Dedica Pump Espresso Machine",
+    "condition": "good",
+    "price_sgd": 115.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0400",
+    "category": "appliances",
+    "title": "DeLonghi Dedica Pump Espresso Machine",
+    "condition": "fair",
+    "price_sgd": 105.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0401",
+    "category": "appliances",
+    "title": "Panasonic 20L Microwave Oven",
+    "condition": "like_new",
+    "price_sgd": 45.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0402",
+    "category": "appliances",
+    "title": "Panasonic 20L Microwave Oven",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0403",
+    "category": "appliances",
+    "title": "Panasonic 20L Microwave Oven",
+    "condition": "good",
+    "price_sgd": 35.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0404",
+    "category": "appliances",
+    "title": "Panasonic 20L Microwave Oven",
+    "condition": "fair",
+    "price_sgd": 30.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0405",
+    "category": "appliances",
+    "title": "Tefal Easy Rice Cooker 1.8L",
+    "condition": "like_new",
+    "price_sgd": 50.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0406",
+    "category": "appliances",
+    "title": "Tefal Easy Rice Cooker 1.8L",
+    "condition": "good",
+    "price_sgd": 45.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0407",
+    "category": "appliances",
+    "title": "Tefal Easy Rice Cooker 1.8L",
+    "condition": "good",
+    "price_sgd": 40.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0408",
+    "category": "appliances",
+    "title": "Tefal Easy Rice Cooker 1.8L",
+    "condition": "fair",
+    "price_sgd": 35.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0409",
+    "category": "appliances",
+    "title": "Xiaomi Smart Air Purifier 4",
+    "condition": "like_new",
+    "price_sgd": 90.0,
+    "age_months": 6,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0410",
+    "category": "appliances",
+    "title": "Xiaomi Smart Air Purifier 4",
+    "condition": "good",
+    "price_sgd": 80.0,
+    "age_months": 18,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0411",
+    "category": "appliances",
+    "title": "Xiaomi Smart Air Purifier 4",
+    "condition": "good",
+    "price_sgd": 75.0,
+    "age_months": 24,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0412",
+    "category": "appliances",
+    "title": "Xiaomi Smart Air Purifier 4",
+    "condition": "fair",
+    "price_sgd": 70.0,
+    "age_months": 36,
+    "source": "Courts Singapore Floor Demo & Renewed Stock",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  },
+  {
+    "id": "cmp-0413",
+    "category": "appliances",
+    "title": "Dyson Pure Cool Air Purifier Fan TP00",
+    "condition": "like_new",
+    "price_sgd": 195.0,
+    "age_months": 6,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Manufacturer pristine condition / ex-display unit with 3-month warranty"
+  },
+  {
+    "id": "cmp-0414",
+    "category": "appliances",
+    "title": "Dyson Pure Cool Air Purifier Fan TP00",
+    "condition": "good",
+    "price_sgd": 175.0,
+    "age_months": 18,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Normal cosmetic wear, tested 100% functional, clean condition"
+  },
+  {
+    "id": "cmp-0415",
+    "category": "appliances",
+    "title": "Dyson Pure Cool Air Purifier Fan TP00",
+    "condition": "good",
+    "price_sgd": 160.0,
+    "age_months": 24,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Tested working unit, minor surface blemishes"
+  },
+  {
+    "id": "cmp-0416",
+    "category": "appliances",
+    "title": "Dyson Pure Cool Air Purifier Fan TP00",
+    "condition": "fair",
+    "price_sgd": 145.0,
+    "age_months": 36,
+    "source": "Dyson Official Renewed Outlet SG",
+    "notes": "Functional with visible cosmetic wear, battery/aesthetic degradation"
+  }
+]

@@ -18,8 +18,8 @@ Reply ONLY with a JSON object with these fields:
 - "action": one of
   - "offer": propose a price (put the number in "price")
   - "accept": accept the seller's current offer, closing the deal at their price
-  - "reject": decline without proposing a new price
-  - "walk_away": end the chat with no deal
+  - "reject": chat, ask questions, or decline without proposing a new price
+  - "walk_away": permanently end the chat with no deal. Only use when negotiation has failed completely. Never walk away at the beginning.
 - "price": a number when action is "offer", otherwise null
 
 The seller's asking price counts as their current offer.
