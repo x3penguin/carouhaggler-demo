@@ -88,7 +88,9 @@ class PromptedAgent:
             lines.append(f"[Platform: {obs.feedback}]")
         return lines
 
-    def messages(self, obs: Observation) -> list[dict]:
+    def messages(self, obs: Observation, extra_lines: list[str] | None = None) -> list[dict]:
+        """Chat history from this agent's point of view. extra_lines are appended after the
+        status (Agent B uses this for its private plan, tool results and notes)."""
         msgs = [{"role": "system", "content": self.system_prompt(obs)}]
         if not obs.transcript or obs.transcript[0].speaker == obs.role:
             msgs.append({"role": "user", "content": "(The chat has just opened. Send your first message.)"})
@@ -98,7 +100,7 @@ class PromptedAgent:
                 msgs.append({"role": "assistant", "content": own.model_dump_json()})
             else:
                 msgs.append({"role": "user", "content": describe_turn(turn, wrap=self.injection_defense)})
-        msgs[-1]["content"] += "\n\n" + "\n".join(self.status_lines(obs))
+        msgs[-1]["content"] += "\n\n" + "\n".join(self.status_lines(obs) + (extra_lines or []))
         return msgs
 
     def call_json(self, messages: list[dict], model: type[BaseModel]) -> tuple[BaseModel | None, dict]:
