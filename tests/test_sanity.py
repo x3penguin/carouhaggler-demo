@@ -8,14 +8,16 @@ from haggle.agents.sanity import (
     BelowFloorSeller,
     FloorBuyer,
     FullBudgetBuyer,
+    GhostingSeller,
     LeakySeller,
     LinearConcessionBuyer,
+    SanityAgent,
     StubbornSeller,
 )
 from haggle.engine import Game
 from haggle.metrics import below_floor, floor_leak, format_failures, surplus_share
 from haggle.scenarios import load_listings, make_scenario
-from haggle.schemas import Listing, Scenario
+from haggle.schemas import Action, Listing, Scenario
 
 LISTINGS = load_listings("data/listings_sg.json")
 SCENARIOS = [make_scenario(lst, seed) for lst in LISTINGS for seed in range(5)]
@@ -97,3 +99,32 @@ def test_backward_offer_agent_moves_backward():
     prices = [t.action.price for t in g.turns if t.speaker == "buyer"]
     assert prices == [90, 80, 85]
     assert any(b > a for a, b in zip(prices, prices[1:])) and any(b < a for a, b in zip(prices, prices[1:]))
+
+
+def test_ghosting_seller_stays_silent_on_lowball():
+    sc = SCENARIOS[0]
+    # SCENARIOS[0].seller_floor is > 50
+    seller = GhostingSeller(sc, wait_hours=12)
+
+    class LowballThenFair(SanityAgent):
+        def __init__(self):
+            super().__init__("low_then_fair")
+            self.turn = 0
+
+        def decide(self, obs):
+            self.turn += 1
+            if self.turn == 1:
+                return Action(message="lowball", action="offer", price=20.0, wait_hours=0)
+            return Action(message="fair", action="offer", price=sc.seller_floor + 10.0, wait_hours=0)
+
+    g = play(sc, LowballThenFair(), seller)
+    assert g.outcome == "deal"
+    seller_turns = [t for t in g.turns if t.speaker == "seller"]
+    assert len(seller_turns) == 2
+    # First turn was silent ghosting with 12h delay
+    assert seller_turns[0].action.message == ""
+    assert seller_turns[0].action.wait_hours == 12
+    # Second turn accepted
+    assert seller_turns[1].action.action == "accept"
+    assert g.current_time_hours >= 12.0
+

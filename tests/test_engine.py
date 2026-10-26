@@ -208,3 +208,32 @@ def test_deadline_expiration_triggers_no_deal_deadline():
     assert g.is_over
     assert g.outcome == "no_deal_deadline"
 
+
+def test_turn_records_simulated_time_hours():
+    g = Game(SCENARIO, seller_deadline_days=7.0, buyer_deadline_days=5.0)
+    t1 = g.step(FixedAgent(Action(message="hello", action="offer", price=90, wait_hours=10)))
+    assert t1.simulated_time_hours == 10.0
+    t2 = g.step(FixedAgent(Action(message="", action="reject", price=None, wait_hours=15)))
+    assert t2.simulated_time_hours == 25.0
+    assert g.current_time_hours == 25.0
+
+
+def test_buyer_private_deadline_expires_before_seller():
+    # Buyer deadline 2 days (48h), seller deadline 7 days (168h)
+    g = Game(SCENARIO, seller_deadline_days=7.0, buyer_deadline_days=2.0)
+    g.step(FixedAgent(Action(message="", action="reject", price=None, wait_hours=50)))
+    assert g.is_over
+    assert g.outcome == "no_deal_deadline"
+    assert "Buyer deadline expired" in g.error
+
+
+def test_describe_turn_formats_silence():
+    from haggle.agents.base import PublicTurn
+    from haggle.agents.llm_agent import describe_turn
+
+    turn_silent = PublicTurn(speaker="buyer", message="", action="reject", price=None, wait_hours=24)
+    rendered = describe_turn(turn_silent)
+    assert "stay silent / left on read" in rendered
+    assert "(after waiting 24h)" in rendered
+
+

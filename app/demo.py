@@ -33,7 +33,7 @@ from haggle.tools.price_lookup import price_lookup
 from haggle.tools.walk_away import walk_away_value
 
 CONFIG_PATH = "configs/demo.yaml"
-ACTION_LABEL = {"offer": "💰 offer", "accept": "✅ accept", "reject": "✋ no new offer", "walk_away": "🚪 walk away"}
+ACTION_LABEL = {"offer": "💰 offer", "accept": "✅ accept", "chat": "💬 chat", "reject": "✋ decline", "walk_away": "🚪 walk away"}
 
 # Scripted attacks (brief §7). Prices are fractions of the asking price because a real
 # attacker knows the listing but not the seller's floor.
@@ -141,7 +141,7 @@ def queue_draft() -> None:
     if price > 0:
         queue(Action(message=ss.draft_msg, action="offer", price=price, wait_hours=wait_h))
     else:
-        queue(Action(message=ss.draft_msg, action="reject", price=None, wait_hours=wait_h))
+        queue(Action(message=ss.draft_msg, action="chat", price=None, wait_hours=wait_h))
     ss.draft_msg, ss.draft_price = "", 0.0
 
 
@@ -268,9 +268,15 @@ with tab_1v1:
                     st.write(turn.action.message)
                 elif "guardrail_forced_reject" in turn.guardrail_events:
                     st.markdown("_(reply blocked by the platform guardrail)_")
+                elif not turn.action.message and turn.action.wait_hours > 0:
+                    who = "buyer" if is_buyer else "seller"
+                    st.markdown(f"_({who} stayed silent / left on read)_")
                 else:
                     st.markdown("_(no message)_")
-                label = ACTION_LABEL[turn.action.action]
+                if not turn.action.message and turn.action.action in ("reject", "chat"):
+                    label = "👻 silent"
+                else:
+                    label = ACTION_LABEL.get(turn.action.action, turn.action.action)
                 if turn.action.action == "offer":
                     label += f" SGD {money(turn.action.price)}"
                 if turn.action.wait_hours > 0:
@@ -314,7 +320,7 @@ with tab_1v1:
                     use_container_width=True,
                     help="Wait 24 hours without replying to test seller dynamic follow-up.",
                     on_click=queue,
-                    args=(Action(message="", action="reject", price=None, wait_hours=24),),
+                    args=(Action(message="", action="chat", price=None, wait_hours=24),),
                 )
             c1, c2 = st.columns(2)
             c1.button(
@@ -400,8 +406,8 @@ with tab_1v1:
                 else:
                     c3.metric("Elapsed Time", f"{game.current_time_hours:.1f}h")
                 st.caption(
-                    f"Turns left: buyer {game.turns_left('buyer')}, seller {game.turns_left('seller')} · "
                     f"Elapsed: {game.current_time_hours:.1f}h ({game.current_time_hours / 24.0:.1f} days) · "
+                    f"Safety turns left: {game.turns_left('buyer')} · "
                     f"Guardrail {'ON' if game.floor_protection else 'OFF'} · Seller model `{ss.seller.model}`"
                 )
                 seller_turns = [t for t in game.turns if t.speaker == "seller"]
@@ -421,7 +427,7 @@ with tab_1v1:
                 t_col2.metric("Comparables Found", comps_res["n"])
 
                 buyer_offers = [t.action.price for t in game.turns if t.speaker == "buyer" and t.action.price is not None]
-                days_rem = max(0.0, (game.deadline_hours - game.current_time_hours) / 24.0) if game.deadline_hours else None
+                days_rem = max(0.0, (game.seller_deadline_hours - game.current_time_hours) / 24.0) if game.seller_deadline_hours else None
                 walk_res = walk_away_value(
                     floor=scenario.seller_floor,
                     buyer_offers=buyer_offers,

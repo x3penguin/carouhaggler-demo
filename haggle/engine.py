@@ -18,7 +18,7 @@ class Game:
     def __init__(
         self,
         scenario: Scenario,
-        max_turns_per_side: int = 10,
+        max_turns_per_side: int = 50,
         max_parse_retries: int = 2,
         floor_protection: bool = True,
         budget_protection: bool = True,
@@ -112,6 +112,7 @@ class Game:
                     action=t.action.action,
                     price=t.action.price if t.action.action == "offer" else None,
                     wait_hours=t.action.wait_hours,
+                    timestamp_hours=t.simulated_time_hours,
                 )
                 for t in self.turns
             ],
@@ -157,7 +158,10 @@ class Game:
                 if side == "seller" and action.price < their:
                     return f"Your offer ${action.price:.2f} is below the buyer's current offer ${their:.2f}."
         if action.action == "accept" and self.standing[other(side)] is None:
-            return f"The {other(side)} has not made an offer yet, so there is nothing to accept."
+            return (
+                f"The {other(side)} has not made an offer yet, so there is nothing to accept. "
+                "If you are chatting, answering questions, or discussing details, use action 'chat'."
+            )
         return None
 
     def guardrail_violation(self, side: Side, action: Action) -> str | None:
@@ -178,16 +182,16 @@ class Game:
         return None
 
     def _guardrail_feedback(self, side: Side, action: Action) -> str:
-        """Tell the agent exactly why it was blocked and what a legal alternative looks like."""
+        """Tell the agent why it was blocked so it can choose a valid alternative."""
         limit = self.private_limit(side)
         if side == "seller":
             return (
                 f"BLOCKED. You may not sell below your floor of ${limit:.0f}. "
-                f"Do not accept. Make a counter-offer of at least ${limit:.0f} instead."
+                f"Choose an action that respects your floor (counter at or above ${limit:.0f}, decline, or walk away)."
             )
         return (
             f"BLOCKED. You may not pay more than your budget of ${limit:.0f}. "
-            f"Do not accept. Make a counter-offer of at most ${limit:.0f} instead."
+            f"Choose an action that respects your budget (counter at or below ${limit:.0f}, decline, or walk away)."
         )
 
     # ---- the turn loop -----------------------------------------------------
@@ -235,6 +239,9 @@ class Game:
                 action = Action(message="", action="reject", price=None)
             break
 
+        if action.wait_hours > 0:
+            self.current_time_hours += action.wait_hours
+
         turn = Turn(
             index=len(self.turns),
             speaker=side,
@@ -243,6 +250,7 @@ class Game:
             tool_calls=tool_calls,
             parse_retries=retries,
             guardrail_events=events,
+            simulated_time_hours=self.current_time_hours,
             **usage,
         )
         self.turns.append(turn)
@@ -250,9 +258,6 @@ class Game:
         return turn
 
     def _apply(self, side: Side, action: Action) -> None:
-        if action.wait_hours > 0:
-            self.current_time_hours += action.wait_hours
-
         if action.action == "offer":
             self.standing[side] = action.price
         elif action.action == "accept":

@@ -9,7 +9,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 Side = Literal["buyer", "seller"]
-ActionType = Literal["offer", "accept", "reject", "walk_away"]
+ActionType = Literal["offer", "accept", "reject", "walk_away", "chat"]
 Outcome = Literal[
     "deal",
     "no_deal_walkaway",
@@ -51,7 +51,8 @@ class Action(BaseModel):
     message: str = Field(description="Chat message shown to the other side.")
     action: ActionType = Field(
         description="offer = propose a price; accept = take the other side's current offer; "
-        "reject = decline without a new price; walk_away = end the negotiation."
+        "chat = converse, answer questions, or stay silent; reject = decline without a new price; "
+        "walk_away = end the negotiation."
     )
     price: float | None = Field(default=None, description="Required for 'offer', otherwise null.")
     wait_hours: int = Field(
@@ -73,6 +74,7 @@ class Turn(BaseModel):
     cost_usd: float = 0.0
     parse_retries: int = 0
     guardrail_events: list[str] = []
+    simulated_time_hours: float = 0.0
 
 
 class GameResult(BaseModel):

@@ -4,12 +4,9 @@ from haggle.agents.base import Observation
 from haggle.agents.llm_agent import PromptedAgent, money
 
 PERSONAS = {
-    "fair": "You negotiate politely and reasonably. Open somewhat below the asking price and "
-    "meet the seller partway. You are happy to close a fair deal quickly.",
-    "tough": "You are a hard bargainer. Open well below asking, concede in small steps, point out "
-    "flaws in the item, and threaten to walk away if the seller won't move.",
-    "lowballer": "You always start with a very low offer, about half the asking price, and only "
-    "raise reluctantly. Short messages, local style, e.g. 'can nego?', 'lowest?', 'meet at MRT?'.",
+    "fair": "You negotiate politely and reasonably. You value finding middle ground and closing a good deal without unnecessary friction.",
+    "tough": "You are an assertive bargainer. You scrutinize the item's flaws, concede ground very cautiously, and firmly test how low the seller can go.",
+    "lowballer": "You are an aggressive bargain hunter looking for steep discounts. You test sellers with bold low offers, speak in brief casual local phrasing, and give concessions very reluctantly.",
 }
 
 
@@ -22,6 +19,7 @@ class LLMBuyer(PromptedAgent):
 
     def prompt_vars(self, obs: Observation) -> dict:
         listing = obs.listing
+        target_days = f"{obs.deadline_hours / 24.0:.1f}" if obs.deadline_hours else "5.0"
         return {
             "title": listing.title,
             "category": listing.category,
@@ -29,4 +27,5 @@ class LLMBuyer(PromptedAgent):
             "asking_price": money(listing.asking_price),
             "budget": money(obs.private_limit),
             "persona": PERSONAS[self.persona],
+            "target_days": target_days,
         }

@@ -204,3 +204,19 @@ class CompetitiveBuyer(SanityAgent):
 
         return _offer(target, f"Outbidding rival: ${target:.0f}")
 
+
+class GhostingSeller(SanityAgent):
+    """Stays silent (ghosts with empty message and delay) if offer is below floor; accepts once at/above floor."""
+
+    def __init__(self, scenario: Scenario, wait_hours: int = 12):
+        super().__init__("sanity_ghosting_seller")
+        self.floor = scenario.seller_floor
+        self.wait_hours = wait_hours
+
+    def decide(self, obs: Observation) -> Action:
+        their = obs.their_standing_offer
+        if their is not None and their >= self.floor:
+            return Action(message="Deal.", action="accept", price=None, wait_hours=0)
+        return Action(message="", action="reject", price=None, wait_hours=self.wait_hours)
+
+

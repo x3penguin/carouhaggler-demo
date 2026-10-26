@@ -6,7 +6,7 @@ listings_path: data/listings_sg.json
 log_dir: runs
 
 engine:
-  max_turns_per_side: 10
+  max_turns_per_side: 50
   max_parse_retries: 2
 
 guardrails:

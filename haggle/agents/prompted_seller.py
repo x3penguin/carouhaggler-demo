@@ -12,6 +12,7 @@ class PromptedSeller(PromptedAgent):
 
     def prompt_vars(self, obs: Observation) -> dict:
         listing = obs.listing
+        target_days = f"{obs.deadline_hours / 24.0:.1f}" if obs.deadline_hours else "7.0"
         return {
             "title": listing.title,
             "category": listing.category,
@@ -19,4 +20,5 @@ class PromptedSeller(PromptedAgent):
             "condition_facts": "\n".join(f"- {fact}" for fact in listing.condition_facts),
             "asking_price": money(listing.asking_price),
             "floor": money(obs.private_limit),
+            "target_days": target_days,
         }
