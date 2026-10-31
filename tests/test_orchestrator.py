@@ -80,15 +80,18 @@ def test_highest_competing_offer_tracked_across_sessions():
     # Buyer 2 arrives at hour 2.0
     orch.add_session("b2", sc2, FullBudgetBuyer(sc2), StubbornSeller(), arrival_hours=2.0)
 
-    # Step 1: b1 steps at hour 0.0 -> offers 500, next turn scheduled at 4.0
+    # Hour 0: b1 decides to offer 500 after a 4h wait, so nothing is visible yet.
     orch.step()
-    assert orch.sessions["b1"].game.standing["buyer"] == 500
-    assert orch.highest_competing_offer(exclude_session_id="b2") == 500
-
-    # Step 2: earliest now is b2 at hour 2.0 -> offers 560
+    assert orch.sessions["b1"].game.standing["buyer"] is None
+    # Hour 2: b2 arrives and offers 560 at once.
     orch.step()
     assert orch.sessions["b2"].game.standing["buyer"] == 560
-    assert orch.highest_competing_offer(exclude_session_id="b1") == 560
+    assert orch.highest_competing_offer(exclude_session_id="b2") is None
+    # Hour 4: b1's offer is delivered and becomes a competing offer for b2's chat.
+    while orch.simulated_time_hours < 4.0:
+        orch.step()
+    assert orch.sessions["b1"].game.standing["buyer"] == 500
+    assert orch.highest_competing_offer(exclude_session_id="b2") == 500
 
 
 def test_deadline_terminates_all_unclosed_sessions():
@@ -113,11 +116,11 @@ def test_competitive_buyer_outbids_competing_offer():
 
     # Buyer 1 offers 480 and waits 4h
     orch.add_session("b1", sc1, DelayedBuyer(sc1, wait_hours=4), StubbornSeller(), arrival_hours=0.0)
-    # Buyer 2 arrives at hour 2.0 and outbids rival by 15
-    orch.add_session("b2", sc2, CompetitiveBuyer(sc2, increment=15.0), StubbornSeller(), arrival_hours=2.0)
+    # Buyer 2 arrives at hour 5, after b1's offer (sent with a 4h wait) has landed
+    orch.add_session("b2", sc2, CompetitiveBuyer(sc2, increment=15.0), StubbornSeller(), arrival_hours=5.0)
 
-    orch.step()  # b1 steps at hour 0 -> offers 500 (budget), next at 4h
-    orch.step()  # b2 steps at hour 2 -> sees competing 500 -> offers 500 + 15 = 515
+    while orch.sessions["b2"].game.standing["buyer"] is None:
+        orch.step()
     assert orch.sessions["b2"].game.standing["buyer"] == 515
 
 
@@ -174,3 +177,86 @@ def test_market_context_and_session_id_reach_every_attempt():
     assert [o.session_id for o in seller.seen] == ["chat-7", "chat-7"]
     assert all(o.deadline_hours == orch.deadline_hours for o in seller.seen)
     assert seller.seen[1].feedback is not None
+
+
+# ---- regression: timing and visibility bugs (review of 31 Oct) -------------------
+
+
+class _Script:
+    def __init__(self, actions, name="script"):
+        self.actions, self.name, self.model, self.seen = list(actions), name, "m", []
+
+    def act(self, obs):
+        from haggle.agents.base import AgentReply
+
+        self.seen.append(obs)
+        return AgentReply(action=self.actions.pop(0) if self.actions else Action(message="", action="chat"))
+
+
+def _offer(p, wait=0):
+    return Action(message="", action="offer", price=p, wait_hours=wait)
+
+
+def test_late_buyer_turns_use_the_shared_clock():
+    orch = MultiGameOrchestrator(LISTING, deadline_days=7.0)
+    orch.add_session("b1", make_test_scenario("b1"), _Script([_offer(500)]), _Script([_offer(590)]), arrival_hours=48.0)
+    orch.step()
+    assert orch.sessions["b1"].game.turns[0].simulated_time_hours == 48.0
+
+
+def test_buyer_keeps_its_own_deadline():
+    buyer = _Script([_offer(500)])
+    sc = make_test_scenario("b1").model_copy(update={"buyer_deadline_days": 1.5})
+    orch = MultiGameOrchestrator(LISTING, deadline_days=7.0)
+    orch.add_session("b1", sc, buyer, _Script([]), arrival_hours=10.0)
+    orch.step()
+    assert buyer.seen[0].deadline_hours == 10.0 + 36.0
+
+
+def test_finished_and_future_chats_do_not_count_as_competition():
+    walk = Action(message="bye", action="walk_away")
+    seller = _Script([_offer(590)] * 5)
+    orch = MultiGameOrchestrator(LISTING, deadline_days=7.0)
+    orch.add_session("gone", make_test_scenario("gone"), _Script([_offer(540), walk]), _Script([_offer(590)]))
+    orch.add_session("now", make_test_scenario("now"), _Script([_offer(500)]), seller, arrival_hours=10.0)
+    orch.add_session("later", make_test_scenario("later"), _Script([]), _Script([]), arrival_hours=100.0)
+    while not seller.seen:
+        orch.step()
+    assert orch.sessions["gone"].game.outcome == "no_deal_walkaway"
+    assert seller.seen[0].highest_competing_offer is None
+    assert seller.seen[0].active_inquirers_count == 1
+
+
+def test_delayed_accept_lands_after_its_wait():
+    orch = MultiGameOrchestrator(LISTING, deadline_days=7.0)
+    sc1, sc2 = make_test_scenario("b1", budget=600), make_test_scenario("b2", budget=600)
+    orch.add_session("slow", sc1, _Script([Action(message="ok", action="accept", wait_hours=24)]), _Script([]))
+    orch.add_session("fast", sc2, _Script([Action(message="ok", action="accept")]), _Script([]), arrival_hours=2.0)
+    results = orch.run()
+    assert orch.sold_to == "fast" and results["slow"].outcome == "no_deal_item_sold"
+
+
+def test_buyers_can_be_blinded_to_rival_offers():
+    b2 = _Script([_offer(500)])
+    orch = MultiGameOrchestrator(LISTING, deadline_days=7.0, buyers_see_competing_offers=False)
+    orch.add_session("b1", make_test_scenario("b1"), _Script([_offer(540)]), _Script([_offer(590)]))
+    orch.add_session("b2", make_test_scenario("b2"), b2, _Script([]), arrival_hours=1.0)
+    while not b2.seen:
+        orch.step()
+    assert b2.seen[0].highest_competing_offer is None
+
+
+def test_one_floor_per_listing():
+    orch = MultiGameOrchestrator(LISTING)
+    orch.add_session("a", make_test_scenario("a", floor=480), _Script([]), _Script([]))
+    with pytest.raises(ValueError, match="floor"):
+        orch.add_session("b", make_test_scenario("b", floor=300), _Script([]), _Script([]))
+
+
+def test_notes_are_not_errors_and_config_hash_is_kept():
+    orch = MultiGameOrchestrator(LISTING)
+    orch.add_session("a", make_test_scenario("a", budget=600), _Script([Action(message="ok", action="accept")]), _Script([]))
+    orch.add_session("b", make_test_scenario("b"), _Script([_offer(500)]), _Script([]), arrival_hours=5.0)
+    results = orch.run(config_hash="abc")
+    assert results["b"].outcome == "no_deal_item_sold" and results["b"].error is None
+    assert results["a"].config_hash == "abc"

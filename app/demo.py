@@ -511,6 +511,7 @@ with tab_arena:
         )
         sc1 = make_scenario(arena_listing, seed=int(seed) * 10 + 1, buyer_persona=b1_persona)
         sc2 = make_scenario(arena_listing, seed=int(seed) * 10 + 2, buyer_persona=b2_persona)
+        sc2 = sc2.model_copy(update={"seller_floor": sc1.seller_floor})  # one seller, one floor
 
         buyer1 = DelayedBuyer(sc1, wait_hours=b1_wait_h)
         buyer2 = CompetitiveBuyer(sc2, increment=15.0)

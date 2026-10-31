@@ -9,7 +9,7 @@ import heapq
 from typing import Literal
 
 from haggle.agents.base import Agent
-from haggle.engine import Game, other
+from haggle.engine import Decision, Game, other
 from haggle.schemas import GameResult, Listing, Scenario, Side
 
 
@@ -19,6 +19,8 @@ class _Event:
     event_id: int
     session_id: str = field(compare=False)
     speaker: Side = field(compare=False)
+    # Set for a delivery event: the decision made earlier, arriving after its wait_hours.
+    decision: Decision | None = field(default=None, compare=False)
 
 
 class _WithMarketContext:
@@ -52,6 +54,13 @@ class Session:
 
 
 class MultiGameOrchestrator:
+    """One seller, several buyers, one shared clock.
+
+    Each event is either a decision (an agent chooses its next message) or, when that
+    message has wait_hours > 0, its later delivery. Nothing a message does (a new offer,
+    a deal) is visible to anyone until it is delivered.
+    """
+
     def __init__(
         self,
         listing: Listing,
@@ -59,12 +68,16 @@ class MultiGameOrchestrator:
         enforce_floor_protection: bool = True,
         enforce_price_direction: bool = False,
         max_turns_per_side: int = 10,
+        buyers_see_competing_offers: bool = True,
     ):
         self.listing = listing
+        self.deadline_days = float(deadline_days)
         self.deadline_hours = float(deadline_days * 24.0)
         self.enforce_floor_protection = enforce_floor_protection
         self.enforce_price_direction = enforce_price_direction
         self.max_turns_per_side = max_turns_per_side
+        # Team decision (ROLE_SPLIT item 4): real marketplaces hide rival offers from buyers.
+        self.buyers_see_competing_offers = buyers_see_competing_offers
 
         self.sessions: dict[str, Session] = {}
         self.event_queue: list[_Event] = []
@@ -83,20 +96,21 @@ class MultiGameOrchestrator:
     def hours_remaining(self) -> float:
         return max(0.0, self.deadline_hours - self.simulated_time_hours)
 
+    def _live(self, session: Session) -> bool:
+        return session.arrival_hours <= self.simulated_time_hours and not session.game.is_over
+
     def highest_competing_offer(self, exclude_session_id: str | None = None) -> float | None:
-        """Finds highest buyer standing offer across other active sessions."""
-        best: float | None = None
-        for s_id, session in self.sessions.items():
-            if exclude_session_id is not None and s_id == exclude_session_id:
-                continue
-            b_offer = session.game.standing.get("buyer")
-            if b_offer is not None:
-                if best is None or b_offer > best:
-                    best = b_offer
-        return best
+        """Best delivered buyer offer among other chats that are still open."""
+        offers = [
+            s.game.standing["buyer"]
+            for s_id, s in self.sessions.items()
+            if s_id != exclude_session_id and self._live(s) and s.game.standing["buyer"] is not None
+        ]
+        return max(offers, default=None)
 
     def active_sessions_count(self) -> int:
-        return sum(1 for s in self.sessions.values() if not s.game.is_over)
+        """Buyers who have arrived and whose chat is still open."""
+        return sum(1 for s in self.sessions.values() if self._live(s))
 
     def add_session(
         self,
@@ -111,14 +125,23 @@ class MultiGameOrchestrator:
             raise ValueError(f"Session '{session_id}' already registered.")
         if scenario.listing.id != self.listing.id:
             raise ValueError("All sessions must share the same listing.")
+        for other_session in self.sessions.values():
+            if other_session.scenario.seller_floor != scenario.seller_floor:
+                raise ValueError(
+                    "All sessions must share the seller's floor: it is one seller with one item "
+                    f"(got {scenario.seller_floor}, expected {other_session.scenario.seller_floor})."
+                )
 
         game = Game(
             scenario=scenario,
             max_turns_per_side=self.max_turns_per_side,
             floor_protection=self.enforce_floor_protection,
             enforce_price_direction=self.enforce_price_direction,
+            seller_deadline_days=self.deadline_days,
+            buyer_deadline_days=scenario.buyer_deadline_days,
+            start_hours=arrival_hours,
         )
-        session = Session(
+        self.sessions[session_id] = Session(
             session_id=session_id,
             scenario=scenario,
             buyer=buyer,
@@ -126,22 +149,19 @@ class MultiGameOrchestrator:
             game=game,
             arrival_hours=arrival_hours,
         )
-        self.sessions[session_id] = session
-
-        # Schedule buyer's initial message
         self._schedule(arrival_hours, session_id, "buyer")
 
-    def _schedule(self, timestamp_hours: float, session_id: str, speaker: Side) -> None:
+    def _schedule(self, timestamp_hours: float, session_id: str, speaker: Side, decision: Decision | None = None) -> None:
         self._event_counter += 1
         heapq.heappush(
             self.event_queue,
-            _Event(
-                timestamp_hours=float(timestamp_hours),
-                event_id=self._event_counter,
-                session_id=session_id,
-                speaker=speaker,
-            ),
+            _Event(float(timestamp_hours), self._event_counter, session_id, speaker, decision),
         )
+
+    def _close_others(self, winner: str) -> None:
+        for s_id, s in self.sessions.items():
+            if s_id != winner and not s.game.is_over:
+                s.game.terminate_item_sold(f"Item sold to {winner} at S${self.deal_price:.2f}")
 
     def step(self) -> bool:
         """Processes the next scheduled event. Returns True if more events remain, False if done."""
@@ -153,16 +173,14 @@ class MultiGameOrchestrator:
         session = self.sessions[event.session_id]
         game = session.game
 
-        # Check deadline
-        if self.simulated_time_hours > self.deadline_hours:
+        if self.simulated_time_hours >= self.deadline_hours:
             self.inventory_status = "expired"
             for s in self.sessions.values():
                 if not s.game.is_over:
-                    s.game.terminate_deadline(f"Expired at day {self.simulated_day:.1f}")
+                    s.game.terminate_deadline(f"Listing expired at day {self.simulated_day:.1f}")
             self.event_queue.clear()
             return False
 
-        # If item already sold to another buyer, terminate this session
         if self.inventory_status == "sold":
             if not game.is_over:
                 game.terminate_item_sold(f"Item sold to {self.sold_to} at S${self.deal_price:.2f}")
@@ -171,56 +189,47 @@ class MultiGameOrchestrator:
         if game.is_over:
             return bool(self.event_queue)
 
-        # Contextual observation for speaker
-        side = event.speaker
-        agent = session.buyer if side == "buyer" else session.seller
-        competing = self.highest_competing_offer(exclude_session_id=event.session_id)
-        active_count = self.active_sessions_count()
+        if event.decision is not None:
+            turn = game.commit(event.decision)
+        else:
+            side = event.speaker
+            agent = session.buyer if side == "buyer" else session.seller
+            game.current_time_hours = self.simulated_time_hours
+            competing = self.highest_competing_offer(exclude_session_id=event.session_id)
+            if side == "buyer" and not self.buyers_see_competing_offers:
+                competing = None
+            base = game.observation(
+                side=side,
+                current_time_hours=self.simulated_time_hours,
+                highest_competing_offer=competing,
+                active_inquirers_count=self.active_sessions_count(),
+            )
+            # Merged into every observation the engine builds, including retries and re-asks.
+            context = {
+                "current_time_hours": base.current_time_hours,
+                "deadline_hours": base.deadline_hours,
+                "hours_remaining": base.hours_remaining,
+                "highest_competing_offer": competing,
+                "active_inquirers_count": base.active_inquirers_count,
+                "session_id": event.session_id,
+            }
+            decision = game.decide(_WithMarketContext(agent, context))
+            if decision.action.wait_hours > 0:
+                self._schedule(self.simulated_time_hours + decision.action.wait_hours, event.session_id, side, decision)
+                return True
+            turn = game.commit(decision)
 
-        # The market context the game itself doesn't know about. Merged into every
-        # observation the engine builds, including retries and guardrail re-asks.
-        base = game.observation(
-            side=side,
-            current_time_hours=self.simulated_time_hours,
-            deadline_hours=self.deadline_hours,
-            highest_competing_offer=competing,
-            active_inquirers_count=active_count,
-        )
-        context = {
-            "current_time_hours": base.current_time_hours,
-            "deadline_hours": base.deadline_hours,
-            "hours_remaining": base.hours_remaining,
-            "highest_competing_offer": competing,
-            "active_inquirers_count": active_count,
-            "session_id": event.session_id,
-        }
-        turn = game.step(_WithMarketContext(agent, context))
-
-        # If deal closed, claim inventory and terminate other sessions
         if game.outcome == "deal":
             self.inventory_status = "sold"
             self.sold_to = event.session_id
             self.deal_price = game.deal_price
-            for s_id, s in self.sessions.items():
-                if s_id != event.session_id and not s.game.is_over:
-                    s.game.terminate_item_sold(
-                        f"Item sold to {self.sold_to} at S${self.deal_price:.2f}"
-                    )
-            return bool(self.event_queue)
-
-        # If not over, schedule the other side's reply
-        if not game.is_over:
-            delay = float(max(0, turn.action.wait_hours))
-            next_time = self.simulated_time_hours + delay
-            self._schedule(next_time, event.session_id, other(side))
-
+            self._close_others(event.session_id)
+        elif not game.is_over:
+            self._schedule(turn.simulated_time_hours, event.session_id, other(turn.speaker))
         return bool(self.event_queue)
 
-    def run(self) -> dict[str, GameResult]:
+    def run(self, config_hash: str = "") -> dict[str, GameResult]:
         """Runs the multi-session simulation to completion."""
         while self.step():
             pass
-        return {
-            s_id: s.game.result(s.buyer, s.seller)
-            for s_id, s in self.sessions.items()
-        }
+        return {s_id: s.game.result(s.buyer, s.seller, config_hash) for s_id, s in self.sessions.items()}
