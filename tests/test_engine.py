@@ -224,7 +224,37 @@ def test_buyer_private_deadline_expires_before_seller():
     g.step(FixedAgent(Action(message="", action="reject", price=None, wait_hours=50)))
     assert g.is_over
     assert g.outcome == "no_deal_deadline"
-    assert "Buyer deadline expired" in g.error
+    assert g.error is None and g.note.startswith("buyer deadline")
+
+
+def test_accept_sent_after_deadline_does_not_close_a_deal():
+    g = Game(SCENARIO, deadline_days=1.0)
+    g.step(FixedAgent(Action(message="", action="offer", price=90)))
+    g.step(FixedAgent(Action(message="ok", action="accept", wait_hours=48)))
+    assert g.outcome == "no_deal_deadline" and g.deal_price is None
+
+
+def test_buyer_deadline_counts_from_arrival():
+    g = Game(SCENARIO, seller_deadline_days=7.0, buyer_deadline_days=1.0, start_hours=48.0)
+    assert g.current_time_hours == 48.0 and g.buyer_deadline_hours == 72.0
+    t = g.step(FixedAgent(Action(message="hi", action="offer", price=90, wait_hours=2)))
+    assert t.simulated_time_hours == 50.0
+
+
+def test_guardrail_feedback_never_states_the_limit():
+    g = Game(SCENARIO, floor_protection=True)
+    g.step(FixedAgent(offer(50)))
+    seen = []
+
+    class Probe:
+        name = model = "p"
+
+        def act(self, obs):
+            seen.append(obs.feedback)
+            return AgentReply(action=ACCEPT if len(seen) == 1 else offer(85))
+
+    g.step(Probe())
+    assert seen[1] and "80" not in seen[1] and "floor" in seen[1]
 
 
 def test_describe_turn_formats_silence():

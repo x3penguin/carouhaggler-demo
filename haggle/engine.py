@@ -5,6 +5,7 @@ happened. Agents only propose actions; the engine decides what they mean.
 """
 
 import math
+from dataclasses import dataclass, field
 
 from haggle.agents.base import Agent, Observation, PublicTurn
 from haggle.schemas import Action, GameResult, Scenario, Side, Turn
@@ -12,6 +13,20 @@ from haggle.schemas import Action, GameResult, Scenario, Side, Turn
 
 def other(side: Side) -> Side:
     return "seller" if side == "buyer" else "buyer"
+
+
+@dataclass
+class Decision:
+    """An action chosen and validated but not yet delivered, so wait_hours can pass first."""
+
+    side: Side
+    action: Action
+    decided_at_hours: float
+    private_notes: str | None = None
+    tool_calls: list[dict] = field(default_factory=list)
+    parse_retries: int = 0
+    guardrail_events: list[str] = field(default_factory=list)
+    usage: dict = field(default_factory=dict)
 
 
 class Game:
@@ -26,6 +41,7 @@ class Game:
         seller_deadline_days: float | None = None,
         buyer_deadline_days: float | None = None,
         deadline_days: float | None = None,
+        start_hours: float = 0.0,
     ):
         self.scenario = scenario
         self.max_turns_per_side = max_turns_per_side
@@ -47,13 +63,15 @@ class Game:
 
         self.seller_deadline_days = s_days
         self.buyer_deadline_days = b_days
+        # Absolute times on the listing's clock. The seller's deadline counts from the listing
+        # going up; the buyer's from when this buyer arrives (start_hours).
         self.seller_deadline_hours = s_days * 24.0 if s_days is not None else None
-        self.buyer_deadline_hours = b_days * 24.0 if b_days is not None else None
+        self.buyer_deadline_hours = start_hours + b_days * 24.0 if b_days is not None else None
 
         active_hours = [h for h in (self.seller_deadline_hours, self.buyer_deadline_hours) if h is not None]
         self.deadline_hours = min(active_hours) if active_hours else None
         self.deadline_days = self.deadline_hours / 24.0 if self.deadline_hours is not None else None
-        self.current_time_hours: float = 0.0
+        self.current_time_hours: float = start_hours
 
         self.turns: list[Turn] = []
         # The asking price is the seller's opening offer (§6.5).
@@ -63,8 +81,9 @@ class Game:
         }
         self.outcome: str | None = None
         self.deal_price: float | None = None
-        # Set when an agent raised an exception (e.g. API timeout); outcome becomes "error".
+        # Only real failures (e.g. API timeout). Normal endings are described by `outcome`.
         self.error: str | None = None
+        self.note: str | None = None
 
     # ---- state -------------------------------------------------------------
 
@@ -132,15 +151,13 @@ class Game:
         """Ends game when item was sold to another concurrent buyer."""
         if not self.is_over:
             self.outcome = "no_deal_item_sold"
-            if note:
-                self.error = note
+            self.note = note or None
 
     def terminate_deadline(self, note: str = "") -> None:
         """Ends game when simulated time deadline has elapsed."""
         if not self.is_over:
             self.outcome = "no_deal_deadline"
-            if note:
-                self.error = note
+            self.note = note or None
 
     # ---- validation --------------------------------------------------------
 
@@ -184,20 +201,25 @@ class Game:
     def _guardrail_feedback(self, side: Side, action: Action) -> str:
         """Tell the agent why it was blocked so it can choose a valid alternative."""
         limit = self.private_limit(side)
+        # No number here: models tend to repeat feedback to the other side, which would leak it.
         if side == "seller":
             return (
-                f"BLOCKED. You may not sell below your floor of ${limit:.0f}. "
-                f"Choose an action that respects your floor (counter at or above ${limit:.0f}, decline, or walk away)."
+                "BLOCKED. That price is below your floor. Counter at or above your floor, "
+                "decline, or walk away. Do not mention your floor to the buyer."
             )
         return (
-            f"BLOCKED. You may not pay more than your budget of ${limit:.0f}. "
-            f"Choose an action that respects your budget (counter at or below ${limit:.0f}, decline, or walk away)."
+            "BLOCKED. That price is above your budget. Counter at or below your budget, "
+            "decline, or walk away. Do not mention your budget to the seller."
         )
 
     # ---- the turn loop -----------------------------------------------------
 
     def step(self, agent: Agent) -> Turn:
-        """Ask the next speaker for an action, enforce the rules, and apply it."""
+        """Ask the next speaker for an action and deliver it immediately (after its wait_hours)."""
+        return self.commit(self.decide(agent))
+
+    def decide(self, agent: Agent) -> Decision:
+        """Ask the next speaker for an action and enforce the rules, without applying it."""
         if self.is_over:
             raise RuntimeError("Game is already over.")
         side = self.next_speaker
@@ -240,25 +262,35 @@ class Game:
                 action = Action(message="", action="reject", price=None)
             break
 
-        if action.wait_hours > 0:
-            self.current_time_hours += action.wait_hours
+        return Decision(side, action, self.current_time_hours, notes, tool_calls, retries, events, usage)
 
+    def commit(self, d: Decision) -> Turn:
+        """Deliver a decision: advance the clock by its wait_hours, log the turn, apply it."""
+        if self.is_over:
+            raise RuntimeError("Game is already over.")
+        self.current_time_hours = d.decided_at_hours + d.action.wait_hours
         turn = Turn(
             index=len(self.turns),
-            speaker=side,
-            action=action,
-            private_notes=notes,
-            tool_calls=tool_calls,
-            parse_retries=retries,
-            guardrail_events=events,
+            speaker=d.side,
+            action=d.action,
+            private_notes=d.private_notes,
+            tool_calls=d.tool_calls,
+            parse_retries=d.parse_retries,
+            guardrail_events=d.guardrail_events,
             simulated_time_hours=self.current_time_hours,
-            **usage,
+            **d.usage,
         )
         self.turns.append(turn)
-        self._apply(side, action)
+        self._apply(d.side, d.action)
         return turn
 
     def _apply(self, side: Side, action: Action) -> None:
+        # A message that arrives at or after a deadline is too late to count, accept included.
+        if self.deadline_hours is not None and self.current_time_hours >= self.deadline_hours:
+            self.outcome = "no_deal_deadline"
+            expired = "buyer" if self.buyer_deadline_hours == self.deadline_hours else "seller"
+            self.note = f"{expired} deadline passed at day {self.current_time_hours / 24.0:.1f}"
+            return
         if action.action == "offer":
             self.standing[side] = action.price
         elif action.action == "accept":
@@ -268,15 +300,8 @@ class Game:
         elif action.action == "walk_away":
             self.outcome = "no_deal_walkaway"
 
-        if self.outcome is None:
-            if self.deadline_hours is not None and self.current_time_hours >= self.deadline_hours:
-                self.outcome = "no_deal_deadline"
-                if self.buyer_deadline_hours is not None and self.current_time_hours >= self.buyer_deadline_hours:
-                    self.error = f"Buyer deadline expired ({self.current_time_hours / 24.0:.1f}d >= {self.buyer_deadline_hours / 24.0:.1f}d)."
-                else:
-                    self.error = f"Seller deadline expired ({self.current_time_hours / 24.0:.1f}d >= {self.seller_deadline_hours / 24.0:.1f}d)."
-            elif self.turns_left("buyer") <= 0 and self.turns_left("seller") <= 0:
-                self.outcome = "no_deal_turn_limit"
+        if self.outcome is None and self.turns_left("buyer") <= 0 and self.turns_left("seller") <= 0:
+            self.outcome = "no_deal_turn_limit"
 
     def totals(self) -> dict[Side, dict[str, float]]:
         """Summed tokens, latency and cost per side, so callers need not re-aggregate turns."""
