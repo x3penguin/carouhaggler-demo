@@ -1,0 +1,46 @@
+# RQ5: strong vs weak model, same design, both role assignments.
+experiment_name: asymmetry
+seed: 42
+max_budget_usd: 5.00
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: true
+
+matrix:
+  listings: all
+  seeds: {start: 0, count: 10}
+  sellers:
+    - {agent: prompted_seller, model: strong}
+    - {agent: prompted_seller, model: weak}
+  buyers:
+    - {agent: llm_buyer, persona: fair, model: strong}
+    - {agent: llm_buyer, persona: fair, model: weak}
+
+summary_group_by: [seller_model, buyer_model]
+bootstrap: {n_boot: 2000, seed: 0}
+
+models:
+  strong:
+    provider: openai_compatible
+    model: qwen2.5:7b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0
+  weak:
+    provider: openai_compatible
+    model: qwen2.5:3b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

@@ -1,0 +1,36 @@
+# Self-play calibration: same model both sides; seller surplus should be ~0.5.
+experiment_name: self_play
+seed: 42
+max_budget_usd: 2.00
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: true
+
+matrix:
+  listings: all
+  seeds: {start: 0, count: 10}
+  self_play: true
+  sellers:
+    - {agent: prompted_seller, model: dev_cheap}
+  buyers:
+    - {agent: llm_buyer, persona: fair}
+
+summary_group_by: [seller_agent, seller_model, buyer_model]
+bootstrap: {n_boot: 2000, seed: 0}
+
+models:
+  dev_cheap:
+    provider: openai_compatible
+    model: qwen2.5:3b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

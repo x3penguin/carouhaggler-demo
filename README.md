@@ -82,6 +82,21 @@ GuardedAgent(seller, leak_filter=True, grounding="block")  # "off" | "flag" | "b
 - **Guardrail events** from `GuardedAgent` land in `Turn.guardrail_events` next to the
   engine's own.
 
+## Evaluation (Role 3)
+
+```bash
+uv run python -m haggle.runner configs/sanity.yaml     # run first: rule-based, no LLM
+uv run python -m haggle.runner configs/pilot.yaml      # also: self_play, replay, attacks, asymmetry
+uv run python -m haggle.judge judge configs/judge.yaml runs/pilot/<ts>
+```
+
+Each run writes `runs/<experiment>/<timestamp>/` with the config, `games.jsonl`, `llm_calls.jsonl`,
+`summary.json`/`.txt` (mean and bootstrap 95% CI per metric) and `manifest.json` (spend, cost per
+game, budget abort). Agents load by name from the config with their switches, e.g.
+`{agent: agentic_seller, model: m, use_tools: false, guard: {leak_filter: true, grounding: block}}`.
+`{agent: attacks, twins: true}` expands to every script and its twin; `metrics.attack_effect`
+reports attack − twin. Report: `uv sync --group analysis`, then open `analysis/results.ipynb`.
+
 ## Open decisions
 
 - Frontier model (reference and judge), budget model (opponents), 1–3B model to fine-tune

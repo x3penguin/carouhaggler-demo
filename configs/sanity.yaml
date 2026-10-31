@@ -1,0 +1,32 @@
+# Rule-based agents only: no LLM, no cost, known expected values. Run first.
+experiment_name: sanity
+seed: 42
+max_budget_usd: 0.0
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: true
+
+matrix:
+  listings: all
+  seeds: {start: 0, count: 2}
+  listing_sample: 5
+  sellers:
+    - {agent: "sanity:accept_above_floor"}
+    - {agent: "sanity:stubborn"}
+    - {agent: "sanity:leaky"}
+    - {agent: "sanity:below_floor"}
+  buyers:
+    - {agent: "sanity:full_budget"}
+    - {agent: "sanity:floor"}
+    - {agent: "sanity:linear"}
+  floor_protection: [true, false]
+
+summary_group_by: [seller_agent, buyer_persona]
+bootstrap: {n_boot: 2000, seed: 0}
+models: {}

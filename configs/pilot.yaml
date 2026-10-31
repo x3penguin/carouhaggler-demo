@@ -1,0 +1,39 @@
+# Phase 1 pilot: Agent A vs fair/tough/lowballer, ~50 games, to measure real cost per game.
+experiment_name: pilot
+seed: 42
+max_budget_usd: 2.00
+est_cost_per_game_usd: 0.0
+listings_path: data/listings_sg.json
+log_dir: runs
+max_games: 50
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  listings: all
+  seeds: {start: 0, count: 6}
+  sellers:
+    - {agent: prompted_seller, model: dev_cheap}
+  buyers:
+    - {agent: llm_buyer, persona: fair, model: dev_cheap}
+    - {agent: llm_buyer, persona: tough, model: dev_cheap}
+    - {agent: llm_buyer, persona: lowballer, model: dev_cheap}
+
+summary_group_by: [seller_agent, seller_model, buyer_persona]
+bootstrap: {n_boot: 2000, seed: 0}
+
+models:
+  dev_cheap:
+    provider: openai_compatible
+    model: qwen2.5:3b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

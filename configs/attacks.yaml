@@ -1,0 +1,39 @@
+# RQ3: each attack script and its plain twin vs each seller.
+experiment_name: attacks
+seed: 42
+max_budget_usd: 2.00
+listings_path: data/listings_sg.json
+log_dir: runs
+max_games: 400
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 1
+  sellers:
+    - {agent: prompted_seller, model: dev_cheap}
+    - {agent: prompted_seller, model: dev_cheap, injection_defense: true,
+       guard: {leak_filter: true, grounding: block}}
+  buyers:
+    - {agent: attacks, categories: all, twins: true}
+
+summary_group_by: [seller_agent, attack_category, attack_kind]
+bootstrap: {n_boot: 2000, seed: 0}
+
+models:
+  dev_cheap:
+    provider: openai_compatible
+    model: qwen2.5:3b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

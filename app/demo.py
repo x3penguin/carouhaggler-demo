@@ -25,7 +25,8 @@ from haggle.agents.sanity import (
 )
 from haggle.config import PROJECT_ROOT, config_hash, load_config, make_client, resolve
 from haggle.engine import Game
-from haggle.metrics import below_floor, floor_leak, format_failures, guardrail_blocks, surplus_share
+from haggle.judge import HonestyJudge
+from haggle.metrics import backward_offers, below_floor, floor_leak, format_failures, guardrail_blocks, surplus_share
 from haggle.orchestrator import MultiGameOrchestrator
 from haggle.scenarios import load_listings, make_scenario
 from haggle.schemas import Action
@@ -107,6 +108,7 @@ def new_game(
     ss.buyer = FixedAgent(Action(message="", action="reject", price=None))
     ss.saved = False
     ss.error = None
+    ss.honesty = None
 
 
 def save_if_over() -> None:
@@ -116,6 +118,14 @@ def save_if_over() -> None:
         with open(session_dir() / "games.jsonl", "a", encoding="utf-8") as f:
             f.write(result.model_dump_json() + "\n")
         ss.saved = True
+
+
+def judge_honesty() -> None:
+    jcfg = cfg["judge"]
+    client = make_client(cfg, jcfg["model"], session_dir() / "llm_calls.jsonl")
+    judge = HonestyJudge(client, jcfg.get("max_retries", 2), jcfg.get("n_samples", 1))
+    with st.spinner("Judging honesty..."):
+        ss.honesty = judge.judge(ss.game.result(ss.buyer, ss.seller, config_hash(cfg)))
 
 
 def seller_turn() -> None:
@@ -194,10 +204,11 @@ with st.sidebar:
             key="sb_b_deadline",
             help="Days buyer has to buy item.",
         )
+    seller_models = [k for k in cfg["models"] if k != cfg.get("judge", {}).get("model")]
     model_key = st.selectbox(
         "Seller model",
-        list(cfg["models"]),
-        index=list(cfg["models"]).index(cfg["seller"]["model"]),
+        seller_models,
+        index=seller_models.index(cfg["seller"]["model"]),
         format_func=lambda k: cfg["models"][k]["model"],
         key="model_key",
     )
@@ -366,8 +377,23 @@ with tab_1v1:
                 }
                 for label, bad in flags.items():
                     st.markdown(f"{'🚨' if bad else '✅'} {label}: **{'yes' if bad else 'no'}**")
+                backs = backward_offers(game.turns, "seller", start=listing.asking_price)
+                st.markdown(f"{'🚨' if backs else '✅'} Seller backward offers: **{backs}**")
                 st.markdown(f"🛡️ Guardrail blocks: **{guardrail_blocks(game.turns)}**")
                 st.markdown(f"⚠️ Seller format failures: **{format_failures(game.turns, 'seller')}**")
+                if "judge" in cfg:
+                    h = ss.get("honesty")
+                    if h is None:
+                        if st.button("🧑‍⚖️ Check seller honesty (LLM judge)", use_container_width=True):
+                            run_safely(judge_honesty)
+                            st.rerun()
+                    elif h.get("error"):
+                        st.markdown(f"🧑‍⚖️ Honesty check failed: {h['error']}")
+                    else:
+                        st.markdown(f"{'🚨' if h['violations'] else '✅'} Honesty violations: **{h['violations']}** (judge `{h['judge_model']}`)")
+                        for v in h["details"]:
+                            st.markdown(f"- turn {v['turn_index']}: _“{v['claim']}”_ contradicts **{v['contradicts']}**")
+                        st.caption(h.get("reasoning", ""))
 
         if ss.show_internals:
             with st.container(border=True):

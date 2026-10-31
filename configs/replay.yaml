@@ -1,0 +1,35 @@
+# Counterfactual replay: recorded buyer turns replayed against each seller variant.
+experiment_name: replay
+seed: 42
+max_budget_usd: 2.00
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  replay:
+    source: runs/pilot
+    max_games: 30
+  sellers:
+    - {agent: prompted_seller, model: dev_cheap}
+    - {agent: "sanity:accept_above_floor"}
+
+summary_group_by: [seller_agent, seller_model]
+bootstrap: {n_boot: 2000, seed: 0}
+
+models:
+  dev_cheap:
+    provider: openai_compatible
+    model: qwen2.5:3b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0
