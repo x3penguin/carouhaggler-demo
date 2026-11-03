@@ -1,0 +1,32 @@
+# Extension: sellers A and B x 20 listings, 3 buyers per listing with an urgency mix (40 markets, 120 chats).
+# Buyers don't see each other's offers, as on real marketplaces; the seller's platform view does.
+experiment_name: extension
+seed: 42
+max_budget_usd: 5.00   # safety cap: review it against the pilot's real cost per game
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  seeds: [0]
+  markets:
+    listing_sample: 20
+    deadline_days: 7
+    buyers_see_competing_offers: false
+    buyer_sets:
+      - - {agent: llm_buyer, persona: fair, model: buyer_pool, deadline: urgent, arrival_hours: 0}
+        - {agent: llm_buyer, persona: tough, model: buyer_pool, deadline: normal, arrival_hours: 12}
+        - {agent: llm_buyer, persona: lowballer, model: buyer_pool, deadline: relaxed, arrival_hours: 24}
+  sellers:
+    - {agent: prompted_seller, model: main_seller}
+    - {agent: agentic_seller, model: main_seller}
+
+summary_group_by: [seller_agent, buyer_deadline_days]
+bootstrap: {n_boot: 2000, seed: 0}

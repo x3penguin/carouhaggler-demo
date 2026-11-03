@@ -10,6 +10,7 @@ from datetime import datetime
 import openai
 import streamlit as st
 
+from haggle.agents.agentic import AgenticSeller
 from haggle.agents.base import FixedAgent
 from haggle.agents.buyers import PERSONAS, LLMBuyer
 from haggle.agents.llm_agent import money
@@ -38,6 +39,14 @@ ACTION_LABEL = {"offer": "💰 offer", "accept": "✅ accept", "chat": "💬 cha
 
 # Scripted attacks (brief §7). Prices are fractions of the asking price because a real
 # attacker knows the listing but not the seller's floor.
+# Seller variants offered in the sidebar: Agent A, then the RQ1 ablation steps up to Agent B.
+SELLER_KINDS = {
+    "Agent A (prompted)": lambda client: PromptedSeller(client),
+    "A + tools": lambda client: AgenticSeller(client, use_tools=True, use_planning=False, use_reflection=False),
+    "A + planning": lambda client: AgenticSeller(client, use_tools=False, use_planning=True, use_reflection=False),
+    "Agent B (full agentic)": lambda client: AgenticSeller(client),
+}
+
 ATTACKS = {
     "Sob story": (
         0.55,
@@ -88,6 +97,7 @@ def new_game(
     model_key: str,
     seller_deadline_days: float = 7.0,
     buyer_deadline_days: float = 5.0,
+    seller_kind: str = "Agent A (prompted)",
 ) -> None:
     scenario = make_scenario(
         listings[listing_idx],
@@ -104,7 +114,7 @@ def new_game(
         seller_deadline_days=seller_deadline_days,
         buyer_deadline_days=buyer_deadline_days,
     )
-    ss.seller = PromptedSeller(make_client(cfg, model_key, session_dir() / "llm_calls.jsonl"))
+    ss.seller = SELLER_KINDS[seller_kind](make_client(cfg, model_key, session_dir() / "llm_calls.jsonl"))
     ss.buyer = FixedAgent(Action(message="", action="reject", price=None))
     ss.saved = False
     ss.error = None
@@ -212,13 +222,15 @@ with st.sidebar:
         format_func=lambda k: cfg["models"][k]["model"],
         key="model_key",
     )
-    # Changing the listing, seed, model or deadlines starts a fresh game automatically.
+    seller_kind = st.selectbox("Seller design", list(SELLER_KINDS), key="seller_kind")
+    # Changing the listing, seed, model, design or deadlines starts a fresh game automatically.
     game_key = (
         listing_idx,
         int(seed),
         model_key,
         float(seller_deadline_days),
         float(buyer_deadline_days),
+        seller_kind,
     )
     if st.button("🔄 New game", use_container_width=True) or ss.get("game_key") != game_key:
         new_game(*game_key)
@@ -240,13 +252,7 @@ with st.sidebar:
     st.subheader("Autoplay")
     persona = st.selectbox("LLM buyer persona", list(PERSONAS), key="persona")
     if st.button("▶️ LLM buyer vs seller", use_container_width=True):
-        new_game(
-            listing_idx,
-            int(seed),
-            model_key,
-            float(seller_deadline_days),
-            float(buyer_deadline_days),
-        )
+        new_game(*game_key)
         run_safely(lambda: autoplay(persona))
 
 game: Game = ss.game
@@ -296,6 +302,12 @@ with tab_1v1:
                 if show_internals:
                     for event in turn.guardrail_events:
                         st.warning(event, icon="🛡️")
+                    if turn.private_notes or turn.tool_calls:
+                        with st.expander("Plan, notes and tool calls"):
+                            if turn.private_notes:
+                                st.text(turn.private_notes)
+                            if turn.tool_calls:
+                                st.json(turn.tool_calls)
 
         for turn in game.turns:
             render_turn(turn)
@@ -503,6 +515,14 @@ with tab_arena:
         st.markdown("**Buyer 2 (Competitive / Reacts to outside offers)**")
         b2_persona = st.selectbox("Buyer 2 Persona", list(PERSONAS), index=1, key="arena_b2_persona")
 
+    arena_llm = st.toggle(
+        "Use LLM agents",
+        value=False,
+        key="arena_llm",
+        help="Off: rule-based agents that make no model calls. On: the sidebar's seller design and "
+        "model, with the buyer personas chosen above.",
+    )
+
     if st.button("▶️ Run Multi-Buyer Tournament", type="primary", use_container_width=True):
         orch = MultiGameOrchestrator(
             arena_listing,
@@ -513,14 +533,27 @@ with tab_arena:
         sc2 = make_scenario(arena_listing, seed=int(seed) * 10 + 2, buyer_persona=b2_persona)
         sc2 = sc2.model_copy(update={"seller_floor": sc1.seller_floor})  # one seller, one floor
 
-        buyer1 = DelayedBuyer(sc1, wait_hours=b1_wait_h)
-        buyer2 = CompetitiveBuyer(sc2, increment=15.0)
+        if arena_llm:
+            log = session_dir() / "llm_calls.jsonl"
+            arena_seller = SELLER_KINDS[seller_kind](make_client(cfg, model_key, log))
+            buyer1 = LLMBuyer(make_client(cfg, cfg["buyer"]["model"], log), b1_persona)
+            buyer2 = LLMBuyer(make_client(cfg, cfg["buyer"]["model"], log), b2_persona)
+        else:
+            arena_seller = AcceptAboveFloorSeller()
+            buyer1 = DelayedBuyer(sc1, wait_hours=b1_wait_h)
+            buyer2 = CompetitiveBuyer(sc2, increment=15.0)
 
-        orch.add_session("Buyer 1 (Early)", sc1, buyer1, AcceptAboveFloorSeller(), arrival_hours=b1_delay_days * 24.0)
-        orch.add_session("Buyer 2 (Competitive)", sc2, buyer2, AcceptAboveFloorSeller(), arrival_hours=b2_delay_days * 24.0)
+        orch.add_session("Buyer 1 (Early)", sc1, buyer1, arena_seller, arrival_hours=b1_delay_days * 24.0)
+        orch.add_session("Buyer 2 (Competitive)", sc2, buyer2, arena_seller, arrival_hours=b2_delay_days * 24.0)
 
+        results = None
         with st.spinner("Simulating multi-party timeline..."):
-            results = orch.run()
+            try:
+                results = orch.run()
+            except openai.APIConnectionError:
+                st.error("Can't reach the model server. Is Ollama running? (`ollama serve`)")
+        if results is None:
+            st.stop()
 
         st.markdown("---")
         st.subheader("Tournament Result")

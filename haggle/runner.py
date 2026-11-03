@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import json
-import shutil
+import random
 import sys
 import traceback
 from dataclasses import dataclass, field
@@ -17,13 +17,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
+import yaml
+
 from haggle.agents import sanity
 from haggle.agents.base import Agent
-from haggle.config import PROJECT_ROOT, config_hash, load_config, make_client, resolve
+from haggle.config import PROJECT_ROOT, check_models, config_hash, load_config, make_client, resolve
 from haggle.engine import Game
 from haggle.harnesses import ReplayBuyer, sample
 from haggle.llm import CostTracker
-from haggle.metrics import format_summary, game_metrics, load_results, summarize
+from haggle.metrics import RIVAL_EVENT, format_summary, game_metrics, latest_run, load_results, summarize
 from haggle.scenarios import load_listings, make_scenario
 from haggle.schemas import GameResult, Listing, Scenario
 
@@ -63,7 +65,14 @@ def _prompted_seller(spec: dict, ctx: BuildContext) -> Agent:
 def _agentic_seller(spec: dict, ctx: BuildContext) -> Agent:
     from haggle.agents.agentic import AgenticSeller
 
-    return AgenticSeller(ctx.client(spec["model"]), **_switches(spec, _AGENTIC_SWITCHES + _SELLER_SWITCHES))
+    agent = AgenticSeller(ctx.client(spec["model"]), **_switches(spec, _AGENTIC_SWITCHES + _SELLER_SWITCHES))
+    # Without this, honesty on/off (RQ4) would share one name and merge in every table.
+    sw = _switches(spec, _SELLER_SWITCHES)
+    defaults = {"honesty_instruction": True, "injection_defense": False}
+    changed = [f"{k}={v}" for k, v in sorted(sw.items()) if v != defaults[k]]
+    if changed:
+        agent.name += f"[{','.join(changed)}]"
+    return agent
 
 
 def _llm_buyer(spec: dict, ctx: BuildContext) -> Agent:
@@ -172,21 +181,69 @@ class Job:
         return make_scenario(self.listing, self.seed, persona_label(self.buyer), **kwargs)
 
 
+@dataclass
+class MarketJob:
+    """One listing with several buyers competing for it (extension experiment)."""
+
+    listing: Listing
+    seed: int
+    seller: dict
+    buyers: list[dict]
+    deadline_days: float
+    floor_protection: bool
+    buyers_see_competing_offers: bool = False
+
+    def scenarios(self) -> list[Scenario]:
+        return market_scenarios(self.listing, self.seed, self.buyers, self.deadline_days)
+
+
+def market_scenarios(listing: Listing, seed: int, buyers: list[dict], deadline_days: float) -> list[Scenario]:
+    """One seller means one floor; each buyer gets its own seeded budget and deadline."""
+    floor = make_scenario(listing, seed).seller_floor
+    asking = listing.asking_price
+    out = []
+    for i, buyer in enumerate(buyers, 1):
+        rng = random.Random(f"{listing.id}:{seed}:b{i}")
+        budget = max(round(floor + (asking - floor) * rng.uniform(0.3, 1.1)), floor + 1)
+        days = buyer_deadline_days(buyer)
+        sc = make_scenario(listing, seed, persona_label(buyer), seller_deadline_days=deadline_days,
+                           buyer_deadline_days=days if days is not None else 5.0)
+        out.append(sc.model_copy(update={"id": f"{sc.id}-b{i}", "buyer_budget": budget}))
+    return out
+
+
 def _seeds(spec) -> list[int]:
     if isinstance(spec, dict):
         return list(range(spec.get("start", 0), spec.get("start", 0) + spec["count"]))
     return list(spec)
 
 
-def build_jobs(cfg: dict) -> list[Job]:
+def _market_jobs(cfg: dict, m: dict, protections: list) -> list[MarketJob]:
+    mk = m["markets"]
+    listings = load_listings(resolve(cfg["listings_path"]))
+    jobs = []
+    for seed in _seeds(m["seeds"]):
+        chosen = sample(listings, mk["listing_sample"], hash_seed(f"market:{seed}"))
+        for listing, seller, fp in itertools.product(chosen, m["sellers"], protections):
+            for buyers in mk["buyer_sets"]:
+                jobs.append(MarketJob(listing, seed, seller, buyers, mk.get("deadline_days", 7.0), fp,
+                                      mk.get("buyers_see_competing_offers", False)))
+    return jobs
+
+
+def build_jobs(cfg: dict) -> list[Job | MarketJob]:
     m = cfg["matrix"]
     protections = m.get("floor_protection", [cfg["guardrails"]["floor_protection"]])
     if not isinstance(protections, list):
         protections = [protections]
 
+    if "markets" in m:
+        return _market_jobs(cfg, m, protections)
+
     if "replay" in m:
         src = m["replay"]
-        sources = load_results(resolve(src["source"]))
+        # latest_run: runs/pilot may hold several timestamped runs, which must not be pooled.
+        sources = [s for s in load_results(latest_run(resolve(src["source"]))) if s.outcome != "error"]
         sources = sample(sources, src.get("max_games", len(sources)), cfg["seed"])
         return [
             Job(s.scenario.listing, s.scenario.seed, seller, {"agent": "replay"}, fp, source=s)
@@ -253,6 +310,58 @@ def play_job(job: Job, cfg: dict, cfg_hash: str, llm_log: Path | None, tracker: 
     return result
 
 
+class MarketContextRecorder:
+    """Logs the rival offer the platform showed the seller, as a guardrail event on the turn.
+
+    The fake-vs-real competing offer comparison needs this, and an event keeps the frozen
+    schema unchanged.
+    """
+
+    def __init__(self, agent: Agent):
+        self.agent, self.name, self.model = agent, agent.name, agent.model
+
+    def act(self, obs):
+        reply = self.agent.act(obs)
+        if obs.highest_competing_offer is None:
+            return reply
+        event = f"{RIVAL_EVENT}{obs.highest_competing_offer:.2f}"
+        return reply.model_copy(update={"guardrail_events": [*reply.guardrail_events, event]})
+
+
+def play_market(job: MarketJob, cfg: dict, cfg_hash: str, llm_log: Path | None, tracker: CostTracker | None = None) -> list[GameResult]:
+    """Play one market. Returns one GameResult per buyer's chat."""
+    from haggle.orchestrator import MultiGameOrchestrator
+
+    scenarios = job.scenarios()
+    orch = MultiGameOrchestrator(
+        job.listing,
+        deadline_days=job.deadline_days,
+        enforce_floor_protection=job.floor_protection,
+        enforce_price_direction=cfg["engine"].get("enforce_price_direction", False),
+        max_turns_per_side=cfg["engine"]["max_turns_per_side"],
+        buyers_see_competing_offers=job.buyers_see_competing_offers,
+    )
+    # One seller object across chats; stateful agents key their memory on session_id.
+    seller = MarketContextRecorder(build_agent(SELLERS, job.seller, BuildContext(cfg, scenarios[0], llm_log, tracker)))
+    for i, (scenario, spec) in enumerate(zip(scenarios, job.buyers), 1):
+        buyer = build_agent(BUYERS, spec, BuildContext(cfg, scenario, llm_log, tracker))
+        orch.add_session(f"b{i}", scenario, buyer, seller, arrival_hours=spec.get("arrival_hours", 0.0))
+    try:
+        orch.run(cfg_hash)
+    except Exception as e:  # noqa: BLE001  one failed call must not kill a long experiment run
+        for s in orch.sessions.values():
+            if not s.game.is_over:
+                s.game.outcome, s.game.error = "error", f"{type(e).__name__}: {e}"
+    return [s.game.result(s.buyer, s.seller, cfg_hash) for s in orch.sessions.values()]
+
+
+def _models_used(jobs: list) -> set[str]:
+    specs = []
+    for j in jobs:
+        specs += [j.seller, *(j.buyers if isinstance(j, MarketJob) else [j.buyer])]
+    return {k for s in specs for k in (s.get("model"), s.get("llm_model")) if k}
+
+
 def _protections(cfg: dict) -> list:
     p = cfg["matrix"].get("floor_protection", [cfg["guardrails"]["floor_protection"]])
     return p if isinstance(p, list) else [p]
@@ -262,17 +371,20 @@ def run(config_path: str | Path, out_root: Path | None = None, dry_run: bool = F
     cfg = load_config(config_path)
     jobs = build_jobs(cfg)
     budget = float(cfg["max_budget_usd"])
-    print(f"{cfg['experiment_name']}: {len(jobs)} games planned, budget ${budget:.2f}")
+    n_games = sum(len(j.buyers) if isinstance(j, MarketJob) else 1 for j in jobs)
+    print(f"{cfg['experiment_name']}: {n_games} games planned, budget ${budget:.2f}")
     if dry_run:
         est = cfg.get("est_cost_per_game_usd")
         if est is not None:
-            print(f"  estimated spend: ${est * len(jobs):.2f} at ${est:.4f}/game (from config)")
+            print(f"  estimated spend: ${est * n_games:.2f} at ${est:.4f}/game (from config)")
         return None
 
+    check_models(cfg, _models_used(jobs))
     cfg_hash = config_hash(cfg)
     out = (out_root or PROJECT_ROOT / cfg.get("log_dir", "runs")) / cfg["experiment_name"] / datetime.now().strftime("%Y%m%d-%H%M%S")
     out.mkdir(parents=True, exist_ok=True)
-    shutil.copy(resolve(config_path), out / "config.yaml")
+    # The resolved config (shared models merged in), so the run records what really ran.
+    (out / "config.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
     llm_log = out / "llm_calls.jsonl"
     tracker = CostTracker(budget)
 
@@ -280,22 +392,27 @@ def run(config_path: str | Path, out_root: Path | None = None, dry_run: bool = F
     results: list[GameResult] = []
     with (out / "games.jsonl").open("w", encoding="utf-8") as f:
         for i, job in enumerate(jobs):
-            projected = spent + (spent / played if played else 0.0)
+            projected = spent + (spent / i if i else 0.0)  # per job: a market is several games
             if projected > budget:
                 aborted = f"budget: spent ${spent:.4f}, next game projected to exceed ${budget:.2f}"
                 break
-            result = play_job(job, cfg, cfg_hash, llm_log, tracker)
-            f.write(result.model_dump_json() + "\n")
+            batch = (play_market(job, cfg, cfg_hash, llm_log, tracker) if isinstance(job, MarketJob)
+                     else [play_job(job, cfg, cfg_hash, llm_log, tracker)])
+            over_budget = None
+            for result in batch:
+                f.write(result.model_dump_json() + "\n")
+                results.append(result)
+                game_cost = sum(t.cost_usd for t in result.turns)
+                spent += game_cost
+                played += 1
+                print(f"  [{i + 1}/{len(jobs)}] {result.scenario.id} {result.seller_agent} vs {result.buyer_agent}: "
+                      f"{result.outcome} {result.deal_price or ''} (${game_cost:.4f})")
+                if result.error and "BudgetExceeded" in result.error:
+                    over_budget = result.error
             f.flush()
-            results.append(result)
-            game_cost = sum(t.cost_usd for t in result.turns)
-            spent += game_cost
-            played += 1
-            errors = errors + 1 if result.outcome == "error" else 0
-            print(f"  [{i + 1}/{len(jobs)}] {result.scenario.id} {result.seller_agent} vs {result.buyer_agent}: "
-                  f"{result.outcome} {result.deal_price or ''} (${game_cost:.4f})")
-            if result.error and "BudgetExceeded" in result.error:
-                aborted = f"budget: {result.error}"
+            errors = errors + 1 if any(r.outcome == "error" for r in batch) else 0
+            if over_budget:
+                aborted = f"budget: {over_budget}"
                 break
             if errors >= cfg.get("max_consecutive_errors", 3):
                 aborted = f"{errors} consecutive game errors (is the model server up?)"
@@ -308,8 +425,9 @@ def run(config_path: str | Path, out_root: Path | None = None, dry_run: bool = F
     manifest = {
         "experiment": cfg["experiment_name"],
         "config_hash": cfg_hash,
-        "games_planned": len(jobs),
+        "games_planned": n_games,
         "games_played": played,
+        "error_games": sum(r.outcome == "error" for r in results),
         "spent_usd": spent,
         "cost_per_game_usd": spent / played if played else None,
         "budget_usd": budget,

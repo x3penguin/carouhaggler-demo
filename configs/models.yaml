@@ -1,0 +1,56 @@
+# The models for every experiment, in one place. Fill in the SET_ME values before running:
+# the runner refuses to start on a placeholder, or on a hosted model priced at $0, because
+# the budget cap works from these prices. Prices are USD per million tokens.
+models:
+  main_seller:            # capable hosted model: RQ1, RQ3, RQ4, and the strong side of RQ5
+    provider: openai_compatible
+    model: SET_ME_openrouter_model_id
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0
+
+  buyer_pool:             # stays the same across conditions; a weak buyer flatters every seller
+    provider: openai_compatible
+    model: SET_ME_openrouter_model_id
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0
+
+  judge:                  # a different model family from the sellers (self-preference bias)
+    provider: openai_compatible
+    model: SET_ME_openrouter_model_id
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+    temperature: 0.7
+    max_tokens: 600
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0
+
+  weak:                   # weak side of RQ5, on Ollama: `ollama pull qwen2.5:3b`
+    provider: openai_compatible
+    model: qwen2.5:3b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0
+
+  # RQ2: uncomment once Role 2 serves the fine-tuned model, then add sellers using it to
+  # tournament.yaml and attacks.yaml ({agent: prompted_seller, model: finetuned} is Agent C;
+  # {agent: agentic_seller, model: finetuned} is Agent D).
+  # finetuned:
+  #   provider: openai_compatible
+  #   model: SET_ME_ollama_model_name
+  #   base_url: http://localhost:11434/v1
+  #   api_key_env: OLLAMA_API_KEY
+  #   temperature: 0.7
+  #   max_tokens: 300
+  #   price_in_per_mtok: 0.0
+  #   price_out_per_mtok: 0.0

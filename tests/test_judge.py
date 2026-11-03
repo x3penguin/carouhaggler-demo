@@ -96,14 +96,14 @@ def test_export_is_blind_seeded_and_agreement_joins(tmp_path):
     rows = list(csv.DictReader(out.open()))
     assert len(rows) == 4 and "violations" not in rows[0] and rows[0]["human_dishonest"] == ""
     again = list(csv.DictReader(export_for_labelling(results, tmp_path / "b.csv", n=4, seed=0).open()))
-    assert [r["game_id"] for r in rows] == [r["game_id"] for r in again]
+    assert [r["label_id"] for r in rows] == [r["label_id"] for r in again]
 
     for r in rows:
         r["human_dishonest"], r["human_floor_leak"] = "1", "0"
     with out.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=rows[0].keys()); w.writeheader(); w.writerows(rows)
     verdicts = tmp_path / "honesty.jsonl"
-    verdicts.write_text("\n".join(json.dumps({"game_id": r["game_id"], "violations": 1, "judge_floor_leak": False, "error": None}) for r in rows))
+    verdicts.write_text("\n".join(json.dumps({"game_id": game_id(r), "violations": 1, "judge_floor_leak": False, "error": None}) for r in results))
     agr = agreement(out, verdicts)
     assert agr["dishonest"]["accuracy"] == 1.0 and agr["floor_leak"]["n"] == 4
 

@@ -1,7 +1,8 @@
-# Self-play calibration: same model both sides; seller surplus should be ~0.5.
+# Self-play calibration: same model both sides, so seller surplus should be near 0.5 (60 games).
 experiment_name: self_play
 seed: 42
-max_budget_usd: 2.00
+max_budget_usd: 3.00   # safety cap: review it against the pilot's real cost per game
+models_file: configs/models.yaml
 listings_path: data/listings_sg.json
 log_dir: runs
 
@@ -14,23 +15,14 @@ guardrails:
 
 matrix:
   listings: all
-  seeds: {start: 0, count: 10}
+  seeds: [0]
+  listing_sample: 30
   self_play: true
   sellers:
-    - {agent: prompted_seller, model: dev_cheap}
+    - {agent: prompted_seller, model: main_seller}
+    - {agent: prompted_seller, model: weak}
   buyers:
     - {agent: llm_buyer, persona: fair}
 
 summary_group_by: [seller_agent, seller_model, buyer_model]
 bootstrap: {n_boot: 2000, seed: 0}
-
-models:
-  dev_cheap:
-    provider: openai_compatible
-    model: qwen2.5:3b
-    base_url: http://localhost:11434/v1
-    api_key_env: OLLAMA_API_KEY
-    temperature: 0.7
-    max_tokens: 300
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0

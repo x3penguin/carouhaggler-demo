@@ -4,9 +4,8 @@ A negotiation testbed for evaluating LLM seller agents on second-hand marketplac
 (Singapore-style). It's a pre-deployment safety check: does the agent get good deals, can buyers
 manipulate it, does it lie, and does the stronger model win? See `CLAUDE.md` for the full brief.
 
-**Status:** proof-of-concept demo. Engine, prompted seller (Agent A), LLM buyer personas, floor
-guardrail and a Streamlit UI work against a local model. Phase 1 (runner, pilot, full metrics,
-Anthropic client) is next.
+**Status:** engine, agents, evaluation and all experiment configs are built. Fine-tuned Agents C and
+D are still to come. Choose the hosted models in `configs/models.yaml` before running experiments.
 
 ## Setup
 
@@ -48,7 +47,9 @@ game), `llm_calls.jsonl` (every model call with tokens and latency) and a copy o
 | `haggle/tools/` | `price_lookup` (BM25 over comparables), calculator, walk-away estimator |
 | `haggle/scenarios.py` | Seeded floor/budget generation and scenario batches |
 | `haggle/metrics.py` | Surplus share, below-floor deals, floor leak, guardrail counts |
-| `configs/demo.yaml` | All model names, seeds and settings |
+| `configs/models.yaml` | The models and prices for every experiment |
+| `configs/*.yaml` | One config per experiment; `demo.yaml` is the local demo |
+| `haggle/assist.py` | RQ6: draft, then human approve or edit, then deliver |
 | `data/listings_sg.json` | 30 listings, each with at least one flaw |
 | `data/attacks.json` | 50 attack scripts in 7 categories; each has a plain twin generated in code |
 | `data/comparables.json` | Price comparables for `price_lookup` (placeholder until real data is added, see `data/README.md`) |
@@ -84,21 +85,49 @@ GuardedAgent(seller, leak_filter=True, grounding="block")  # "off" | "flag" | "b
 
 ## Evaluation (Role 3)
 
+Fill in `configs/models.yaml` first (model ids and real prices) and add `OPENROUTER_API_KEY` to `.env`.
+The runner won't start on a placeholder or a hosted model priced at $0. Add `--dry-run` to any
+command to see its game count without playing anything. Run in this order:
+
 ```bash
-uv run python -m haggle.runner configs/sanity.yaml     # run first: rule-based, no LLM
-uv run python -m haggle.runner configs/pilot.yaml      # also: self_play, replay, attacks, asymmetry
+uv run python -m haggle.runner configs/sanity.yaml       # rule-based, no LLM: must pass first
+uv run python -m haggle.runner configs/pilot.yaml        # 51 games: gives the real cost per game
+
+# Validate the judge on about 100 hand-labelled games
+uv run python -m haggle.judge export runs/pilot/<ts> --out labels/pilot_100.csv --n 100
 uv run python -m haggle.judge judge configs/judge.yaml runs/pilot/<ts>
+uv run python -m haggle.judge agree labels/pilot_100.csv runs/pilot/<ts>/honesty.jsonl
+
+uv run python -m haggle.runner configs/self_play.yaml    # calibration, 60 games
+uv run python -m haggle.runner configs/replay.yaml       # paired replay of the pilot, 60 games
+uv run python -m haggle.runner configs/tournament.yaml   # RQ1 ablation, 240 games
+uv run python -m haggle.runner configs/honesty.yaml      # RQ4 honesty off, 120 games
+uv run python -m haggle.runner configs/attacks.yaml      # RQ3, 400 games
+uv run python -m haggle.runner configs/asymmetry.yaml    # RQ5, 120 games (needs Ollama)
+uv run python -m haggle.runner configs/opponent.yaml     # RQ5 agentic buyer, 60 games
+uv run python -m haggle.runner configs/extension.yaml    # 40 markets, 120 chats
+uv run python -m haggle.runner configs/assist.yaml       # RQ6 autopilot arm, 15 games
 ```
 
-Each run writes `runs/<experiment>/<timestamp>/` with the config, `games.jsonl`, `llm_calls.jsonl`,
-`summary.json`/`.txt` (mean and bootstrap 95% CI per metric) and `manifest.json` (spend, cost per
-game, budget abort). Agents load by name from the config with their switches, e.g.
+**RQ6 human arm:** run the demo and open the **Seller Assist** page, then have each participant play
+scenarios from the list. Games are saved to `runs/assist_human/<timestamp>/`.
+
+**Judging:** run `haggle.judge judge` on the tournament and honesty runs (RQ4), and on both RQ6 arms
+(`runs/assist/<ts>` and each `runs/assist_human/<ts>`). Budgets in the
+configs are safety caps, so review them against the pilot's cost per game.
+
+Each run writes `runs/<experiment>/<timestamp>/` with the resolved config, `games.jsonl`,
+`llm_calls.jsonl`, `summary.json`/`.txt` (mean and bootstrap 95% CI per metric) and `manifest.json`
+(spend, cost per game, crashed games, budget abort). Crashed games are left out of the statistics.
+Agents load by name from the config with their switches, e.g.
 `{agent: agentic_seller, model: m, use_tools: false, guard: {leak_filter: true, grounding: block}}`.
 `{agent: attacks, twins: true}` expands to every script and its twin; `metrics.attack_effect`
-reports attack − twin. Report: `uv sync --group analysis`, then open `analysis/results.ipynb`.
+reports attack − twin, paired on script and scenario. The notebook reads the newest run of each
+experiment; pin frozen paths in Phase 5. Report: `uv sync --group analysis`, then open
+`analysis/results.ipynb`.
 
 ## Open decisions
 
-- Frontier model (reference and judge), budget model (opponents), 1–3B model to fine-tune
+- Main seller, buyer pool and judge models (`configs/models.yaml`), 1–3B model to fine-tune
 - Total API budget
 - Live demo vs recorded video

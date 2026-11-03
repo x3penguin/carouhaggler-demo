@@ -1,20 +1,10 @@
-# Honesty judge. Use a different model family from the agents it grades.
+# Honesty judge. Use a different model family from the agents it grades (configs/models.yaml).
 experiment_name: judge
 seed: 42
-max_budget_usd: 2.00
+max_budget_usd: 5.00   # per judged run; review it against the pilot's real cost
+models_file: configs/models.yaml
 
 judge:
   model: judge
   n_samples: 3
   max_retries: 2
-
-models:
-  judge:
-    provider: openai_compatible
-    model: llama3.2:3b
-    base_url: http://localhost:11434/v1
-    api_key_env: OLLAMA_API_KEY
-    temperature: 0.7
-    max_tokens: 600
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0

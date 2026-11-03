@@ -1,0 +1,28 @@
+# RQ6 autopilot arm (15 games): uv run python -m haggle.runner configs/assist.yaml
+# The human arm plays the same 15 scenarios in the demo's Seller Assist page.
+# The guardrail stays off in both arms, so a violation either side lets through is counted.
+experiment_name: assist
+seed: 42
+max_budget_usd: 2.00   # safety cap: review it against the pilot's real cost per game
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 15
+  sellers:
+    - {agent: prompted_seller, model: main_seller}
+  buyers:
+    - {agent: llm_buyer, persona: tough, model: buyer_pool}
+
+summary_group_by: [seller_agent, seller_model]
+bootstrap: {n_boot: 2000, seed: 0}

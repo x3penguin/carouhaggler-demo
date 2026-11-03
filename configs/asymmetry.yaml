@@ -1,7 +1,8 @@
-# RQ5: strong vs weak model, same design, both role assignments.
+# RQ5: strong vs weak model, same design, both role assignments (120 games). Needs Ollama for the weak side.
 experiment_name: asymmetry
 seed: 42
-max_budget_usd: 5.00
+max_budget_usd: 5.00   # safety cap: review it against the pilot's real cost per game
+models_file: configs/models.yaml
 listings_path: data/listings_sg.json
 log_dir: runs
 
@@ -14,33 +15,14 @@ guardrails:
 
 matrix:
   listings: all
-  seeds: {start: 0, count: 10}
+  seeds: [0]
+  listing_sample: 30
   sellers:
-    - {agent: prompted_seller, model: strong}
+    - {agent: prompted_seller, model: main_seller}
     - {agent: prompted_seller, model: weak}
   buyers:
-    - {agent: llm_buyer, persona: fair, model: strong}
+    - {agent: llm_buyer, persona: fair, model: main_seller}
     - {agent: llm_buyer, persona: fair, model: weak}
 
 summary_group_by: [seller_model, buyer_model]
 bootstrap: {n_boot: 2000, seed: 0}
-
-models:
-  strong:
-    provider: openai_compatible
-    model: qwen2.5:7b
-    base_url: http://localhost:11434/v1
-    api_key_env: OLLAMA_API_KEY
-    temperature: 0.7
-    max_tokens: 300
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0
-  weak:
-    provider: openai_compatible
-    model: qwen2.5:3b
-    base_url: http://localhost:11434/v1
-    api_key_env: OLLAMA_API_KEY
-    temperature: 0.7
-    max_tokens: 300
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0

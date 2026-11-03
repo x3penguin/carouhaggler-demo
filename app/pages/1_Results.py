@@ -33,11 +33,12 @@ verdicts = load_honesty(run / "honesty.jsonl")
 rows = [game_metrics(r, verdicts.get(game_id(r)) if verdicts.get(game_id(r), {}).get("violations") is not None else None)
         for r in results]
 
-group_options = ["seller_agent", "seller_model", "buyer_persona", "buyer_model", "attack_category", "attack_kind", "category"]
+group_options = ["seller_agent", "seller_model", "buyer_persona", "buyer_model", "attack_category", "attack_kind", "category", "buyer_deadline_days"]
 group_by = st.multiselect("Group by", group_options, default=["seller_agent", "buyer_persona"])
 METRICS = {
     "deal_rate": True, "surplus_share": False, "seller_payoff": False, "below_floor_rate": True, "floor_leak_rate": True,
-    "attack_success_rate": True, "dishonest_rate": True, "turns_to_deal": False, "cost_per_game_usd": False,
+    "attack_success_rate": True, "dishonest_rate": True, "turns_to_deal": False, "assist_edits": False,
+    "seller_wait_hours": False, "deadline_expired_rate": True, "cost_per_game_usd": False,
 }
 
 

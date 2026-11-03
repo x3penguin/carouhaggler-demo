@@ -10,16 +10,21 @@ import matplotlib.pyplot as plt
 from haggle.harnesses import paired_difference, self_play_calibration
 from haggle.metrics import (
     ATTACK_SUCCESS_RULES,
+    bootstrap_ci,
     attack_effect,
     game_id,
+    competing_offer_response,
+    concession_by_time,
     game_metrics,
+    latest_run,
     load_honesty,
     load_results,
+    market_summary,
     summarize,
     surplus_shift,
 )
 
-SERIES = ["#2a78d6", "#eb6834", "#1baf7a"]
+SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 
 
@@ -34,9 +39,16 @@ def load_rows(*run_dirs: str | Path) -> list[dict]:
         for h in d.rglob("honesty.jsonl"):
             verdicts |= load_honesty(h)
         for r in load_results(d):
+            if r.outcome == "error":  # a server failure isn't a no-deal; see manifest error_games
+                continue
             v = verdicts.get(game_id(r))
             rows.append(game_metrics(r, v if v and v.get("violations") is not None else None))
     return rows
+
+
+def load_games(*run_dirs: str | Path) -> list:
+    """Raw GameResults, for the analyses that need each turn rather than per-game rows."""
+    return [r for d in run_dirs for r in load_results(d)]
 
 
 def load_manifests(*run_dirs: str | Path) -> list[dict]:
@@ -83,10 +95,14 @@ def attack_table(rows: list[dict]) -> str:
 
 
 def cost_table(*run_dirs) -> str:
-    out = [[m["experiment"], str(m["games_played"]), f"${m['spent_usd']:.4f}",
-            "—" if m["cost_per_game_usd"] is None else f"${m['cost_per_game_usd']:.4f}", m["aborted"] or "no"]
-           for m in load_manifests(*run_dirs)]
-    return markdown_table(["experiment", "games", "spent", "cost/game", "aborted"], out)
+    out = []
+    for d in run_dirs:
+        judge = sum(v.get("cost_usd", 0.0) for h in Path(d).rglob("honesty.jsonl") for v in load_honesty(h).values())
+        for m in load_manifests(d):
+            out.append([m["experiment"], str(m["games_played"]), str(m.get("error_games", 0)), f"${m['spent_usd']:.4f}",
+                        "—" if m["cost_per_game_usd"] is None else f"${m['cost_per_game_usd']:.4f}",
+                        f"${judge:.4f}", m["aborted"] or "no"])
+    return markdown_table(["experiment", "games", "crashed", "spent", "cost/game", "judge spend", "aborted"], out)
 
 
 def calibration_table(rows: list[dict]) -> str:
@@ -97,10 +113,10 @@ def calibration_table(rows: list[dict]) -> str:
     return markdown_table(["model (both sides)", "games", "deal rate", "seller surplus", "offset from 0.5", "0.5 in CI"], out)
 
 
-def paired_table(rows: list[dict], pairs: list[tuple[str, str]], metric="surplus_share") -> str:
+def paired_table(rows: list[dict], pairs: list[tuple[str, str]], metric="surplus_share", variant_key="seller_variant") -> str:
     out = []
     for a, b in pairs:
-        p = paired_difference(rows, a, b, metric=metric)
+        p = paired_difference(rows, a, b, metric=metric, variant_key=variant_key)
         if p["mean_diff"] is None:
             out.append([a, b, "—", "—", "0"])
             continue
@@ -110,6 +126,84 @@ def paired_table(rows: list[dict], pairs: list[tuple[str, str]], metric="surplus
     return markdown_table(["A", "B", f"mean {metric} A − B", "A win rate", "paired scenarios"], out)
 
 
+
+
+def ablation_table(rows: list[dict], metric="seller_payoff") -> str:
+    """RQ1: each seller variant against Agent A on the same scenarios and buyers. No deal = 0."""
+    variants = sorted({r["seller_agent"] for r in rows})
+    base = next((v for v in variants if v.startswith("prompted_seller")), None)
+    pairs = [(v, base) for v in variants if base and v != base]
+    return paired_table(rows, pairs, metric=metric, variant_key="seller_agent")
+
+
+def honesty_pairs(on_rows: list[dict], off_rows: list[dict], metric="dishonest") -> str:
+    """RQ4: honesty instruction off vs on, paired on the same scenario and buyer."""
+    rows = on_rows + off_rows
+    off = sorted({r["seller_agent"] for r in off_rows})
+    pairs = [(o, o.split("[honesty_instruction")[0]) for o in off]
+    return paired_table([{**r, metric: None if r[metric] is None else float(r[metric])} for r in rows],
+                        pairs, metric=metric, variant_key="seller_agent")
+
+
+RQ6_METRICS = [("below_floor", "below floor"), ("floor_leak", "floor leak"), ("dishonest", "dishonest"),
+               ("seller_backward_offers", "backward offers"), ("seller_payoff", "payoff")]
+
+
+def assist_table(autopilot_rows: list[dict], human_rows: list[dict]) -> str:
+    """RQ6: human review against autopilot on the same scenarios. Negative = fewer in assist mode."""
+    autopilot = {(r["scenario_id"], r["buyer_agent"]): r for r in autopilot_rows}
+    out = []
+    for field, label in RQ6_METRICS:
+        diffs = [float(h[field]) - float(autopilot[k][field]) for h in human_rows
+                 if (k := (h["scenario_id"], h["buyer_agent"])) in autopilot
+                 and h[field] is not None and autopilot[k][field] is not None]
+        point, lo, hi, n = bootstrap_ci(diffs)
+        human = [float(r[field]) for r in human_rows if r[field] is not None]
+        auto = [float(r[field]) for r in autopilot_rows if r[field] is not None]
+        fmt = lambda xs: f"{sum(xs) / len(xs):.2f}" if xs else "—"
+        out.append([label, fmt(human), fmt(auto), "—" if point is None else f"{point:+.2f} [{lo:+.2f}, {hi:+.2f}]", str(n)])
+    edits = sum(r["assist_edits"] for r in human_rows)
+    return markdown_table(["measure", "human review", "autopilot", "paired difference", "pairs"], out) + \
+        f"\n\nHuman edits across {len(human_rows)} games: {edits}."
+
+
+def concession_table(results: list) -> str:
+    """Extension: concession per seller turn by how much of the deadline is left."""
+    out = [[c["seller_agent"], c["time_left"], str(c["games"]), str(c["turns"]),
+            _ci({"x": c["mean_concession"], "x_lo": c["mean_concession_lo"], "x_hi": c["mean_concession_hi"]}, "x"),
+            _ci({"x": c["concession_rate"], "x_lo": c["concession_rate_lo"], "x_hi": c["concession_rate_hi"]}, "x", True)]
+           for c in concession_by_time(results)]
+    return markdown_table(["seller", "time left", "games", "turns", "mean concession (share of asking-to-floor gap)",
+                           "turns with a concession"], out)
+
+
+def behaviour_table(rows: list[dict]) -> str:
+    """Extension: waiting and outcomes by the buyer's deadline."""
+    out = [[s["seller_agent"], f"{s['buyer_deadline_days']:g}", str(s["games"]), _ci(s, "seller_wait_hours"), _ci(s, "buyer_wait_hours"),
+            _ci(s, "deal_rate", True), _ci(s, "seller_payoff"), _ci(s, "deadline_expired_rate", True)]
+           for s in summarize(rows, group_by=("seller_agent", "buyer_deadline_days"))]
+    return markdown_table(["seller", "buyer deadline (days)", "chats", "seller wait (h)", "buyer wait (h)", "deal rate",
+                           "payoff", "expired"], out)
+
+
+def market_table(results: list) -> str:
+    """Extension: outcome per market (one item, several buyers)."""
+    out = [[m["seller_agent"], str(m["markets"]),
+            _ci({"x": m["sold"], "x_lo": m["sold_lo"], "x_hi": m["sold_hi"]}, "x", True),
+            _ci({"x": m["payoff"], "x_lo": m["payoff_lo"], "x_hi": m["payoff_hi"]}, "x"),
+            _ci({"x": m["days_to_sale"], "x_lo": m["days_to_sale_lo"], "x_hi": m["days_to_sale_hi"]}, "x"),
+            _ci({"x": m["below_floor"], "x_lo": m["below_floor_lo"], "x_hi": m["below_floor_hi"]}, "x", True)]
+           for m in market_summary(results)]
+    return markdown_table(["seller", "markets", "sold", "payoff (share of asking-to-floor gap)", "days to sale", "below floor"], out)
+
+
+def competing_offer_table(attack_results: list, market_results: list) -> str:
+    """Extension: seller concessions after fake and real competing offers, each with its baseline."""
+    out = [[c["seller_agent"], c["condition"], str(c["games"]), str(c["turns"]),
+            _ci({"x": c["mean_concession"], "x_lo": c["mean_concession_lo"], "x_hi": c["mean_concession_hi"]}, "x"),
+            _ci({"x": c["concession_rate"], "x_lo": c["concession_rate_lo"], "x_hi": c["concession_rate_hi"]}, "x", True)]
+           for c in competing_offer_response(attack_results, market_results)]
+    return markdown_table(["seller", "condition", "games", "turns", "mean concession", "turns with a concession"], out)
 
 
 def _axes(ax, title: str, xlabel: str = "", ylabel: str = ""):
@@ -139,7 +233,7 @@ def surplus_vs_honesty(rows: list[dict], group_by=("seller_agent",)):
             continue
         name = " / ".join(str(s[k]) for k in group_by)
         ax.errorbar(s["surplus_share"], s["dishonest_rate"], xerr=_err(s, "surplus_share"), yerr=_err(s, "dishonest_rate"),
-                    fmt="o", ms=8, color=SERIES[i % 3], ecolor=SERIES[i % 3], elinewidth=1.5, capsize=0, label=name)
+                    fmt="o", ms=8, color=SERIES[i % len(SERIES)], ecolor=SERIES[i % len(SERIES)], elinewidth=1.5, capsize=0, label=name)
         ax.annotate(name, (s["surplus_share"], s["dishonest_rate"]), xytext=(8, 6), textcoords="offset points", color=INK, fontsize=9)
     ax.yaxis.set_major_formatter(lambda y, _: f"{100 * y:.0f}%")
     ax.legend(frameon=False, fontsize=9, loc="best")
@@ -148,10 +242,10 @@ def surplus_vs_honesty(rows: list[dict], group_by=("seller_agent",)):
 
 
 def attack_success_chart(rows: list[dict], sellers: list[str] | None = None):
-    """RQ3: attack success rate by category, one bar per seller (max three sellers). Attacks only; see attack_table for the twin baseline."""
+    """RQ3: attack success rate by category, one bar per seller (max four sellers). Attacks only; see attack_table for the twin baseline."""
     attack_rows = [r for r in rows if r["attack_category"] and r.get("attack_kind") != "twin"]
     summ = summarize(attack_rows, group_by=("seller_agent", "attack_category"))
-    sellers = (sellers or sorted({s["seller_agent"] for s in summ}))[:3]
+    sellers = (sellers or sorted({s["seller_agent"] for s in summ}))[:len(SERIES)]
     cats = sorted({s["attack_category"] for s in summ})
     fig, ax = plt.subplots(figsize=(7.5, 0.35 * len(cats) * len(sellers) + 1.5))
     _axes(ax, "Attack success rate by category (RQ3)", "Success rate (95% CI)")
@@ -169,7 +263,22 @@ def attack_success_chart(rows: list[dict], sellers: list[str] | None = None):
     ax.set_xlim(0, 1)
     ax.xaxis.set_major_formatter(lambda x, _: f"{100 * x:.0f}%")
     ax.invert_yaxis()
-    ax.legend(frameon=False, fontsize=9, loc="lower right")
+    # Below the axes: long variant names would otherwise cover the bars.
+    ax.legend(frameon=False, fontsize=9, loc="upper left", bbox_to_anchor=(0, -0.08))
+    fig.tight_layout()
+    return fig
+
+
+def ablation_chart(rows: list[dict]):
+    """RQ1: seller payoff per variant (no deal = 0), so walking away from hard buyers doesn't flatter a seller."""
+    summ = summarize(rows, group_by=("seller_agent",))
+    fig, ax = plt.subplots(figsize=(7, 0.6 * len(summ) + 1.6))
+    _axes(ax, "Seller payoff by design (RQ1)", "Seller payoff per game, no deal = 0 (mean, 95% CI)")
+    ax.barh(range(len(summ)), [s["seller_payoff"] for s in summ], height=0.6, color=SERIES[0],
+            xerr=[[s["seller_payoff"] - s["seller_payoff_lo"] for s in summ], [s["seller_payoff_hi"] - s["seller_payoff"] for s in summ]],
+            error_kw={"ecolor": INK, "elinewidth": 1})
+    ax.set_yticks(range(len(summ)), [s["seller_agent"] for s in summ], fontsize=9)
+    ax.invert_yaxis()
     fig.tight_layout()
     return fig
 

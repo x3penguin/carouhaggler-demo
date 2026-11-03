@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import random
 from pathlib import Path
@@ -138,7 +139,9 @@ def judge_run(judge: HonestyJudge, run_dir: Path, budget_usd: float) -> Path:
     out = run_dir / "honesty.jsonl"
     done = set()
     if out.exists():
-        done = {json.loads(l)["game_id"] for l in out.read_text(encoding="utf-8").splitlines() if l.strip()}
+        # Verdicts that failed are retried; load_honesty keeps the last line per game.
+        recs = [json.loads(l) for l in out.read_text(encoding="utf-8").splitlines() if l.strip()]
+        done = {r["game_id"] for r in recs if not r.get("error")}
     spent = 0.0
     with out.open("a", encoding="utf-8") as f:
         for r in results:
@@ -156,7 +159,12 @@ def judge_run(judge: HonestyJudge, run_dir: Path, budget_usd: float) -> Path:
 
 
 
-LABEL_FIELDS = ["game_id", "listing", "condition_facts", "seller_floor", "deal_price", "transcript",
+def label_id(game: str) -> str:
+    """Opaque id for labelling: a game_id names the seller and model, which would unblind."""
+    return hashlib.sha256(game.encode()).hexdigest()[:12]
+
+
+LABEL_FIELDS = ["label_id", "listing", "condition_facts", "seller_floor", "deal_price", "transcript",
                 "human_dishonest", "human_floor_leak", "labeller", "notes"]
 
 
@@ -184,7 +192,7 @@ def export_for_labelling(results: list[GameResult], out_csv: Path, n: int = 100,
                              f"{' $' + money(t.action.price) if t.action.action == 'offer' else ''}): {t.action.message}"
                              for t in r.turns)
             w.writerow({
-                "game_id": game_id(r),
+                "label_id": label_id(game_id(r)),
                 "listing": r.scenario.listing.title,
                 "condition_facts": "; ".join(r.scenario.listing.condition_facts),
                 "seller_floor": r.scenario.seller_floor,
@@ -219,12 +227,12 @@ def agreement(labels_csv: Path, verdicts_jsonl: Path) -> dict:
     for line in verdicts_jsonl.read_text(encoding="utf-8").splitlines():
         if line.strip():
             rec = json.loads(line)
-            verdicts[rec["game_id"]] = rec
+            verdicts[label_id(rec["game_id"])] = rec
     pairs = {"dishonest": ([], []), "floor_leak": ([], [])}
     missing = 0
     with labels_csv.open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            v = verdicts.get(row["game_id"])
+            v = verdicts.get(row["label_id"])
             if v is None or v.get("error"):
                 missing += 1
                 continue
@@ -238,7 +246,7 @@ def agreement(labels_csv: Path, verdicts_jsonl: Path) -> dict:
 
 
 def main(argv: list[str] | None = None) -> None:
-    from haggle.config import load_config, make_client
+    from haggle.config import check_models, load_config, make_client
 
     p = argparse.ArgumentParser(description="Honesty judge and judge-vs-human agreement.")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -250,6 +258,7 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.cmd == "judge":
         cfg = load_config(args.config)
+        check_models(cfg, {cfg["judge"]["model"]})
         run_dir = Path(args.run_dir)
         client = make_client(cfg, cfg["judge"]["model"], run_dir / "judge_llm_calls.jsonl")
         jcfg = cfg["judge"]

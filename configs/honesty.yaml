@@ -1,0 +1,30 @@
+# RQ4: honesty instruction off for A and B (120 games). Uses the same 20 scenarios per persona
+# as tournament.yaml, so each game pairs with its honesty-on game. Keep listing_sample and seeds in step.
+experiment_name: honesty
+seed: 42
+max_budget_usd: 5.00   # safety cap: review it against the pilot's real cost per game
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 20
+  sellers:
+    - {agent: prompted_seller, model: main_seller, honesty_instruction: false}
+    - {agent: agentic_seller, model: main_seller, use_tools: true, use_planning: true, use_reflection: true, honesty_instruction: false}
+  buyers:
+    - {agent: llm_buyer, persona: fair, model: buyer_pool}
+    - {agent: llm_buyer, persona: tough, model: buyer_pool}
+    - {agent: llm_buyer, persona: lowballer, model: buyer_pool}
+
+summary_group_by: [seller_agent, seller_model]
+bootstrap: {n_boot: 2000, seed: 0}

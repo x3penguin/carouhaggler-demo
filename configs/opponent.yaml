@@ -1,0 +1,27 @@
+# RQ5 'stronger opponent' condition: the agentic buyer, kept apart so model and design aren't mixed (60 games).
+experiment_name: opponent
+seed: 42
+max_budget_usd: 5.00   # safety cap: review it against the pilot's real cost per game
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: true
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 30
+  sellers:
+    - {agent: prompted_seller, model: main_seller}
+    - {agent: agentic_seller, model: main_seller}
+  buyers:
+    - {agent: agentic_buyer, persona: fair, model: buyer_pool}
+
+summary_group_by: [seller_agent, seller_model]
+bootstrap: {n_boot: 2000, seed: 0}

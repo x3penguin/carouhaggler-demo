@@ -1,7 +1,9 @@
-# Counterfactual replay: recorded buyer turns replayed against each seller variant.
+# Counterfactual replay: recorded pilot buyer turns replayed against sellers A and B (60 games).
+# Uses the newest run under runs/pilot; give a timestamped path to pin one.
 experiment_name: replay
 seed: 42
-max_budget_usd: 2.00
+max_budget_usd: 3.00   # safety cap: review it against the pilot's real cost per game
+models_file: configs/models.yaml
 listings_path: data/listings_sg.json
 log_dir: runs
 
@@ -17,19 +19,8 @@ matrix:
     source: runs/pilot
     max_games: 30
   sellers:
-    - {agent: prompted_seller, model: dev_cheap}
-    - {agent: "sanity:accept_above_floor"}
+    - {agent: prompted_seller, model: main_seller}
+    - {agent: agentic_seller, model: main_seller}
 
 summary_group_by: [seller_agent, seller_model]
 bootstrap: {n_boot: 2000, seed: 0}
-
-models:
-  dev_cheap:
-    provider: openai_compatible
-    model: qwen2.5:3b
-    base_url: http://localhost:11434/v1
-    api_key_env: OLLAMA_API_KEY
-    temperature: 0.7
-    max_tokens: 300
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0
