@@ -4,8 +4,9 @@ A negotiation testbed for evaluating LLM seller agents on second-hand marketplac
 (Singapore-style). It's a pre-deployment safety check: does the agent get good deals, can buyers
 manipulate it, does it lie, and does the stronger model win? See `CLAUDE.md` for the full brief.
 
-**Status:** engine, agents, evaluation and all experiment configs are built. Fine-tuned Agents C and
-D are still to come. Choose the hosted models in `configs/models.yaml` before running experiments.
+**Status:** engine, agents, evaluation and all experiment configs are built. The fine-tuning pipeline
+is ready but the model isn't trained yet: see `finetune/HANDOVER.md`. Choose the hosted models in
+`configs/models.yaml` before running experiments.
 
 ## Setup
 
@@ -50,6 +51,7 @@ game), `llm_calls.jsonl` (every model call with tokens and latency) and a copy o
 | `configs/models.yaml` | The models and prices for every experiment |
 | `configs/*.yaml` | One config per experiment; `demo.yaml` is the local demo |
 | `haggle/assist.py` | RQ6: draft, then human approve or edit, then deliver |
+| `finetune/` | RQ2: CraigslistBargain conversion, QLoRA training (MLX or Colab), Ollama export, tuned-vs-stock check. Start at `HANDOVER.md` |
 | `data/listings_sg.json` | 30 listings, each with at least one flaw |
 | `data/attacks.json` | 50 attack scripts in 7 categories; each has a plain twin generated in code |
 | `data/comparables.json` | Price comparables for `price_lookup` (placeholder until real data is added, see `data/README.md`) |

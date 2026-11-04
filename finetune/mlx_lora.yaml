@@ -1,0 +1,36 @@
+# QLoRA on Apple Silicon. From the repo root:
+#   uv run --with mlx-lm==0.32.2 mlx_lm.lora --config finetune/mlx_lora.yaml 2>&1 | tee runs/finetune/train.log
+# The settings match finetune/qlora_colab.ipynb where MLX allows it. See finetune/HANDOVER.md.
+model: runs/finetune/base-4bit                  # pinned download (see HANDOVER); a quantized base makes this QLoRA
+train: true
+data: data/craigslist/sft                       # train.jsonl and valid.jsonl from prepare_data.py
+adapter_path: runs/finetune/adapters
+seed: 42
+
+fine_tune_type: lora
+num_layers: -1                                  # every layer, like the notebook
+lora_parameters:
+  keys: [self_attn.q_proj, self_attn.k_proj, self_attn.v_proj, self_attn.o_proj]
+  rank: 16
+  scale: 2.0                                    # MLX's scale = the notebook's lora_alpha / r
+  dropout: 0.05
+
+mask_prompt: true                               # loss only on the seller's final reply
+grad_checkpoint: true
+max_seq_length: 2048
+optimizer: adam                                 # no weight decay, like the notebook
+learning_rate: 2.0e-4
+lr_schedule:                                    # warm up, then decay, as the notebook does
+  name: cosine_decay
+  warmup: 80
+  warmup_init: 1.0e-6
+  arguments: [2.0e-4, 1570, 1.0e-6]
+
+batch_size: 4
+grad_accumulation_steps: 2                      # an effective batch of 8, like the notebook
+iters: 1570                                     # 2 passes: 3141 examples x 2 / batch_size
+
+steps_per_report: 10
+steps_per_eval: 100
+val_batches: 25                                 # 100 held-out examples per check
+save_every: 100
