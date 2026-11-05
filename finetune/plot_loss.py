@@ -11,14 +11,16 @@ import json
 import re
 from pathlib import Path
 
+_ANSI = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]")
 _TRAIN = re.compile(r"^\s*(\d+)\s+(\d+\.\d+)\s*[▼▲]")
 _VAL = re.compile(r"^\s*(\d+)\s+val\s+(\d+\.\d+)")
 
 
 def parse_log(text: str) -> dict:
     """Pull (iteration, loss) pairs from mlx_lm.lora's printed table, ignoring everything else."""
+    clean_text = _ANSI.sub("", text)
     train, val = [], []
-    for line in text.splitlines():
+    for line in clean_text.splitlines():
         if match := _TRAIN.match(line):
             train.append((int(match[1]), float(match[2])))
         elif match := _VAL.match(line):
