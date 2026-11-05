@@ -223,3 +223,6 @@ __marimo__/
 # Haggle Arena
 runs/
 data/craigslist/
+
+# macOS
+.DS_Store

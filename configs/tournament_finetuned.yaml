@@ -1,0 +1,31 @@
+# RQ2: Agents C and D x 3 personas x 20 scenarios (120 games).
+# A separate run, so A and B never need replaying. Keep seed, seeds, listing_sample and buyers
+# the same as tournament.yaml: that's what gives C and D the same scenarios as A and B.
+experiment_name: tournament_finetuned
+seed: 42
+max_budget_usd: 2.00   # only the buyers cost money: review it against the pilot's real cost per game
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 20
+  sellers:
+    - {agent: prompted_seller, model: finetuned}
+    - {agent: agentic_seller, model: finetuned, use_tools: true, use_planning: true, use_reflection: true}
+  buyers:
+    - {agent: llm_buyer, persona: fair, model: buyer_pool}
+    - {agent: llm_buyer, persona: tough, model: buyer_pool}
+    - {agent: llm_buyer, persona: lowballer, model: buyer_pool}
+
+summary_group_by: [seller_agent, seller_model]
+bootstrap: {n_boot: 2000, seed: 0}

@@ -1,5 +1,5 @@
 # RQ1 ablation: 4 seller variants x 3 personas x 20 scenarios (240 games).
-# RQ2: add Agents C and D here when ready (see configs/models.yaml).
+# RQ2: Agents C and D run on the same scenarios in tournament_finetuned.yaml.
 experiment_name: tournament
 seed: 42
 max_budget_usd: 10.00   # safety cap: review it against the pilot's real cost per game
