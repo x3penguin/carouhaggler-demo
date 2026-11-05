@@ -52,10 +52,9 @@ game), `llm_calls.jsonl` (every model call with tokens and latency) and a copy o
 | `configs/*.yaml` | One config per experiment; `demo.yaml` is the local demo |
 | `haggle/assist.py` | RQ6: draft, then human approve or edit, then deliver |
 | `finetune/` | RQ2: CraigslistBargain conversion, QLoRA training (MLX or Colab), Ollama export, tuned-vs-stock check. Start at `HANDOVER.md` |
-| `data/listings_sg.json` | 30 listings, each with at least one flaw |
+| `data/listings_sg.json` | 104 listings, each with at least one flaw |
 | `data/attacks.json` | 50 attack scripts in 7 categories; each has a plain twin generated in code |
-| `data/comparables.json` | Price comparables for `price_lookup` (placeholder until real data is added, see `data/README.md`) |
-| `docs/INTERFACES.md` | Interface contract for teammates |
+| `data/comparables.json` | 416 price comparables for `price_lookup` (sources in `data/README.md`) |
 
 ## Agents (Role 2)
 
@@ -111,6 +110,16 @@ uv run python -m haggle.runner configs/extension.yaml    # 40 markets, 120 chats
 uv run python -m haggle.runner configs/assist.yaml       # RQ6 autopilot arm, 15 games
 ```
 
+**RQ2 (Agents C and D):** these run on the same scenarios as A and B, once the fine-tuned model
+exists. Put its GGUF in `runs/finetune/`, then:
+
+```bash
+cp finetune/Modelfile runs/finetune/Modelfile
+(cd runs/finetune && ollama create qwen2.5-3b-haggle -f Modelfile)
+uv run python -m haggle.runner configs/tournament_finetuned.yaml   # 120 games
+uv run python -m haggle.runner configs/attacks_finetuned.yaml      # 400 games, no API key needed
+```
+
 **RQ6 human arm:** run the demo and open the **Seller Assist** page, then have each participant play
 scenarios from the list. Games are saved to `runs/assist_human/<timestamp>/`.
 
@@ -130,6 +139,6 @@ experiment; pin frozen paths in Phase 5. Report: `uv sync --group analysis`, the
 
 ## Open decisions
 
-- Main seller, buyer pool and judge models (`configs/models.yaml`), 1–3B model to fine-tune
+- Main seller, buyer pool and judge models (`configs/models.yaml`)
 - Total API budget
 - Live demo vs recorded video
