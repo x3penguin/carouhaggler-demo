@@ -42,15 +42,12 @@ models:
     price_in_per_mtok: 0.0
     price_out_per_mtok: 0.0
 
-  # RQ2: uncomment once Role 2 serves the fine-tuned model, then add sellers using it to
-  # tournament.yaml and attacks.yaml ({agent: prompted_seller, model: finetuned} is Agent C;
-  # {agent: agentic_seller, model: finetuned} is Agent D).
-  # finetuned:
-  #   provider: openai_compatible
-  #   model: SET_ME_ollama_model_name
-  #   base_url: http://localhost:11434/v1
-  #   api_key_env: OLLAMA_API_KEY
-  #   temperature: 0.7
-  #   max_tokens: 300
-  #   price_in_per_mtok: 0.0
-  #   price_out_per_mtok: 0.0
+  finetuned:              # RQ2, Agents C and D, on Ollama: created in finetune/HANDOVER.md step 6
+    provider: openai_compatible
+    model: qwen2.5-3b-haggle
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

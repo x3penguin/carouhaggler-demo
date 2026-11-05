@@ -256,6 +256,7 @@ def test_reviewed_game_metrics_count_edits():
 @pytest.mark.parametrize("name,games", [
     ("pilot", 51), ("self_play", 60), ("tournament", 240), ("honesty", 120), ("attacks", 400),
     ("asymmetry", 120), ("opponent", 60), ("assist", 15),
+    ("tournament_finetuned", 120), ("attacks_finetuned", 400),
 ])
 def test_experiment_sizes_match_the_plan(name, games):
     assert len(runner.build_jobs(load_config(f"configs/{name}.yaml"))) == games
@@ -279,10 +280,27 @@ def test_honesty_uses_the_same_scenarios_as_the_tournament():
     assert scenarios("honesty") == scenarios("tournament")
 
 
+@pytest.mark.parametrize("frontier", ["tournament", "attacks"])
+def test_finetuned_sellers_face_the_same_games_as_the_frontier_sellers(frontier):
+    # RQ2 compares C with A and D with B game by game, across two separate runs. The whole
+    # scenario is compared, so a different floor, budget or listing would fail here.
+    def games(name):
+        return {(j.buyer.get("script"), j.buyer.get("twin"), j.buyer.get("model"), j.scenario().model_dump_json())
+                for j in runner.build_jobs(load_config(f"configs/{name}.yaml"))}
+    assert games(f"{frontier}_finetuned") == games(frontier)
+
+
+@pytest.mark.parametrize("name", ["tournament_finetuned", "attacks_finetuned"])
+def test_finetuned_configs_only_use_the_finetuned_seller(name):
+    cfg = load_config(f"configs/{name}.yaml")
+    assert {s["model"] for s in cfg["matrix"]["sellers"]} == {"finetuned"}
+    check_models(cfg, {"finetuned"})  # already set up, unlike the hosted models
+
+
 def test_every_seller_variant_gets_its_own_name():
     from fake_llm import FakeClient
 
-    for name in ("tournament", "honesty", "attacks"):
+    for name in ("tournament", "honesty", "attacks", "tournament_finetuned", "attacks_finetuned"):
         cfg = load_config(f"configs/{name}.yaml")
         job = runner.build_jobs(cfg)[0]
         ctx = runner.BuildContext(cfg, job.scenario(), None)
