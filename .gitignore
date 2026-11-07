@@ -221,7 +221,8 @@ __marimo__/
 .streamlit/secrets.toml
 
 # Haggle Arena
-runs/
+runs/*
+!runs/attacks_finetuned/
 data/craigslist/
 
 # macOS
