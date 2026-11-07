@@ -4,9 +4,14 @@ A negotiation testbed for evaluating LLM seller agents on second-hand marketplac
 (Singapore-style). It's a pre-deployment safety check: does the agent get good deals, can buyers
 manipulate it, does it lie, and does the stronger model win? See `CLAUDE.md` for the full brief.
 
-**Status:** engine, agents, evaluation and all experiment configs are built. The fine-tuning pipeline
-is ready but the model isn't trained yet: see `finetune/HANDOVER.md`. Choose the hosted models in
-`configs/models.yaml` before running experiments.
+**Status:** engine, agents, evaluation and all experiment configs are built, and the hosted models
+are chosen in `configs/models.yaml`. The fine-tuned seller is trained (`finetune/HANDOVER.md`).
+
+**Fine-tuned model used in the report:** `qwen2.5-3b-haggle-q4_k_m.gguf`, SHA-256
+`2b57f5c2d5c62ab2a46d2d8a47f94e3b5c935baa71eb27ca1aba78edf0ed6175`, from the checkpoint at iteration
+300 (lowest held-out loss). Training stopped at iteration 430 of the planned 1,570, about half a pass
+over the data. The file isn't in git: ask the team for it, then register it with
+`ollama create qwen2.5-3b-haggle -f Modelfile` from the folder holding it.
 
 ## Setup
 
@@ -139,6 +144,8 @@ experiment; pin frozen paths in Phase 5. Report: `uv sync --group analysis`, the
 
 ## Open decisions
 
-- Main seller, buyer pool and judge models (`configs/models.yaml`)
-- Total API budget
 - Live demo vs recorded video
+
+Decided on 7 Nov 2026: a $6 API budget, so the hosted models are cheap ones (Claude Haiku 5.5 seller,
+GPT-6 Luna buyers, MiMo V2.6 Flash judge). The 51-game pilot from 5 Nov with GPT-6.1 Sol as the seller
+and GPT-6.1 Terra buyers is kept as the frontier reference for RQ2.
