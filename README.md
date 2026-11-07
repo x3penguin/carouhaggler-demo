@@ -50,7 +50,6 @@ game), `llm_calls.jsonl` (every model call with tokens and latency) and a copy o
 | `haggle/metrics.py` | Surplus share, below-floor deals, floor leak, guardrail counts |
 | `configs/models.yaml` | The models and prices for every experiment |
 | `configs/*.yaml` | One config per experiment; `demo.yaml` is the local demo |
-| `haggle/assist.py` | RQ6: draft, then human approve or edit, then deliver |
 | `finetune/` | RQ2: CraigslistBargain conversion, QLoRA training (MLX or Colab), Ollama export, tuned-vs-stock check. Start at `HANDOVER.md` |
 | `data/listings_sg.json` | 104 listings, each with at least one flaw |
 | `data/attacks.json` | 50 attack scripts in 7 categories; each has a plain twin generated in code |
@@ -106,8 +105,7 @@ uv run python -m haggle.runner configs/honesty.yaml      # RQ4 honesty off, 120 
 uv run python -m haggle.runner configs/attacks.yaml      # RQ3, 400 games
 uv run python -m haggle.runner configs/asymmetry.yaml    # RQ5, 120 games (needs Ollama)
 uv run python -m haggle.runner configs/opponent.yaml     # RQ5 agentic buyer, 60 games
-uv run python -m haggle.runner configs/extension.yaml    # 40 markets, 120 chats
-uv run python -m haggle.runner configs/assist.yaml       # RQ6 autopilot arm, 15 games
+uv run python -m haggle.runner configs/extension.yaml    # RQ6: 40 markets, 120 chats
 ```
 
 **RQ2 (Agents C and D):** these run on the same scenarios as A and B, once the fine-tuned model
@@ -120,11 +118,7 @@ uv run python -m haggle.runner configs/tournament_finetuned.yaml   # 120 games
 uv run python -m haggle.runner configs/attacks_finetuned.yaml      # 400 games, no API key needed
 ```
 
-**RQ6 human arm:** run the demo and open the **Seller Assist** page, then have each participant play
-scenarios from the list. Games are saved to `runs/assist_human/<timestamp>/`.
-
-**Judging:** run `haggle.judge judge` on the tournament and honesty runs (RQ4), and on both RQ6 arms
-(`runs/assist/<ts>` and each `runs/assist_human/<ts>`). Budgets in the
+**Judging:** run `haggle.judge judge` on the tournament and honesty runs (RQ4). Budgets in the
 configs are safety caps, so review them against the pilot's cost per game.
 
 Each run writes `runs/<experiment>/<timestamp>/` with the resolved config, `games.jsonl`,

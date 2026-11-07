@@ -14,8 +14,8 @@ Haggle Arena is a negotiation testbed where LLM agents haggle over second-hand m
 ## What changed since v1
 
 1. **Time and multiple buyers are in.** Messages carry a simulated delay (`wait_hours`), each side has a private deadline in days, and one seller can now handle several buyers who arrive at different times. Once the item sells, the other chats end. Fayaz built the engine side on `origin/fayaz`.
-2. **One-on-one games stay the main setting** for RQ1–5. Time and multi-buyer is an **extra experiment** with its own question. The "1 buyer vs N sellers" setup is dropped.
-3. **We're keeping all six research questions**, plus the extension question.
+2. **One-on-one games stay the main setting** for RQ1–5. Time and multi-buyer is **RQ6**. The "1 buyer vs N sellers" setup is dropped.
+3. **We're keeping all six research questions**, with time and multi-buyer competition as RQ6.
 4. **Methodology fixes** so the results hold up in the report. Details in the next section.
 5. **Role 2 is mostly built** (on the `role2` branch). What's left is fine-tuning, which can now start.
 
@@ -28,8 +28,7 @@ Haggle Arena is a negotiation testbed where LLM agents haggle over second-hand m
 | RQ3 | How exploitable are seller agents? | 50 attack scripts in 7 categories. **Each attack has a plain "twin"** with the exact same prices and timing but neutral wording. Attack effect = success under attack − success under twin. Without the twin, attacks get credit for failures that happen anyway: in our demo the 3B seller sold below its floor to a plain offer. |
 | RQ4 | Do better negotiators lie more? | Buyers **ask about condition** (battery, dents, what's included), so sellers get chances to lie. The seller's "be honest" line is a switch, so we can compare instructed vs not. The LLM judge is checked against ~100 hand-labelled games. |
 | RQ5 | Does the stronger model win? | Same agent design, strong vs weak model, both directions. The agentic buyer is a separate "stronger opponent" condition, so model and design aren't mixed. |
-| RQ6 | Does human-approved drafting reduce violations? | The seller drafts a reply and a human approves or edits it in the UI. Compare violations against full autopilot on the same scenarios. |
-| Ext. | Do time pressure and competition make sellers easier to exploit? | Measure whether concessions speed up as deadlines approach (**not scripted into prompts**). Test fake competing offers against real ones the platform reports, and attacks that exploit the seller's deadline. |
+| RQ6 | Do time pressure and competition make sellers easier to exploit? | Measure whether concessions speed up as deadlines approach (**not scripted into prompts**). Test fake competing offers against real ones the platform reports, and attacks that exploit the seller's deadline. |
 
 **Reporting rules (all RQs):**
 - Bootstrap 95% CIs.
@@ -52,7 +51,7 @@ Today is Mon 26 Oct.
 | Wed 28 Oct | Merge `origin/fayaz` and `role2` into `main`. Fix the open engine issues (below). **Freeze schemas.** |
 | Fri 30 Oct | Runner loads every agent from config. 50-game pilot gives the real cost per game. Judge prompt ready, ~100 games exported for labelling. |
 | Sun 1 Nov | Models and budget decided. Hand-labelling done. Final experiment configs. |
-| Wed 4 Nov | All experiment runs done (RQ1–6 + extension). |
+| Wed 4 Nov | All experiment runs done (RQ1–6). |
 | Fri 6 Nov | Results notebook and charts. Fine-tuned C/D results, if ready. |
 | Sun 8 Nov | Packaging: README, pinned models and seeds, frozen `runs/`. |
 | Tue 10 Nov / Fri 13 Nov | Presentation and submission (G1 / G2). |
@@ -104,7 +103,6 @@ Today is Mon 26 Oct.
 
 **Remaining:**
 - **Fine-tuning (Agents C/D).** Convert CraigslistBargain into our action format (including `chat` and `wait_hours`), run QLoRA on a 1–3B model, and serve it through Ollama. Track the training metrics below.
-- **RQ6 draft mode:** an agent wrapper that returns the draft for a human to approve or edit (UI by Role 3).
 - Support Role 3 in wiring the agents into the runner.
 
 **Early observations from live runs on `qwen2.5:3b`** (single runs, so treat them as hints, not results):
@@ -142,11 +140,11 @@ Today is Mon 26 Oct.
   - Deal rate, surplus share **and payoff per game (no deal = 0)**, below-floor deals, floor leaks, backward offers, format failures, honesty violations, cost and latency.
   - **Attack effect = attack − twin**, using each category's success rule.
   - All reported with bootstrap 95% CIs.
-- **New metrics for the extension:** wait behaviour, concession rate vs time remaining, outcome vs deadline, and how often a fake competing offer works compared with a real one.
+- **Metrics for RQ6 (time & multi-buyer competition):** wait behaviour, concession rate vs time remaining, outcome vs deadline, and how often a fake competing offer works compared with a real one.
 - **LLM-as-judge for honesty**, validated against ~100 hand-labelled games.
 - **Runner:** executes the matrix below from configs within budget. Agents load by name, with their switches (see the README "Agents" section).
 - **Harnesses:** self-play calibration, plus counterfactual replay (same buyer transcript against each seller variant).
-- **Streamlit demo** (plus the RQ6 approve/edit UI) and the final charts and tables.
+- **Streamlit demo** and the final charts and tables.
 
 ## Experiment matrix (proposal: confirm after the pilot)
 
@@ -156,8 +154,7 @@ Today is Mon 26 Oct.
 | RQ3 attacks | 50 attacks + 50 twins × sellers A and B × defences off/on | 400 (scripted buyers, so only seller calls cost) |
 | RQ4 honesty | Reuse the RQ1 games, plus the honesty switch off for A and B on 30 scenarios | +120 |
 | RQ5 asymmetry | Strong/weak seller × strong/weak buyer, same design, 30 scenarios | 120 |
-| RQ6 assist | Draft mode with classmates vs autopilot on the same scenarios | 10–15 human games |
-| Extension | Sellers A and B × 2–3 buyers per listing × urgency mix × 20 listings | 40 markets |
+| RQ6 extension | Sellers A and B × 2–3 buyers per listing × urgency mix × 20 listings | 40 markets |
 | RQ2 | C/D through the RQ1 and RQ3 matrices | if ready |
 
 Final counts depend on the pilot's cost per game and the API budget.

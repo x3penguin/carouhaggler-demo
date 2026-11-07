@@ -1,4 +1,4 @@
-"""Multi-buyer runner mode, extension metrics, RQ6 review flow and config safety. No LLM calls."""
+"""Multi-buyer runner mode, RQ6 extension metrics and config safety. No LLM calls."""
 
 import importlib.util
 import json
@@ -6,15 +6,12 @@ import json
 import pytest
 import yaml
 
-from haggle import assist, runner
+from haggle import runner
 from haggle.agents.base import AgentReply
 from haggle.agents.sanity import AcceptAboveFloorSeller
 from haggle.config import PROJECT_ROOT, check_models, load_config
-from haggle.engine import Game
 from haggle.harnesses import paired_difference
 from haggle.metrics import (
-    ASSIST_APPROVED,
-    ASSIST_EDITED,
     RIVAL_EVENT,
     attack_effect,
     competing_offer_response,
@@ -202,60 +199,12 @@ def test_paired_report_table_finds_pairs_by_seller_variant():
     assert paired_difference(rows, "p", "q")["pairs"] == 1
 
 
-# ---- RQ6 review flow ---------------------------------------------------------------
-
-
-class Drafter:
-    name, model = "drafter", "m"
-
-    def act(self, obs):
-        return AgentReply(action=Action(message="Battery is perfect", action="offer", price=95.0))
-
-
-def assist_game(**kw):
-    g = Game(SC, floor_protection=False, deadline_days=None, seller_deadline_days=7, buyer_deadline_days=5, **kw)
-    g.step(type("B", (), {"name": "b", "model": "m", "act": lambda self, o: AgentReply(action=Action(message="hi", action="offer", price=70.0))})())
-    return g
-
-
-def test_draft_is_not_delivered_until_reviewed():
-    g = assist_game()
-    d = assist.draft(g, Drafter())
-    assert len(g.turns) == 1 and g.standing["seller"] == 100
-    turn = assist.submit_review(g, d)
-    assert len(g.turns) == 2 and g.standing["seller"] == 95 and ASSIST_APPROVED in turn.guardrail_events
-
-
-def test_edit_replaces_the_draft_and_keeps_the_original_in_notes():
-    g = assist_game()
-    edited = Action(message="Battery is at 80%", action="offer", price=98.0)
-    turn = assist.submit_review(g, assist.draft(g, Drafter()), edited)
-    assert turn.action == edited and ASSIST_EDITED in turn.guardrail_events
-    assert "Battery is perfect" in turn.private_notes and "Battery is perfect" not in turn.action.message
-
-
-def test_review_rejects_illegal_moves_and_names_the_seller_separately():
-    g = assist_game()
-    d = assist.draft(g, Drafter())
-    with pytest.raises(ValueError):
-        assist.submit_review(g, d, Action(message="", action="offer", price=-5.0))
-    assert len(g.turns) == 1
-    assert assist.ReviewedSeller(Drafter()).name == "drafter+human_review"
-
-
-def test_reviewed_game_metrics_count_edits():
-    g = assist_game()
-    assist.submit_review(g, assist.draft(g, Drafter()), Action(message="x", action="offer", price=99.0))
-    row = game_metrics(g.result(Drafter(), assist.ReviewedSeller(Drafter()), "h"))
-    assert row["assist_edits"] == 1 and row["assist_reviewed"]
-
-
 # ---- configs -----------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("name,games", [
     ("pilot", 51), ("self_play", 60), ("tournament", 240), ("honesty", 120), ("attacks", 400),
-    ("asymmetry", 120), ("opponent", 60), ("assist", 15),
+    ("asymmetry", 120), ("opponent", 60),
     ("tournament_finetuned", 120), ("attacks_finetuned", 400),
 ])
 def test_experiment_sizes_match_the_plan(name, games):

@@ -37,7 +37,7 @@ group_options = ["seller_agent", "seller_model", "buyer_persona", "buyer_model",
 group_by = st.multiselect("Group by", group_options, default=["seller_agent", "buyer_persona"])
 METRICS = {
     "deal_rate": True, "surplus_share": False, "seller_payoff": False, "below_floor_rate": True, "floor_leak_rate": True,
-    "attack_success_rate": True, "dishonest_rate": True, "turns_to_deal": False, "assist_edits": False,
+    "attack_success_rate": True, "dishonest_rate": True, "turns_to_deal": False,
     "seller_wait_hours": False, "deadline_expired_rate": True, "cost_per_game_usd": False,
 }
 

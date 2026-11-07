@@ -1,4 +1,4 @@
-# Extension: sellers A and B x 20 listings, 3 buyers per listing with an urgency mix (40 markets, 120 chats).
+# RQ6: sellers A and B x 20 listings, 3 buyers per listing with an urgency mix (40 markets, 120 chats).
 # Buyers don't see each other's offers, as on real marketplaces; the seller's platform view does.
 experiment_name: extension
 seed: 42

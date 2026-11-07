@@ -223,6 +223,14 @@ __marimo__/
 # Haggle Arena
 runs/*
 !runs/attacks_finetuned/
+!runs/sanity/
+!runs/finetune/
+runs/finetune/*
+!runs/finetune/report.json
+!runs/finetune/loss_curve.png
+!runs/finetune/training_log.json
+!runs/finetune/train.log
+!runs/finetune/Modelfile
 data/craigslist/
 
 # macOS

@@ -37,10 +37,3 @@ def test_demo_app_multi_buyer_run():
             at.run()
             break
     assert not at.exception, [f"{e.message}\n{e.value}" for e in at.exception]
-
-
-def test_seller_assist_page_explains_unset_models_without_crashing():
-    path = str(Path(__file__).resolve().parents[1] / "app" / "pages" / "2_Seller_Assist.py")
-    at = AppTest.from_file(path)
-    at.run()
-    assert not at.exception, [f"{e.message}\n{e.value}" for e in at.exception]
