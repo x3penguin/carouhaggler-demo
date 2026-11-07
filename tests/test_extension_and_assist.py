@@ -312,11 +312,13 @@ def test_every_seller_variant_gets_its_own_name():
 def test_unset_or_unpriced_hosted_models_are_refused(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "x")
     cfg = load_config("configs/pilot.yaml")
+    main_seller = cfg["models"]["main_seller"]
+    main_seller.update(model="SET_ME_openrouter_model_id", price_in_per_mtok=0.0, price_out_per_mtok=0.0)
     with pytest.raises(ValueError, match="choose a model"):
         check_models(cfg, {"main_seller"})
-    cfg["models"]["main_seller"]["model"] = "vendor/model"
+    main_seller["model"] = "vendor/model"
     with pytest.raises(ValueError, match=r"\$0 price"):
         check_models(cfg, {"main_seller"})
-    cfg["models"]["main_seller"]["price_in_per_mtok"] = 1.0
+    main_seller["price_in_per_mtok"] = 1.0
     check_models(cfg, {"main_seller"})
     check_models(cfg, {"weak"})
