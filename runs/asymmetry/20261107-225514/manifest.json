@@ -1,0 +1,11 @@
+{
+  "experiment": "asymmetry",
+  "config_hash": "256f8ccb49df",
+  "games_planned": 120,
+  "games_played": 120,
+  "error_games": 0,
+  "spent_usd": 0.12998370000000006,
+  "cost_per_game_usd": 0.0010831975000000005,
+  "budget_usd": 5.0,
+  "aborted": null
+}

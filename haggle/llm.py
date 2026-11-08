@@ -43,6 +43,28 @@ def _is_transient(e: Exception) -> bool:
     return isinstance(e, openai.APIStatusError) and e.status_code >= 500
 
 
+def strict_json_schema(schema: dict) -> dict:
+    """The form strict decoding needs, as a copy because agents share their schema objects.
+
+    OpenAI rejects a schema unless every property is required and extras are forbidden, so an
+    optional field becomes one the model must fill in (a nullable one can still be null).
+    `default` and `minimum` go because providers differ on them; replies are still parsed with
+    Pydantic, which enforces the same bounds.
+    """
+    out = {k: v for k, v in schema.items() if k not in ("default", "minimum")}
+    for key in ("properties", "$defs"):  # these map names to schemas, so a name is never a keyword
+        if key in out:
+            out[key] = {name: strict_json_schema(sub) for name, sub in out[key].items()}
+    if "items" in out:
+        out["items"] = strict_json_schema(out["items"])
+    if "anyOf" in out:
+        out["anyOf"] = [strict_json_schema(sub) for sub in out["anyOf"]]
+    if "properties" in out:
+        out["required"] = list(out["properties"])
+        out["additionalProperties"] = False
+    return out
+
+
 @dataclass
 class LLMResponse:
     text: str
@@ -107,7 +129,7 @@ class LLMClient:
         if json_schema is not None:
             kwargs["response_format"] = {
                 "type": "json_schema",
-                "json_schema": {"name": "reply", "schema": json_schema, "strict": True},
+                "json_schema": {"name": "reply", "schema": strict_json_schema(json_schema), "strict": True},
             }
         start = time.perf_counter()
         resp = self._create_with_retry(

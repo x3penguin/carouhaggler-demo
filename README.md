@@ -4,9 +4,14 @@ A negotiation testbed for evaluating LLM seller agents on second-hand marketplac
 (Singapore-style). It's a pre-deployment safety check: does the agent get good deals, can buyers
 manipulate it, does it lie, and does the stronger model win? See `CLAUDE.md` for the full brief.
 
-**Status:** engine, agents, evaluation and all experiment configs are built. The fine-tuning pipeline
-is ready but the model isn't trained yet: see `finetune/HANDOVER.md`. Choose the hosted models in
-`configs/models.yaml` before running experiments.
+**Status:** engine, agents, evaluation and all experiment configs are built, and the hosted models
+are chosen in `configs/models.yaml`. The fine-tuned seller is trained (`finetune/HANDOVER.md`).
+
+**Fine-tuned model used in the report:** `qwen2.5-3b-haggle-q4_k_m.gguf`, SHA-256
+`2b57f5c2d5c62ab2a46d2d8a47f94e3b5c935baa71eb27ca1aba78edf0ed6175`, from the checkpoint at iteration
+300 (lowest held-out loss). Training stopped at iteration 430 of the planned 1,570, about half a pass
+over the data. The file isn't in git: ask the team for it, then register it with
+`ollama create qwen2.5-3b-haggle -f Modelfile` from the folder holding it.
 
 ## Setup
 
@@ -93,11 +98,6 @@ command to see its game count without playing anything. Run in this order:
 uv run python -m haggle.runner configs/sanity.yaml       # rule-based, no LLM: must pass first
 uv run python -m haggle.runner configs/pilot.yaml        # 51 games: gives the real cost per game
 
-# Validate the judge on about 100 hand-labelled games
-uv run python -m haggle.judge export runs/pilot/<ts> --out labels/pilot_100.csv --n 100
-uv run python -m haggle.judge judge configs/judge.yaml runs/pilot/<ts>
-uv run python -m haggle.judge agree labels/pilot_100.csv runs/pilot/<ts>/honesty.jsonl
-
 uv run python -m haggle.runner configs/self_play.yaml    # calibration, 60 games
 uv run python -m haggle.runner configs/replay.yaml       # paired replay of the pilot, 60 games
 uv run python -m haggle.runner configs/tournament.yaml   # RQ1 ablation, 240 games
@@ -105,7 +105,8 @@ uv run python -m haggle.runner configs/honesty.yaml      # RQ4 honesty off, 120 
 uv run python -m haggle.runner configs/attacks.yaml      # RQ3, 400 games
 uv run python -m haggle.runner configs/asymmetry.yaml    # RQ5, 120 games (needs Ollama)
 uv run python -m haggle.runner configs/opponent.yaml     # RQ5 agentic buyer, 60 games
-uv run python -m haggle.runner configs/extension.yaml    # RQ6: 40 markets, 120 chats
+uv run python -m haggle.runner configs/extension_solo.yaml  # RQ6 baseline: 40 markets, 1 buyer each
+uv run python -m haggle.runner configs/extension.yaml    # RQ6 competition: 40 markets, 120 chats
 ```
 
 **RQ2 (Agents C and D):** these run on the same scenarios as A and B, once the fine-tuned model
@@ -118,8 +119,19 @@ uv run python -m haggle.runner configs/tournament_finetuned.yaml   # 120 games
 uv run python -m haggle.runner configs/attacks_finetuned.yaml      # 400 games, no API key needed
 ```
 
-**Judging:** run `haggle.judge judge` on the tournament and honesty runs (RQ4). Budgets in the
-configs are safety caps, so review them against the pilot's cost per game.
+**Judging:** run the judge on the RQ1, RQ2, RQ3 and RQ4 runs and the frontier pilot, then check it
+against 30 hand-labelled games (`labels/hand_labels_30.csv`; rules in `haggle/prompts/judge_honesty.md`):
+
+```bash
+uv run python -m haggle.judge judge configs/judge.yaml runs/tournament/<ts>   # and honesty, tournament_finetuned,
+                                                                              # attacks, attacks_finetuned, pilot_sol
+cat runs/*/*/honesty.jsonl > labels/all_verdicts.jsonl
+uv run python -m haggle.judge agree labels/hand_labels_30.csv labels/all_verdicts.jsonl
+```
+
+Budgets in the configs are safety caps, so review them against the pilot's cost per game. The runs
+used in the report are committed under `runs/` (see `docs/EXPERIMENTS_RUN_LIST.md`), without the raw
+call logs.
 
 Each run writes `runs/<experiment>/<timestamp>/` with the resolved config, `games.jsonl`,
 `llm_calls.jsonl`, `summary.json`/`.txt` (mean and bootstrap 95% CI per metric) and `manifest.json`
@@ -133,6 +145,8 @@ experiment; pin frozen paths in Phase 5. Report: `uv sync --group analysis`, the
 
 ## Open decisions
 
-- Main seller, buyer pool and judge models (`configs/models.yaml`)
-- Total API budget
 - Live demo vs recorded video
+
+Decided on 7 Nov 2026: a $6 API budget, so the hosted models are cheap ones (Claude Haiku 5.5 seller,
+GPT-6 Luna buyers, MiMo V2.6 Flash judge). The 51-game pilot from 5 Nov with GPT-6.1 Sol as the seller
+and GPT-6.1 Terra buyers is kept as the frontier reference for RQ2.

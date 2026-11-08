@@ -5,8 +5,10 @@ from types import SimpleNamespace
 
 import openai
 import pytest
+from pydantic import ValidationError
 
-from haggle.llm import BudgetExceeded, CostTracker, LLMClient
+from haggle.llm import BudgetExceeded, CostTracker, LLMClient, strict_json_schema
+from haggle.schemas import Action
 
 
 def fake_response(text="{}", tin=1000, tout=500):
@@ -92,3 +94,32 @@ def test_json_schema_passed_as_response_format():
     c = make([fake_response()])
     c.chat([], json_schema={"type": "object"})
     assert c.calls[0]["response_format"]["json_schema"]["schema"] == {"type": "object"}
+
+
+def test_action_schema_meets_openai_strict_rules_without_being_changed():
+    original = Action.model_json_schema()
+    strict = strict_json_schema(original)
+    assert strict["required"] == ["message", "action", "price", "wait_hours"]
+    assert strict["additionalProperties"] is False
+    assert {"type": "null"} in strict["properties"]["price"]["anyOf"]  # a chat can still have no price
+    assert "default" not in strict["properties"]["wait_hours"]
+    assert "minimum" not in strict["properties"]["wait_hours"]
+    assert original["required"] == ["message", "action"]  # agents share this object
+    with pytest.raises(ValidationError):  # the bound dropped from the schema is still enforced
+        Action.model_validate_json('{"message": "", "action": "chat", "price": null, "wait_hours": -1}')
+
+
+def test_strict_schema_reaches_nested_objects_and_leaves_property_names_alone():
+    schema = {
+        "properties": {
+            "default": {"type": "string", "default": "x"},
+            "items": {"type": "array", "items": {"$ref": "#/$defs/Inner"}},
+        },
+        "$defs": {"Inner": {"type": "object", "properties": {"a": {"type": "integer", "default": 0}}}},
+    }
+    strict = strict_json_schema(schema)
+    assert set(strict["properties"]) == {"default", "items"}
+    assert strict["properties"]["default"] == {"type": "string"}
+    assert strict["$defs"]["Inner"]["required"] == ["a"]
+    assert strict["$defs"]["Inner"]["additionalProperties"] is False
+    assert strict["$defs"]["Inner"]["properties"]["a"] == {"type": "integer"}

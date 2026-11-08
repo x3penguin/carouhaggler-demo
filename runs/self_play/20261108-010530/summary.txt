@@ -1,0 +1,4 @@
+seller_agent     seller_model                buyer_model                 games  deal_rate             surplus_share         seller_payoff         below_floor_rate  floor_leak_rate       attack_success_rate  cost_per_game_usd   
+---------------  --------------------------  --------------------------  -----  --------------------  --------------------  --------------------  ----------------  --------------------  -------------------  --------------------
+prompted_seller  anthropic/claude-haiku-5.5  anthropic/claude-haiku-5.5  30     1.000                 0.768 [0.674, 0.853]  0.768 [0.674, 0.853]  0.000             0.167 [0.033, 0.300]  —                    0.002 [0.002, 0.002]
+prompted_seller  qwen2.5:3b                  qwen2.5:3b                  30     0.367 [0.200, 0.533]  0.764 [0.608, 0.905]  0.280 [0.142, 0.432]  0.000             0.133 [0.033, 0.267]  —                    0.000               

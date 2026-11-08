@@ -2,35 +2,37 @@
 # the runner refuses to start on a placeholder, or on a hosted model priced at $0, because
 # the budget cap works from these prices. Prices are USD per million tokens.
 models:
-  main_seller:            # capable hosted model: RQ1, RQ3, RQ4, and the strong side of RQ5
+  # Hosted models were chosen on 7 Nov 2026 to fit a $6 budget for every run. The versions are what
+  # OpenRouter served under each id on that date, and the prices are its list prices then.
+  main_seller:            # hosted seller: RQ1, RQ3, RQ4, and the strong side of RQ5
     provider: openai_compatible
-    model: SET_ME_openrouter_model_id
+    model: anthropic/claude-haiku-5.5    # version claude-haiku-5.5-20261007
     base_url: https://openrouter.ai/api/v1
     api_key_env: OPENROUTER_API_KEY
     temperature: 0.7
-    max_tokens: 300
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0
+    max_tokens: 800       # it thinks before replying: at 300, 65 of 301 pilot replies were cut off (7 Nov)
+    price_in_per_mtok: 0.10
+    price_out_per_mtok: 0.50
 
   buyer_pool:             # stays the same across conditions; a weak buyer flatters every seller
     provider: openai_compatible
-    model: SET_ME_openrouter_model_id
+    model: openai/gpt-6-luna             # version gpt-6-luna-20260922; a different family from the seller
     base_url: https://openrouter.ai/api/v1
     api_key_env: OPENROUTER_API_KEY
     temperature: 0.7
     max_tokens: 300
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0
+    price_in_per_mtok: 0.10
+    price_out_per_mtok: 0.50
 
   judge:                  # a different model family from the sellers (self-preference bias)
     provider: openai_compatible
-    model: SET_ME_openrouter_model_id
+    model: xiaomi/mimo-v2.6-flash        # version mimo-v2.6-flash-20260921
     base_url: https://openrouter.ai/api/v1
     api_key_env: OPENROUTER_API_KEY
     temperature: 0.7
     max_tokens: 600
-    price_in_per_mtok: 0.0
-    price_out_per_mtok: 0.0
+    price_in_per_mtok: 0.14
+    price_out_per_mtok: 0.28
 
   weak:                   # weak side of RQ5, on Ollama: `ollama pull qwen2.5:3b`
     provider: openai_compatible

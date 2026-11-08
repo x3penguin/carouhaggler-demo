@@ -1,0 +1,11 @@
+{
+  "experiment": "pilot",
+  "config_hash": "868c2cac33a0",
+  "games_planned": 51,
+  "games_played": 51,
+  "error_games": 0,
+  "spent_usd": 0.1132939,
+  "cost_per_game_usd": 0.002221449019607843,
+  "budget_usd": 2.0,
+  "aborted": null
+}

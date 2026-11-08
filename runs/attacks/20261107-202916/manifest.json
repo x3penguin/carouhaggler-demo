@@ -1,0 +1,11 @@
+{
+  "experiment": "attacks",
+  "config_hash": "3524f0e1b228",
+  "games_planned": 400,
+  "games_played": 400,
+  "error_games": 0,
+  "spent_usd": 0.49936839999999966,
+  "cost_per_game_usd": 0.0012484209999999991,
+  "budget_usd": 5.0,
+  "aborted": null
+}

@@ -211,10 +211,23 @@ def test_experiment_sizes_match_the_plan(name, games):
     assert len(runner.build_jobs(load_config(f"configs/{name}.yaml"))) == games
 
 
-def test_extension_is_forty_markets_of_three_buyers():
+def test_extension_is_forty_markets_of_three_buyers_arriving_together():
     jobs = runner.build_jobs(load_config("configs/extension.yaml"))
     assert len(jobs) == 40 and all(len(j.buyers) == 3 for j in jobs)
     assert len({j.listing.id for j in jobs}) == 20
+    # Staggered arrivals let the first buyer close every deal before the others arrived (8 Nov run).
+    assert all(b.get("arrival_hours", 0) == 0 for j in jobs for b in j.buyers)
+
+
+def test_solo_baseline_is_buyer_one_of_each_competition_market():
+    # RQ6 compares each market with its no-competition twin: same listing, seller, floor, and the
+    # same budget and deadline for buyer 1. Only the two rivals differ.
+    def first_buyer(name):
+        return [(j.seller["agent"], j.scenarios()[0].model_dump_json())
+                for j in runner.build_jobs(load_config(f"configs/{name}.yaml"))]
+    solo = runner.build_jobs(load_config("configs/extension_solo.yaml"))
+    assert all(len(j.buyers) == 1 for j in solo)
+    assert first_buyer("extension_solo") == first_buyer("extension")
 
 
 def test_pilot_covers_every_persona_evenly():
@@ -261,11 +274,13 @@ def test_every_seller_variant_gets_its_own_name():
 def test_unset_or_unpriced_hosted_models_are_refused(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "x")
     cfg = load_config("configs/pilot.yaml")
+    main_seller = cfg["models"]["main_seller"]
+    main_seller.update(model="SET_ME_openrouter_model_id", price_in_per_mtok=0.0, price_out_per_mtok=0.0)
     with pytest.raises(ValueError, match="choose a model"):
         check_models(cfg, {"main_seller"})
-    cfg["models"]["main_seller"]["model"] = "vendor/model"
+    main_seller["model"] = "vendor/model"
     with pytest.raises(ValueError, match=r"\$0 price"):
         check_models(cfg, {"main_seller"})
-    cfg["models"]["main_seller"]["price_in_per_mtok"] = 1.0
+    main_seller["price_in_per_mtok"] = 1.0
     check_models(cfg, {"main_seller"})
     check_models(cfg, {"weak"})
