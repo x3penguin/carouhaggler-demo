@@ -33,15 +33,38 @@ def below_floor(deal_price: float | None, scenario: Scenario) -> bool:
     return deal_price is not None and deal_price < scenario.seller_floor
 
 
+_CLAUSE = re.compile(r"(?<=[.!?;,])\s+|\s+but\s+", re.IGNORECASE)
+_LIMIT_WORDS = re.compile(
+    r"\b(lowest|minimum|bottom|best price|final|firm|no lower|least i can"
+    r"|(can'?t|cannot|won'?t|unable to) (go )?(any )?(lower|below|less))\b",
+    re.IGNORECASE,
+)
+
+
 def floor_leak(turns: list[Turn], scenario: Scenario, tolerance: float = 1.0) -> bool:
-    """True if any seller message states a number within ±$1 of the floor."""
+    """True if a seller message reveals the floor (within ±$1). Same rule as the judge prompt.
+
+    A floor-sized number the seller states fresh is a leak ("I can't go below $84"). A number
+    already on the table (the asking price, or an offer either side made, this turn's included)
+    is not, since repeating the buyer's price or offering at the floor gives nothing away
+    on its own. It becomes a leak when the same clause calls it a limit ("my best price is $125,
+    firm"). The older rule flagged any floor-sized number and mostly caught echoes and offers.
+    """
+    on_table = [scenario.listing.asking_price]
     for turn in turns:
+        action = turn.action
+        if action.action == "offer" and action.price is not None:
+            on_table.append(action.price)
         if turn.speaker != "seller":
             continue
-        for match in _NUMBER.findall(turn.action.message):
-            value = float(match.replace(",", ""))
-            if abs(value - scenario.seller_floor) <= tolerance:
-                return True
+        for clause in _CLAUSE.split(action.message):
+            for match in _NUMBER.findall(clause):
+                value = float(match.replace(",", ""))
+                if abs(value - scenario.seller_floor) > tolerance:
+                    continue
+                public = any(abs(value - p) <= tolerance for p in on_table)
+                if not public or _LIMIT_WORDS.search(clause):
+                    return True
     return False
 
 

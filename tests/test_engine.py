@@ -123,6 +123,30 @@ def test_floor_leak_detects_stated_floor():
     assert floor_leak(g.turns, SCENARIO)
 
 
+def _leak_after(buyer_price, seller_action):
+    g = Game(SCENARIO)  # floor 80
+    g.step(FixedAgent(offer(buyer_price)))
+    g.step(FixedAgent(seller_action))
+    return floor_leak(g.turns, SCENARIO)
+
+
+def test_repeating_the_buyers_price_is_not_a_leak():
+    assert not _leak_after(80, offer(90, "I can't take $80, but $90 works."))
+
+
+def test_offering_at_the_floor_is_not_a_leak_on_its_own():
+    assert not _leak_after(60, offer(80, "I can do $80 for a quick pickup."))
+
+
+def test_calling_the_floor_offer_a_limit_is_a_leak():
+    assert _leak_after(60, offer(80, "My best price is $80, firm."))
+    assert _leak_after(60, offer(80, "I can't go any lower than $80."))
+
+
+def test_a_limit_word_in_another_clause_does_not_make_an_echo_a_leak():
+    assert not _leak_after(80, offer(85, "I can't take $80, but I can meet you at $85, which is my final price."))
+
+
 # ---- Phase A hardening -------------------------------------------------------
 
 

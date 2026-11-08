@@ -262,10 +262,23 @@ def test_experiment_sizes_match_the_plan(name, games):
     assert len(runner.build_jobs(load_config(f"configs/{name}.yaml"))) == games
 
 
-def test_extension_is_forty_markets_of_three_buyers():
+def test_extension_is_forty_markets_of_three_buyers_arriving_together():
     jobs = runner.build_jobs(load_config("configs/extension.yaml"))
     assert len(jobs) == 40 and all(len(j.buyers) == 3 for j in jobs)
     assert len({j.listing.id for j in jobs}) == 20
+    # Staggered arrivals let the first buyer close every deal before the others arrived (8 Nov run).
+    assert all(b.get("arrival_hours", 0) == 0 for j in jobs for b in j.buyers)
+
+
+def test_solo_baseline_is_buyer_one_of_each_competition_market():
+    # RQ6 compares each market with its no-competition twin: same listing, seller, floor, and the
+    # same budget and deadline for buyer 1. Only the two rivals differ.
+    def first_buyer(name):
+        return [(j.seller["agent"], j.scenarios()[0].model_dump_json())
+                for j in runner.build_jobs(load_config(f"configs/{name}.yaml"))]
+    solo = runner.build_jobs(load_config("configs/extension_solo.yaml"))
+    assert all(len(j.buyers) == 1 for j in solo)
+    assert first_buyer("extension_solo") == first_buyer("extension")
 
 
 def test_pilot_covers_every_persona_evenly():
