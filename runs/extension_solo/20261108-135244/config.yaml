@@ -1,0 +1,81 @@
+experiment_name: extension_solo
+seed: 42
+max_budget_usd: 5.0
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+guardrails:
+  floor_protection: false
+matrix:
+  seeds:
+  - 0
+  markets:
+    listing_sample: 20
+    deadline_days: 7
+    buyers_see_competing_offers: false
+    buyer_sets:
+    - - agent: llm_buyer
+        persona: tough
+        model: buyer_pool
+        deadline: normal
+        arrival_hours: 0
+  sellers:
+  - agent: prompted_seller
+    model: main_seller
+  - agent: agentic_seller
+    model: main_seller
+summary_group_by:
+- seller_agent
+- buyer_persona
+bootstrap:
+  n_boot: 2000
+  seed: 0
+models:
+  main_seller:
+    provider: openai_compatible
+    model: anthropic/claude-haiku-5.5
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+    temperature: 0.7
+    max_tokens: 800
+    price_in_per_mtok: 0.1
+    price_out_per_mtok: 0.5
+  buyer_pool:
+    provider: openai_compatible
+    model: openai/gpt-6-luna
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.1
+    price_out_per_mtok: 0.5
+  judge:
+    provider: openai_compatible
+    model: xiaomi/mimo-v2.6-flash
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+    temperature: 0.7
+    max_tokens: 600
+    price_in_per_mtok: 0.14
+    price_out_per_mtok: 0.28
+  weak:
+    provider: openai_compatible
+    model: qwen2.5:3b
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0
+  finetuned:
+    provider: openai_compatible
+    model: qwen2.5-3b-haggle
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

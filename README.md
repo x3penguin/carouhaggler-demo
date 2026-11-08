@@ -98,11 +98,6 @@ command to see its game count without playing anything. Run in this order:
 uv run python -m haggle.runner configs/sanity.yaml       # rule-based, no LLM: must pass first
 uv run python -m haggle.runner configs/pilot.yaml        # 51 games: gives the real cost per game
 
-# Validate the judge on about 100 hand-labelled games
-uv run python -m haggle.judge export runs/pilot/<ts> --out labels/pilot_100.csv --n 100
-uv run python -m haggle.judge judge configs/judge.yaml runs/pilot/<ts>
-uv run python -m haggle.judge agree labels/pilot_100.csv runs/pilot/<ts>/honesty.jsonl
-
 uv run python -m haggle.runner configs/self_play.yaml    # calibration, 60 games
 uv run python -m haggle.runner configs/replay.yaml       # paired replay of the pilot, 60 games
 uv run python -m haggle.runner configs/tournament.yaml   # RQ1 ablation, 240 games
@@ -110,7 +105,8 @@ uv run python -m haggle.runner configs/honesty.yaml      # RQ4 honesty off, 120 
 uv run python -m haggle.runner configs/attacks.yaml      # RQ3, 400 games
 uv run python -m haggle.runner configs/asymmetry.yaml    # RQ5, 120 games (needs Ollama)
 uv run python -m haggle.runner configs/opponent.yaml     # RQ5 agentic buyer, 60 games
-uv run python -m haggle.runner configs/extension.yaml    # RQ6: 40 markets, 120 chats
+uv run python -m haggle.runner configs/extension_solo.yaml  # RQ6 baseline: 40 markets, 1 buyer each
+uv run python -m haggle.runner configs/extension.yaml    # RQ6 competition: 40 markets, 120 chats
 ```
 
 **RQ2 (Agents C and D):** these run on the same scenarios as A and B, once the fine-tuned model
@@ -123,8 +119,19 @@ uv run python -m haggle.runner configs/tournament_finetuned.yaml   # 120 games
 uv run python -m haggle.runner configs/attacks_finetuned.yaml      # 400 games, no API key needed
 ```
 
-**Judging:** run `haggle.judge judge` on the tournament and honesty runs (RQ4). Budgets in the
-configs are safety caps, so review them against the pilot's cost per game.
+**Judging:** run the judge on the RQ1, RQ2, RQ3 and RQ4 runs and the frontier pilot, then check it
+against 30 hand-labelled games (`labels/hand_labels_30.csv`; rules in `haggle/prompts/judge_honesty.md`):
+
+```bash
+uv run python -m haggle.judge judge configs/judge.yaml runs/tournament/<ts>   # and honesty, tournament_finetuned,
+                                                                              # attacks, attacks_finetuned, pilot_sol
+cat runs/*/*/honesty.jsonl > labels/all_verdicts.jsonl
+uv run python -m haggle.judge agree labels/hand_labels_30.csv labels/all_verdicts.jsonl
+```
+
+Budgets in the configs are safety caps, so review them against the pilot's cost per game. The runs
+used in the report are committed under `runs/` (see `docs/EXPERIMENTS_RUN_LIST.md`), without the raw
+call logs.
 
 Each run writes `runs/<experiment>/<timestamp>/` with the resolved config, `games.jsonl`,
 `llm_calls.jsonl`, `summary.json`/`.txt` (mean and bootstrap 95% CI per metric) and `manifest.json`

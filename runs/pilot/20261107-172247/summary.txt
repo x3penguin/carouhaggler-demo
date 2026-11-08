@@ -1,0 +1,5 @@
+seller_agent     seller_model                buyer_persona  games  deal_rate             surplus_share           seller_payoff           below_floor_rate      floor_leak_rate       attack_success_rate  cost_per_game_usd   
+---------------  --------------------------  -------------  -----  --------------------  ----------------------  ----------------------  --------------------  --------------------  -------------------  --------------------
+prompted_seller  anthropic/claude-haiku-5.5  fair           17     1.000                 0.447 [0.319, 0.577]    0.447 [0.319, 0.577]    0.000                 0.412 [0.176, 0.647]  —                    0.002 [0.001, 0.002]
+prompted_seller  anthropic/claude-haiku-5.5  lowballer      17     0.941 [0.824, 1.000]  -0.275 [-0.630, 0.015]  -0.259 [-0.618, 0.011]  0.471 [0.235, 0.706]  0.824 [0.647, 1.000]  —                    0.003 [0.002, 0.003]
+prompted_seller  anthropic/claude-haiku-5.5  tough          17     1.000                 0.234 [0.140, 0.337]    0.234 [0.140, 0.337]    0.000                 0.529 [0.294, 0.765]  —                    0.002 [0.002, 0.003]

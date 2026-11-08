@@ -1,0 +1,4 @@
+seller_agent                        seller_model                games  deal_rate             surplus_share         seller_payoff         below_floor_rate  floor_leak_rate       attack_success_rate  cost_per_game_usd   
+----------------------------------  --------------------------  -----  --------------------  --------------------  --------------------  ----------------  --------------------  -------------------  --------------------
+agentic_seller[tools+plan+reflect]  anthropic/claude-haiku-5.5  30     1.000                 0.765 [0.675, 0.846]  0.765 [0.675, 0.846]  0.000             0.133 [0.033, 0.267]  —                    0.007 [0.006, 0.008]
+prompted_seller                     anthropic/claude-haiku-5.5  30     0.933 [0.833, 1.000]  0.665 [0.570, 0.761]  0.621 [0.516, 0.722]  0.000             0.333 [0.167, 0.500]  —                    0.003 [0.003, 0.004]

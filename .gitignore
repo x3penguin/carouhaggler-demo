@@ -231,6 +231,24 @@ runs/finetune/*
 !runs/finetune/training_log.json
 !runs/finetune/train.log
 !runs/finetune/Modelfile
+# Runs used in the report (8 Nov 2026). The raw call logs stay local: they hold every prompt and
+# reply (about 90 MB), and the analysis reads games, summaries and judge verdicts only.
+!runs/pilot/
+!runs/pilot_sol/
+!runs/pilot_haiku_300tok/
+!runs/tournament/
+!runs/tournament_finetuned/
+!runs/attacks/
+!runs/honesty/
+!runs/asymmetry/
+!runs/self_play/
+!runs/replay/
+!runs/opponent/
+!runs/extension/
+!runs/extension_solo/
+runs/*/*/llm_calls.jsonl
+runs/*/*/judge_llm_calls.jsonl
+runs/sanity/20261105-162442/
 data/craigslist/
 
 # macOS

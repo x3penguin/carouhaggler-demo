@@ -1,0 +1,11 @@
+{
+  "experiment": "replay",
+  "config_hash": "a31567bb6f92",
+  "games_planned": 60,
+  "games_played": 60,
+  "error_games": 0,
+  "spent_usd": 0.17405170000000003,
+  "cost_per_game_usd": 0.002900861666666667,
+  "budget_usd": 3.0,
+  "aborted": null
+}

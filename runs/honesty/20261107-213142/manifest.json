@@ -1,0 +1,11 @@
+{
+  "experiment": "honesty",
+  "config_hash": "7ffe132f1167",
+  "games_planned": 120,
+  "games_played": 120,
+  "error_games": 0,
+  "spent_usd": 0.44183160000000005,
+  "cost_per_game_usd": 0.0036819300000000004,
+  "budget_usd": 5.0,
+  "aborted": null
+}
