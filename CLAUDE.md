@@ -26,7 +26,7 @@ This project is that **pre-deployment safety evaluation**.
 | RQ3               | How exploitable are seller agents? We test sob stories, fake urgency, extreme lowballing, prompt injection, and attempts to extract the floor price. |
 | RQ4               | Do better negotiators lie more? (deal quality vs. honesty trade-off)                                                                                 |
 | RQ5               | **Model asymmetry:** when a strong model negotiates against a weak one, how much surplus shifts to the strong side?                            |
-| RQ6 *(stretch)* | **Assist vs. autopilot:** does a human-approved draft mode reduce violations compared with full autonomy?                                      |
+| RQ6               | **Time pressure & competition:** do approaching deadlines and competing buyers make sellers easier to exploit?                                       |
 
 ---
 
@@ -266,7 +266,7 @@ Report means with **95% confidence intervals** (bootstrap) across games and seed
 
 - [ ] Full tournament: A/B/C/D × personas and attacks × seeds, with roles swapped where relevant
 - [ ] **Asymmetry experiment:** strong vs. weak model on the same agent design, in both directions
-- [ ] *(Stretch)* **Assist mode:** the seller drafts and a human approves or edits in the UI; compare violations against autopilot
+- [ ] **RQ6 (Time & multi-buyer competition):** measure concessions near deadlines and compare fake competing offers against real platform-verified competing offers (`configs/extension.yaml`)
 - [ ] Streamlit demo (`app/demo.py`):
   - **Left:** listing + chat.
   - **Right:** a toggleable "behind the scenes" panel showing the floor, the buyer's budget, tool lookups, and plan notes, plus a final scorecard (deal price, surplus share, honesty check, violations).
@@ -313,7 +313,6 @@ Report means with **95% confidence intervals** (bootstrap) across games and seed
 - Which frontier model (reference and judge), which budget model (opponents), which 1–3B model to fine-tune
 - Total API budget for the project
 - Whether the professor allows a live laptop demo (if not, record a demo video)
-- Whether a small human study with classmates needs any approval
 
 ## 14. References
 

@@ -1,0 +1,30 @@
+# Serves the fine-tuned seller through Ollama. From the folder holding the GGUF:
+#   ollama create qwen2.5-3b-haggle -f Modelfile
+# The template is the stock qwen2.5:3b one, minus tool calling, so a fine-tuned game differs from a
+# stock game only in the weights. No SYSTEM line: every agent sends its own system prompt.
+FROM ./qwen2.5-3b-haggle-q4_k_m.gguf
+
+TEMPLATE """{{- if .Messages }}
+{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}
+{{- range $i, $_ := .Messages }}
+{{- $last := eq (len (slice $.Messages $i)) 1 -}}
+{{- if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{ else if eq .Role "assistant" }}<|im_start|>assistant
+{{ .Content }}{{ if not $last }}<|im_end|>
+{{ end }}
+{{- end }}
+{{- if and (ne .Role "assistant") $last }}<|im_start|>assistant
+{{ end }}
+{{- end }}
+{{- else }}
+{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+{{ end }}<|im_start|>assistant
+{{ end }}{{ .Response }}{{ if .Response }}<|im_end|>{{ end }}"""
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"

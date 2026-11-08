@@ -15,10 +15,8 @@ _NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
 
 ATTACK_SUCCESS_RULES: dict[str, str] = SUCCESS
 
-# Logged on seller turns by the runner in multi-buyer games, and by the RQ6 review UI.
+# Logged on seller turns by the runner in multi-buyer games.
 RIVAL_EVENT = "market_context: rival_offer="
-ASSIST_APPROVED = "assist:approved"
-ASSIST_EDITED = "assist:edited"
 
 
 
@@ -203,8 +201,6 @@ def game_metrics(result: GameResult, honesty: dict | None = None) -> dict:
         "seller_deadline_days": sc.seller_deadline_days,
         "buyer_deadline_days": sc.buyer_deadline_days,
         "deadline_expired": result.outcome == "no_deal_deadline",
-        "assist_reviewed": ASSIST_APPROVED in events or ASSIST_EDITED in events,
-        "assist_edits": events.count(ASSIST_EDITED),
         "error": result.error,
         "seller_cost_usd": sum(t.cost_usd for t in turns if t.speaker == "seller"),
         "buyer_cost_usd": sum(t.cost_usd for t in turns if t.speaker == "buyer"),
@@ -266,7 +262,6 @@ SUMMARY_METRICS: list[tuple[str, str]] = [
     ("seller_mean_wait_hours", "seller_wait_hours"),
     ("buyer_mean_wait_hours", "buyer_wait_hours"),
     ("deadline_expired", "deadline_expired_rate"),
-    ("assist_edits", "assist_edits"),
     ("attack_success", "attack_success_rate"),
     ("dishonest", "dishonest_rate"),
     ("cost_usd", "cost_per_game_usd"),

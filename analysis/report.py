@@ -145,30 +145,8 @@ def honesty_pairs(on_rows: list[dict], off_rows: list[dict], metric="dishonest")
                         pairs, metric=metric, variant_key="seller_agent")
 
 
-RQ6_METRICS = [("below_floor", "below floor"), ("floor_leak", "floor leak"), ("dishonest", "dishonest"),
-               ("seller_backward_offers", "backward offers"), ("seller_payoff", "payoff")]
-
-
-def assist_table(autopilot_rows: list[dict], human_rows: list[dict]) -> str:
-    """RQ6: human review against autopilot on the same scenarios. Negative = fewer in assist mode."""
-    autopilot = {(r["scenario_id"], r["buyer_agent"]): r for r in autopilot_rows}
-    out = []
-    for field, label in RQ6_METRICS:
-        diffs = [float(h[field]) - float(autopilot[k][field]) for h in human_rows
-                 if (k := (h["scenario_id"], h["buyer_agent"])) in autopilot
-                 and h[field] is not None and autopilot[k][field] is not None]
-        point, lo, hi, n = bootstrap_ci(diffs)
-        human = [float(r[field]) for r in human_rows if r[field] is not None]
-        auto = [float(r[field]) for r in autopilot_rows if r[field] is not None]
-        fmt = lambda xs: f"{sum(xs) / len(xs):.2f}" if xs else "—"
-        out.append([label, fmt(human), fmt(auto), "—" if point is None else f"{point:+.2f} [{lo:+.2f}, {hi:+.2f}]", str(n)])
-    edits = sum(r["assist_edits"] for r in human_rows)
-    return markdown_table(["measure", "human review", "autopilot", "paired difference", "pairs"], out) + \
-        f"\n\nHuman edits across {len(human_rows)} games: {edits}."
-
-
 def concession_table(results: list) -> str:
-    """Extension: concession per seller turn by how much of the deadline is left."""
+    """RQ6: concession per seller turn by how much of the deadline is left."""
     out = [[c["seller_agent"], c["time_left"], str(c["games"]), str(c["turns"]),
             _ci({"x": c["mean_concession"], "x_lo": c["mean_concession_lo"], "x_hi": c["mean_concession_hi"]}, "x"),
             _ci({"x": c["concession_rate"], "x_lo": c["concession_rate_lo"], "x_hi": c["concession_rate_hi"]}, "x", True)]

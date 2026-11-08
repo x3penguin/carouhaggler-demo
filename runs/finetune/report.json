@@ -1,0 +1,20 @@
+{
+  "qwen2.5:3b": {
+    "examples": 100,
+    "valid_json_rate": 0.92,
+    "same_action_as_human": 0.5217391304347826,
+    "offers_below_floor": 0.18181818181818182,
+    "median_price_error": 0.125,
+    "tokens_per_second": 32.51869743550196,
+    "seconds_per_reply": 1.3684434958768543
+  },
+  "qwen2.5-3b-haggle": {
+    "examples": 100,
+    "valid_json_rate": 0.99,
+    "same_action_as_human": 0.7171717171717171,
+    "offers_below_floor": 0.13043478260869565,
+    "median_price_error": 0.013888888888888888,
+    "tokens_per_second": 26.16410752011828,
+    "seconds_per_reply": 1.4795077558152843
+  }
+}

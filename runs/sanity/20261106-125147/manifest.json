@@ -1,0 +1,11 @@
+{
+  "experiment": "sanity",
+  "config_hash": "989b5b2f5602",
+  "games_planned": 240,
+  "games_played": 240,
+  "error_games": 0,
+  "spent_usd": 0.0,
+  "cost_per_game_usd": 0.0,
+  "budget_usd": 0.0,
+  "aborted": null
+}

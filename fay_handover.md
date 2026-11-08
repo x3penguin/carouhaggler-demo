@@ -1,30 +1,32 @@
 # Fine-Tuning Handover & Evaluation Report (RQ2)
 
 
-**Trained Model:** `qwen2.5-3b-haggle` (Base: `Qwen/Qwen2.5-3B-Instruct`, 4-bit QLoRA, rank 16)
+**Trained Model:** `qwen2.5-3b-haggle` (Base: `mlx-community/Qwen2.5-3B-Instruct-4bit`, 4-bit QLoRA, rank 16)
+**Hardware & Run Time:** Apple M2 Pro (16 GB unified memory); ran 430 of 1,570 planned iterations in **2 hours 10 minutes** (20:34 to 22:43 on 5 Nov 2026, ~8–11 tok/s training throughput plus ~140s per validation pass). Stopped early after validation loss rose at step 400 (`0.986` vs `0.975` at step 300).
 **Selected Checkpoint:** Checkpoint 300 (`0000300_adapters.safetensors`, validation loss: **0.975**)
-**Artifact Format:** GGUF `Q4_K_M` (1.83 GB)
+**Artifact Format:** GGUF `Q4_K_M` (1.83 GB, SHA-256 `2b57f5c2d5c62ab2a46d2d8a47f94e3b5c935baa71eb27ca1aba78edf0ed6175`)
 
 ---
 
 ## 1. Quantitative Evaluation Results
 
-Evaluation performed on **100 held-out seller turns** from the CraigslistBargain test split (`finetune.compare_models`):
+Evaluation performed on **100 held-out seller turns** sampled from the **CraigslistBargain `dev` split** (`data/craigslist/sft/valid.jsonl`, 337 seller turns from 77 kept dialogues; the published `test` split has no price/intent annotations and is not used) via `finetune.compare_models`:
 
-| Evaluation Metric                | Stock Baseline (`qwen2.5:3b`) | Fine-Tuned (`qwen2.5-3b-haggle`) | Net Improvement                                         |
-| -------------------------------- | ------------------------------- | ---------------------------------- | ------------------------------------------------------- |
-| **Valid JSON Format Rate** | 92.0%                           | **99.0%**                    | **+7.0%** (near-zero schema failures)             |
-| **Human Action Alignment** | 52.2%                           | **71.7%**                    | **+19.5%** (behaves like expert human seller)     |
-| **Offers Below Floor**     | 18.2%                           | **13.0%**                    | **-5.2%** (stronger reservation price discipline) |
-| **Median Price Error**     | 12.5%                           | **1.4%**                     | **~9× reduction in pricing inaccuracy**          |
-| **Tokens per Second**      | 32.5 tok/s                      | **26.2 tok/s**               | Real-time interactive generation preserved              |
-| **Latency per Response**   | 1.37s                           | **1.48s**                    | Negligible overhead                                     |
+| Evaluation Metric                | Stock Baseline (`qwen2.5:3b`) | Fine-Tuned (`qwen2.5-3b-haggle`) | Net Difference                                                                 |
+| -------------------------------- | ------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------ |
+| **Valid JSON Format Rate** | 92.0%                           | **99.0%**                    | **+7.0 pts** (parsed as valid `Action` without schema enforcement)       |
+| **Human Action Alignment** | 52.2%                           | **71.7%**                    | **+19.5 pts** (matches the human seller's action type among valid JSONs) |
+| **Offers Below Floor**     | 18.2%                           | **13.0%**                    | **-5.2 pts** (share of model `offer` moves below the synthetic floor)    |
+| **Median Price Error**     | 12.5%                           | **1.4%**                     | **-11.1 pts** (`|model_price - human_price| / human_price` on shared offers) |
+| **Tokens per Second**      | 32.5 tok/s                      | **26.2 tok/s**               | Real-time interactive generation preserved                                     |
+| **Latency per Response**   | 1.37s                           | **1.48s**                    | Negligible overhead                                                            |
 
 ### Key Findings for the Final Report:
 
-1. **Schema Compliance:** The fine-tuned model internalizes the Pydantic `Action` schema (`thought`, `message`, `action`, `price`, `wait_hours`), eliminating schema failures.
-2. **Pricing Accuracy:** Stock small models struggle with floor price arithmetic (12.5% median price error). SFT on reward-filtered dialogues grounded the pricing within 1.4% of human ground truth.
-3. **Strategic Alignment:** 71.7% of actions matched human seller moves (knowing when to counter vs accept or decline).
+1. **Schema Compliance:** Without JSON-schema constrained decoding, the fine-tuned model outputs valid `Action` JSON (`message`, `action`, `price`, `wait_hours`) on 99.0% of turns vs. 92.0% for stock `qwen2.5:3b`.
+2. **Offer Price Closeness to Human Sellers (`median_price_error`):** When both the model and the recorded human seller make an `offer`, `median_price_error` measures `|reply.price - truth.price| / truth.price`. Fine-tuning reduced the median gap between the model's counter-offer and the human seller's actual offer from 12.5% to 1.4%.
+3. **Below-Floor Offers Remain a Warning Sign (`offers_below_floor`):** Because CraigslistBargain has no reservation prices, floors in `prepare_data.py` are synthetic (drawn at 70–90% of asking price and capped so the human seller's moves never cross them). While fine-tuning reduced below-floor offers from 18.2% to 13.0% of `offer` moves, **13.0% is still high** (roughly 1 in 8 offers violates the floor), showing that SFT alone does not guarantee floor discipline and deterministic engine/agent guardrails remain essential.
+4. **Action Selection (`same_action_as_human`):** 71.7% of valid replies chose the same move type (`offer`, `accept`, `chat`, `reject`, `walk_away`) as the reward-filtered human seller (up from 52.2%).
 
 ---
 
