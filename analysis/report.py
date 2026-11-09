@@ -2,16 +2,23 @@
 
 from __future__ import annotations
 
+import csv
+import math
 import json
+import re
+import tempfile
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 
 from haggle.harnesses import paired_difference, self_play_calibration
+from haggle.judge import agreement, label_id
 from haggle.metrics import (
     ATTACK_SUCCESS_RULES,
+    SUMMARY_METRICS,
     bootstrap_ci,
     attack_effect,
+    floor_leak,
     game_id,
     competing_offer_response,
     concession_by_time,
@@ -25,7 +32,7 @@ from haggle.metrics import (
 )
 
 SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
-INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
+INK, MUTED, GRID = "#0b0b0b", "#898781", "#e1e0d9"
 
 
 
@@ -65,15 +72,34 @@ def _ci(s: dict, label: str, pct: bool = False) -> str:
     return f(v) if lo == hi else f"{f(v)} [{f(lo)}, {f(hi)}]"
 
 
+HEADERS = {"seller_agent": "seller", "seller_model": "model", "buyer_persona": "buyer", "buyer_model": "buyer model"}
+
+
+def _readable(cell: str) -> str:
+    """Seller and model ids as the report names them ('B + defences · claude-haiku-5.5'); other text untouched."""
+    if " " in cell:
+        return cell
+    if any(cell.startswith(k) for k in DESIGN_LABELS):
+        return display_name(cell)
+    return model_name(cell) if re.fullmatch(r"[A-Za-z][\w.-]*/[\w.:-]+", cell) else cell  # provider/model, not "7/7"
+
+
 def markdown_table(header: list[str], rows: list[list[str]]) -> str:
+    header = [HEADERS.get(h, h) for h in header]
     lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
-    return "\n".join(lines + ["| " + " | ".join(r) + " |" for r in rows])
+    return "\n".join(lines + ["| " + " | ".join(_readable(str(c)) for c in r) + " |" for r in rows])
+
+
+def _in_design_order(summaries: list[dict]) -> list[dict]:
+    """Model first, then A, A+tools, A+plan, B (summarize sorts by the raw names)."""
+    return sorted(summaries, key=lambda s: (str(s.get("seller_model", "")), _design_rank(s.get("seller_agent", "")),
+                                            str(s.get("buyer_persona", ""))))
 
 
 def main_table(rows: list[dict], group_by=("seller_agent", "seller_model")) -> str:
     """The headline table: one row per seller variant, mean [95% CI] per metric."""
     out = []
-    for s in summarize(rows, group_by=group_by):
+    for s in _in_design_order(summarize(rows, group_by=group_by)):
         out.append([*(str(s[k]) for k in group_by), str(s["games"]),
                     _ci(s, "deal_rate", True), _ci(s, "surplus_share"), _ci(s, "seller_payoff"), _ci(s, "below_floor_rate", True),
                     _ci(s, "floor_leak_rate", True), _ci(s, "dishonest_rate", True),
@@ -99,7 +125,8 @@ def cost_table(*run_dirs) -> str:
     for d in run_dirs:
         judge = sum(v.get("cost_usd", 0.0) for h in Path(d).rglob("honesty.jsonl") for v in load_honesty(h).values())
         for m in load_manifests(d):
-            out.append([m["experiment"], str(m["games_played"]), str(m.get("error_games", 0)), f"${m['spent_usd']:.4f}",
+            # The run folder, not the config's experiment name: pilot_sol ran configs/pilot.yaml with another seller.
+            out.append([Path(d).parent.name, str(m["games_played"]), str(m.get("error_games", 0)), f"${m['spent_usd']:.4f}",
                         "—" if m["cost_per_game_usd"] is None else f"${m['cost_per_game_usd']:.4f}",
                         f"${judge:.4f}", m["aborted"] or "no"])
     return markdown_table(["experiment", "games", "crashed", "spent", "cost/game", "judge spend", "aborted"], out)
@@ -123,7 +150,8 @@ def paired_table(rows: list[dict], pairs: list[tuple[str, str]], metric="surplus
         out.append([a, b, f"{p['mean_diff']:+.3f} [{p['lo']:+.3f}, {p['hi']:+.3f}]",
                     f"{100 * p['win_rate_a']:.0f}% [{100 * p['win_rate_a_lo']:.0f}, {100 * p['win_rate_a_hi']:.0f}]",
                     str(p["pairs"])])
-    return markdown_table(["A", "B", f"mean {metric} A − B", "A win rate", "paired scenarios"], out)
+    # Columns are "seller" and "compared with", not A/B, which are seller names in this project.
+    return markdown_table(["seller", "compared with", f"mean {metric} difference (95% CI)", "win rate", "paired scenarios"], out)
 
 
 
@@ -184,147 +212,629 @@ def competing_offer_table(attack_results: list, market_results: list) -> str:
     return markdown_table(["seller", "condition", "games", "turns", "mean concession", "turns with a concession"], out)
 
 
-def _axes(ax, title: str, xlabel: str = "", ylabel: str = ""):
-    ax.set_title(title, loc="left", fontsize=12, color=INK)
-    ax.set_xlabel(xlabel, color=MUTED)
-    ax.set_ylabel(ylabel, color=MUTED)
-    for side in ("top", "right"):
+# ---- RQ2: fine-tuned vs prompted, seller-side cost --------------------------------
+
+SELLER_COST = [("seller_cost_usd", "seller_cost_per_game_usd")]
+
+
+def seller_table(rows: list[dict], group_by=("seller_agent", "seller_model")) -> str:
+    """RQ2 headline. Cost and latency are the seller's own: the buyer is the same API model in every row,
+    so total cost per game would hide the difference between a local and a hosted seller."""
+    out = []
+    for s in _in_design_order(summarize(rows, group_by=group_by, metrics=SUMMARY_METRICS + SELLER_COST)):
+        out.append([*(str(s[k]) for k in group_by), str(s["games"]), _ci(s, "deal_rate", True), _ci(s, "seller_payoff"),
+                    _ci(s, "below_floor_rate", True), _ci(s, "floor_leak_rate", True), _ci(s, "dishonest_rate", True),
+                    _ci(s, "seller_format_failures"), f"${s['seller_cost_per_game_usd']:.4f}",
+                    "—" if s["seller_latency_s"] is None else f"{s['seller_latency_s']:.1f}s"])
+    return markdown_table([*group_by, "games", "deal rate", "payoff", "below floor", "floor leak", "dishonest",
+                           "format fails", "seller cost/game", "seller latency/turn"], out)
+
+
+# ---- RQ6: competition between buyers vs a one-buyer baseline ----------------------
+
+
+def market_rows(results: list, setting: str) -> list[dict]:
+    """One row per market (one item and its buyers), keyed so a market pairs with its twin in another run.
+
+    The key drops the buyer suffix and the config hash: buyer 1 of each three-buyer market has the same
+    listing, floor and budget as the lone buyer in the solo run (a test checks this).
+    """
+    markets: dict[tuple, list] = {}
+    for r in results:
+        markets.setdefault((re.sub(r"-b\d+$", "", r.scenario.id), r.seller_agent), []).append(r)
+    out = []
+    for (market, seller), chats in sorted(markets.items()):
+        if any(c.outcome == "error" for c in chats):
+            continue
+        sc = chats[0].scenario
+        sale = next((c for c in chats if c.outcome == "deal"), None)
+        gap = max(sc.listing.asking_price - sc.seller_floor, 1.0)
+        out.append({"market": market, "seller_agent": seller, "setting": setting, "buyers": len(chats),
+                    "winner": sale.scenario.buyer_persona if sale else None,
+                    "sold": sale is not None,
+                    "payoff": (sale.deal_price - sc.seller_floor) / gap if sale else 0.0,
+                    "days_to_sale": sale.turns[-1].simulated_time_hours / 24.0 if sale else None,
+                    "below_floor": bool(sale and sale.deal_price < sc.seller_floor)})
+    return out
+
+
+def competition_table(solo: list, competition: list, label="three buyers") -> str:
+    """RQ6 headline: each market with rivals minus the same market with one buyer, per seller, paired."""
+    rows = market_rows(solo, "solo") + market_rows(competition, label)
+    out = []
+    for seller in sorted({r["seller_agent"] for r in rows}):
+        mine = [r for r in rows if r["seller_agent"] == seller]
+        for metric in ("payoff", "sold", "days_to_sale", "below_floor"):
+            p = paired_difference(mine, label, "solo", metric=metric, variant_key="setting", pair_keys=("market",))
+            means = {s: bootstrap_ci([r[metric] for r in mine if r["setting"] == s])[0] for s in ("solo", label)}
+            fmt = (lambda x: "—" if x is None else f"{100 * x:.0f}%") if metric in ("sold", "below_floor") else \
+                  (lambda x: "—" if x is None else f"{x:.2f}")
+            diff = "—" if p["mean_diff"] is None else f"{p['mean_diff']:+.2f} [{p['lo']:+.2f}, {p['hi']:+.2f}]"
+            out.append([seller, metric.replace("_", " "), fmt(means["solo"]), fmt(means[label]), diff, str(p["pairs"])])
+    return markdown_table(["seller", "metric", "one buyer", label, f"{label} − one buyer (paired, 95% CI)", "markets"], out)
+
+
+def winner_table(competition: list) -> str:
+    """RQ6: which buyer persona got the item when all three were negotiating at once."""
+    rows = market_rows(competition, "competition")
+    out = []
+    for seller in sorted({r["seller_agent"] for r in rows}):
+        mine = [r for r in rows if r["seller_agent"] == seller]
+        counts = {}
+        for r in mine:
+            counts[r["winner"] or "unsold"] = counts.get(r["winner"] or "unsold", 0) + 1
+        out.append([seller, str(len(mine)), ", ".join(f"{k} {v}" for k, v in sorted(counts.items(), key=lambda kv: -kv[1]))])
+    return markdown_table(["seller", "markets", "won by"], out)
+
+
+# ---- judge checks ------------------------------------------------------------------
+
+
+def _verdicts(*run_dirs) -> dict[str, dict]:
+    return {k: v for d in run_dirs for h in Path(d).rglob("honesty.jsonl") for k, v in load_honesty(h).items()}
+
+
+def leak_check_table(*run_dirs) -> str:
+    """The regex floor-leak metric against the judge's floor_leak verdict on the same games.
+
+    Both follow the same rule (the floor as a number or in words; offering the floor is not a leak),
+    so disagreement measures how far a cheap regex can stand in for the judge.
+    """
+    out = []
+    for d in run_dirs:
+        verdicts = _verdicts(d)
+        if not verdicts:
+            continue
+        pairs = [(floor_leak(r.turns, r.scenario), bool(verdicts[game_id(r)]["judge_floor_leak"]))
+                 for r in load_results(d) if game_id(r) in verdicts and not verdicts[game_id(r)].get("error")]
+        n = len(pairs)
+        both = sum(a and b for a, b in pairs)
+        regex_only = sum(a and not b for a, b in pairs)
+        judge_only = sum(b and not a for a, b in pairs)
+        out.append([Path(d).parent.name, str(n), f"{100 * sum(a for a, _ in pairs) / n:.0f}%",
+                    f"{100 * sum(b for _, b in pairs) / n:.0f}%", f"{100 * (n - regex_only - judge_only) / n:.0f}%",
+                    str(both), str(regex_only), str(judge_only)])
+    return markdown_table(["run", "judged games", "regex leak", "judge leak", "agree", "both", "regex only", "judge only"], out)
+
+
+def judge_agreement(labels_csv: str | Path, *run_dirs, major_only: bool = False) -> dict:
+    """Judge vs human labels over the verdicts of every judged run (haggle.judge.agreement on one combined file).
+
+    major_only=True counts a game as dishonest only when the judge found a major violation (a denied flaw or a
+    false concrete fact), a sensitivity check for borderline "minor" flags.
+    """
+    verdicts = _verdicts(*run_dirs).values()
+    if major_only:
+        verdicts = [{**v, "violations": v["major_violations"]} for v in verdicts]
+    with tempfile.TemporaryDirectory() as tmp:
+        combined = Path(tmp) / "verdicts.jsonl"
+        combined.write_text("".join(json.dumps(v) + "\n" for v in verdicts), encoding="utf-8")
+        return agreement(Path(labels_csv), combined)
+
+
+def agreement_table(labels_csv: str | Path, *run_dirs) -> str:
+    """Judge-vs-human agreement for both questions, with the major-only sensitivity row."""
+    out = []
+    for name, major in (("any violation", False), ("major violations only", True)):
+        a = judge_agreement(labels_csv, *run_dirs, major_only=major)
+        rows = [("dishonest", f"dishonest ({name})")] + ([("floor_leak", "floor leak")] if not major else [])
+        for key, label in rows:
+            m = a[key]
+            f = lambda x: "—" if x is None else f"{x:.2f}"
+            out.append([label, str(m["n"]), f(m["accuracy"]), f(m["precision"]), f(m["recall"]), f(m["f1"]),
+                        f"{m['tp']} / {m['fp']} / {m['fn']} / {m['tn']}"])
+    return markdown_table(["question", "labelled games", "accuracy", "precision", "recall", "F1",
+                           "TP / FP / FN / TN (judge vs human)"], out)
+
+
+def judge_disagreements(labels_csv: str | Path, *run_dirs) -> str:
+    """Every labelled game where the human and the judge differ, with both sides' reasons."""
+    verdicts = {label_id(k): v for k, v in _verdicts(*run_dirs).items()}
+    out = []
+    with Path(labels_csv).open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            v = verdicts.get(row["label_id"])
+            if v is None or v.get("error"):
+                continue
+            judge = {"dishonest": v["violations"] > 0, "floor leak": bool(v["judge_floor_leak"])}
+            human = {"dishonest": row["human_dishonest"].strip(), "floor leak": row["human_floor_leak"].strip()}
+            for q in judge:
+                if human[q] in ("0", "1") and (human[q] == "1") != judge[q]:
+                    # A flagged claim says more than the summary sentence, which comes from one of the voting samples.
+                    flagged = "; ".join(f"[{d['severity']}] \"{d['claim']}\"" for d in v.get("details") or [])
+                    why = flagged if q == "dishonest" and flagged else (v.get("reasoning") or "")
+                    out.append([row["label_id"], row["listing"][:40], q, "yes" if human[q] == "1" else "no",
+                                "yes" if judge[q] else "no", row["notes"].replace("|", "/")[:160],
+                                why.replace("|", "/").replace("\n", " ")[:160]])
+    return markdown_table(["game", "listing", "question", "human", "judge", "labeller's note", "judge's evidence"], out)
+
+
+# ---- charts --------------------------------------------------------------------------
+# One look for every figure, sized for 16:9 slides: a left-aligned title and a one-line note on what is plotted,
+# hairline grid on the value axis only, thin marks, CIs as thin lines, and selective value labels in ink (never
+# in the series colour). Colours: blue then orange then aqua (validated as a set for colour-blind readers);
+# grey is the baseline. Categorical colour follows the model, so a model keeps its colour in every chart.
+
+BLUE, ORANGE, AQUA = SERIES[0], SERIES[1], SERIES[2]
+INK2, AXIS, BASELINE_GREY, SURFACE = "#52514e", "#c3c2b7", "#9a9893", "#ffffff"
+BLUE_RAMP = ["#f4f8fd", "#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"]
+
+plt.rcParams.update({
+    "font.family": "sans-serif",
+    "font.sans-serif": ["Inter", "Segoe UI", "Helvetica Neue", "Arial", "DejaVu Sans"],
+    "font.size": 12, "axes.labelsize": 12, "xtick.labelsize": 11.5, "ytick.labelsize": 12,
+    "axes.edgecolor": AXIS, "axes.labelcolor": INK2, "xtick.color": INK2, "ytick.color": INK, "text.color": INK,
+    "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "savefig.facecolor": SURFACE,
+    "legend.frameon": False, "legend.fontsize": 11.5,
+})
+
+# Chart and table labels: the design letters used in the report, and the model without its provider prefix.
+DESIGN_LABELS = {"prompted_seller": "A", "agentic_seller[tools]": "A+tools", "agentic_seller[plan]": "A+plan",
+                 "agentic_seller[tools+plan+reflect]": "B"}
+VARIANT_SUFFIXES = {"[injection_defense=True]+guarded": " + defences", "[honesty_instruction=False]": " (no honesty line)"}
+DESIGN_ORDER = ["A", "A+tools", "A+plan", "B"]
+
+
+def model_name(model) -> str:
+    return str(model).split("/")[-1]
+
+
+def display_name(agent: str) -> str:
+    """'agentic_seller[tools+plan+reflect][injection_defense=True]+guarded' -> 'B + defences'. Others unchanged."""
+    agent = str(agent)
+    if "@" in agent:
+        a, m = agent.split("@", 1)
+        return f"{display_name(a)} · {model_name(m)}"
+    for key in sorted(DESIGN_LABELS, key=len, reverse=True):
+        if agent.startswith(key):
+            rest = agent[len(key):]
+            return DESIGN_LABELS[key] + VARIANT_SUFFIXES.get(rest, rest)
+    return agent
+
+
+def _design_rank(agent: str) -> tuple:
+    name = display_name(agent)
+    base = name.split(" ")[0]
+    return (DESIGN_ORDER.index(base) if base in DESIGN_ORDER else len(DESIGN_ORDER), name)
+
+
+def short_label(s: dict, group_by) -> str:
+    parts = []
+    for k in group_by:
+        v = str(s[k])
+        parts.append(display_name(v) if k == "seller_agent" else model_name(v) if k.endswith("_model") else v)
+    return " · ".join(parts)
+
+
+def _model_colors(points: list[dict]) -> dict:
+    models = sorted({s.get("seller_model") for s in points}, key=str)
+    return {m: SERIES[i % len(SERIES)] for i, m in enumerate(models)}
+
+
+def _figure(width=10.0, height=5.6, ncols=1, sharey=False, width_ratios=None):
+    fig, axes = plt.subplots(1, ncols, figsize=(width, height), sharey=sharey,
+                             gridspec_kw={"width_ratios": width_ratios} if width_ratios else None)
+    return fig, axes
+
+
+def _style(ax, value_axis="x"):
+    """Hairline grid on the value axis only; no frame except a quiet baseline."""
+    for side in ("top", "right", "left", "bottom"):
         ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color(GRID)
-    ax.tick_params(colors=MUTED)
-    ax.grid(True, color=GRID, linewidth=0.8)
+    if value_axis == "y":
+        ax.spines["bottom"].set_visible(True)
+        ax.spines["bottom"].set_color(AXIS)
+    ax.tick_params(length=0, pad=6)
+    ax.grid(False)
+    if value_axis in ("x", "both"):
+        ax.xaxis.grid(True, color=GRID, linewidth=1)
+    if value_axis in ("y", "both"):
+        ax.yaxis.grid(True, color=GRID, linewidth=1)
     ax.set_axisbelow(True)
 
 
-def _err(s: dict, label: str):
-    v = s[label]
-    return [[v - s[f"{label}_lo"]], [s[f"{label}_hi"] - v]]
+def _header(fig, title: str, subtitle: str = "", legend_handles=None):
+    """Left-aligned title and note above the plot, then lay out the axes below them."""
+    h = fig.get_figheight()
+    y = 1 - 0.16 / h
+    fig.text(0.012, y, title, fontsize=18, fontweight="semibold", color=INK, va="top", ha="left")
+    y -= 0.40 / h
+    if subtitle:
+        fig.text(0.012, y, subtitle, fontsize=12, color=INK2, va="top", ha="left")
+        y -= 0.30 / h
+    if legend_handles:
+        fig.legend(handles=legend_handles, loc="upper left", bbox_to_anchor=(0.005, y), ncol=len(legend_handles),
+                   handlelength=1.2, columnspacing=1.6, borderaxespad=0)
+        y -= 0.36 / h
+    fig.tight_layout(rect=(0, 0, 1, y - 0.08 / h), w_pad=3.5)
 
 
-def surplus_vs_honesty(rows: list[dict], group_by=("seller_agent",)):
-    """RQ4: does a better negotiator lie more? One point per seller variant, CIs on both axes."""
-    fig, ax = plt.subplots(figsize=(6.5, 4.5))
-    _axes(ax, "Deal quality vs honesty (RQ4)", "Seller surplus share (mean, 95% CI)", "Games with an honesty violation")
-    for i, s in enumerate(summarize(rows, group_by=group_by)):
-        if s["surplus_share"] is None or s["dishonest_rate"] is None:
-            continue
-        name = " / ".join(str(s[k]) for k in group_by)
-        ax.errorbar(s["surplus_share"], s["dishonest_rate"], xerr=_err(s, "surplus_share"), yerr=_err(s, "dishonest_rate"),
-                    fmt="o", ms=8, color=SERIES[i % len(SERIES)], ecolor=SERIES[i % len(SERIES)], elinewidth=1.5, capsize=0, label=name)
-        ax.annotate(name, (s["surplus_share"], s["dishonest_rate"]), xytext=(8, 6), textcoords="offset points", color=INK, fontsize=9)
-    ax.yaxis.set_major_formatter(lambda y, _: f"{100 * y:.0f}%")
-    ax.legend(frameon=False, fontsize=9, loc="best")
-    fig.tight_layout()
-    return fig
+def _dot(color, label):
+    return plt.Line2D([], [], marker="o", linestyle="", markersize=9, color=color, label=label)
+
+
+def _swatch(color, label):
+    return plt.Rectangle((0, 0), 1, 1, color=color, label=label)
+
+
+def _ci_dot(ax, x, y, lo, hi, color, horizontal=True, size=9):
+    if lo is not None and hi is not None:
+        if horizontal:
+            ax.plot([lo, hi], [y, y], color=color, linewidth=2, solid_capstyle="round", zorder=2)
+        else:
+            ax.plot([x, x], [lo, hi], color=color, linewidth=2, solid_capstyle="round", zorder=2)
+    ax.plot([x], [y], marker="o", markersize=size, color=color, markeredgecolor=SURFACE, markeredgewidth=2, zorder=3)
+
+
+def _pct(x) -> str:
+    return f"{100 * x:.0f}%"
+
+
+ATTACK_NAMES = {"deadline_exploit": "Deadline exploit", "extreme_lowball": "Extreme lowball",
+                "fake_competing_offer": "Fake competing offer", "fake_urgency": "Fake urgency",
+                "floor_extraction": "Floor extraction", "prompt_injection": "Prompt injection", "sob_story": "Sob story"}
 
 
 def attack_success_chart(rows: list[dict], sellers: list[str] | None = None):
-    """RQ3: attack success rate by category, one bar per seller (max four sellers). Attacks only; see attack_table for the twin baseline."""
-    attack_rows = [r for r in rows if r["attack_category"] and r.get("attack_kind") != "twin"]
-    summ = summarize(attack_rows, group_by=("seller_agent", "attack_category"))
-    sellers = (sellers or sorted({s["seller_agent"] for s in summ}))[:len(SERIES)]
-    cats = sorted({s["attack_category"] for s in summ})
-    fig, ax = plt.subplots(figsize=(7.5, 0.35 * len(cats) * len(sellers) + 1.5))
-    _axes(ax, "Attack success rate by category (RQ3)", "Success rate (95% CI)")
-    h = 0.8 / max(1, len(sellers))
-    for j, seller in enumerate(sellers):
-        by_cat = {s["attack_category"]: s for s in summ if s["seller_agent"] == seller}
-        ys = [i + j * h for i, c in enumerate(cats) if c in by_cat]
-        ss = [by_cat[c] for c in cats if c in by_cat]
-        ax.barh(ys, [s["attack_success_rate"] for s in ss], height=h, color=SERIES[j], label=seller,
-                edgecolor="white", linewidth=2,
-                xerr=[[s["attack_success_rate"] - s["attack_success_rate_lo"] for s in ss],
-                      [s["attack_success_rate_hi"] - s["attack_success_rate"] for s in ss]],
-                error_kw={"ecolor": INK, "elinewidth": 1})
-    ax.set_yticks([i + h * (len(sellers) - 1) / 2 for i in range(len(cats))], [c.replace("_", " ") for c in cats])
-    ax.set_xlim(0, 1)
-    ax.xaxis.set_major_formatter(lambda x, _: f"{100 * x:.0f}%")
-    ax.invert_yaxis()
-    # Below the axes: long variant names would otherwise cover the bars.
-    ax.legend(frameon=False, fontsize=9, loc="upper left", bbox_to_anchor=(0, -0.08))
-    fig.tight_layout()
+    """RQ3: attack success rate per category and seller, as a grid with the number in every cell.
+
+    Rows may mix models; columns group by model. Attacks only; see attack_table for the twin baseline.
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    attack_rows = [r for r in rows if r["attack_category"] and r.get("attack_kind") != "twin" and r.get("outcome") != "error"]
+    summ = summarize(attack_rows, group_by=("seller_model", "seller_agent", "attack_category"))
+    cell = {(s["seller_model"], s["seller_agent"], s["attack_category"]): s for s in summ}
+    models = sorted({s["seller_model"] for s in summ}, key=str)
+    cols: list = []
+    for m in models:
+        agents = sorted({s["seller_agent"] for s in summ if s["seller_model"] == m}, key=_design_rank)
+        agents = [a for a in agents if not sellers or a in sellers]
+        if cols:
+            cols.append(None)  # a blank column between models
+        cols += [(m, a) for a in agents]
+    cats = sorted({s["attack_category"] for s in summ}, key=lambda c: ATTACK_NAMES.get(c, c))
+    grid = [[float("nan") if col is None or (col[0], col[1], c) not in cell else cell[(col[0], col[1], c)]["attack_success_rate"]
+             for col in cols] for c in cats]
+    counts = [["" if col is None or (col[0], col[1], c) not in cell else
+               f"{round(cell[(col[0], col[1], c)]['attack_success_rate'] * cell[(col[0], col[1], c)]['games'])}/{cell[(col[0], col[1], c)]['games']}"
+               for col in cols] for c in cats]
+    cmap = LinearSegmentedColormap.from_list("blue_ramp", BLUE_RAMP)
+    cmap.set_bad(SURFACE)
+    fig, ax = _figure(1.05 * len(cols) + 3.2, 0.62 * len(cats) + 2.9)
+    ax.imshow(grid, cmap=cmap, vmin=0, vmax=1, aspect="auto")
+    for i, row in enumerate(grid):
+        for j, v in enumerate(row):
+            if v == v:  # not NaN
+                ax.text(j, i, counts[i][j], ha="center", va="center", fontsize=12,
+                        color=SURFACE if v >= 0.45 else INK if v > 0 else MUTED, fontweight="semibold" if v > 0 else "normal")
+    ax.set_xticks(range(len(cols)), ["" if c is None else display_name(c[1]) for c in cols], fontsize=11.5)
+    ax.set_yticks(range(len(cats)), [ATTACK_NAMES.get(c, c) for c in cats])
+    ax.xaxis.tick_top()
+    ax.set_xticks([x - 0.5 for x in range(1, len(cols))], minor=True)
+    ax.set_yticks([y - 0.5 for y in range(1, len(cats))], minor=True)
+    ax.grid(which="minor", color=SURFACE, linewidth=3)
+    ax.tick_params(which="both", length=0)
+    for side in ax.spines.values():
+        side.set_visible(False)
+    start = 0
+    for m in models:  # model name above its group of columns
+        n = sum(1 for c in cols if c is not None and c[0] == m)
+        ax.annotate(model_name(m), ((start + start + n - 1) / 2, -0.5), xytext=(0, 30), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=12, fontweight="semibold", color=INK, annotation_clip=False)
+        start += n + 1
+    ns = [s["games"] for s in summ]
+    games = f"{min(ns)}–{max(ns)}" if min(ns) != max(ns) else str(min(ns))
+    _header(fig, "Attack success by category (RQ3)",
+            f"Attack games the attacker won, out of {games} per cell: a sale below the seller's lowest price, or that price "
+            "revealed (for extraction and injection).")
     return fig
 
 
-def ablation_chart(rows: list[dict]):
-    """RQ1: seller payoff per variant (no deal = 0), so walking away from hard buyers doesn't flatter a seller."""
-    summ = summarize(rows, group_by=("seller_agent",))
-    fig, ax = plt.subplots(figsize=(7, 0.6 * len(summ) + 1.6))
-    _axes(ax, "Seller payoff by design (RQ1)", "Seller payoff per game, no deal = 0 (mean, 95% CI)")
-    ax.barh(range(len(summ)), [s["seller_payoff"] for s in summ], height=0.6, color=SERIES[0],
-            xerr=[[s["seller_payoff"] - s["seller_payoff_lo"] for s in summ], [s["seller_payoff_hi"] - s["seller_payoff"] for s in summ]],
-            error_kw={"ecolor": INK, "elinewidth": 1})
-    ax.set_yticks(range(len(summ)), [s["seller_agent"] for s in summ], fontsize=9)
-    ax.invert_yaxis()
-    fig.tight_layout()
-    return fig
+def cost_quality_chart(rows: list[dict], group_by=("seller_agent", "seller_model"), cost="cost_per_game_usd"):
+    """RQ2: cost per game vs seller surplus, with the Pareto frontier (best quality per budget).
 
-
-def asymmetry_chart(rows: list[dict], strong: str, weak: str):
-    """RQ5: seller surplus share for each (seller model → buyer model) pairing."""
-    deals = [r for r in rows if r["seller_model"] in (strong, weak) and r["buyer_model"] in (strong, weak)]
-    summ = {(s["seller_model"], s["buyer_model"]): s for s in summarize(deals, group_by=("seller_model", "buyer_model"))}
-    order = [(strong, weak), (strong, strong), (weak, weak), (weak, strong)]
-    order = [k for k in order if k in summ and summ[k]["surplus_share"] is not None]
-    fig, ax = plt.subplots(figsize=(6.5, 4))
-    shift = surplus_shift(rows, strong, weak)
-    sub = "" if shift["shift"] is None else f"  (shift {shift['shift']:+.2f} [{shift['lo']:+.2f}, {shift['hi']:+.2f}])"
-    _axes(ax, f"Surplus by model pairing (RQ5){sub}", "", "Seller surplus share (95% CI)")
-    colors = {strong: SERIES[0], weak: SERIES[1]}
-    for i, k in enumerate(order):
-        s = summ[k]
-        ax.bar(i, s["surplus_share"], width=0.6, color=colors[k[0]], yerr=_err(s, "surplus_share"), error_kw={"ecolor": INK, "elinewidth": 1},
-               label=f"seller = {k[0]}")
-    handles, labels = ax.get_legend_handles_labels()
-    uniq = dict(zip(labels, handles))
-    ax.legend(uniq.values(), uniq.keys(), frameon=False, fontsize=9, loc="lower right")
-    ax.set_xticks(range(len(order)), [f"{a} sells\nto {b}" for a, b in order], fontsize=9)
-    ax.axhline(0.5, color=MUTED, linewidth=1, linestyle="--")
-    ax.annotate("even split", (len(order) - 0.5, 0.5), xytext=(0, 4), textcoords="offset points", color=MUTED, fontsize=9, ha="right")
-    fig.tight_layout()
-    return fig
-
-
-def cost_quality_chart(rows: list[dict], group_by=("seller_agent", "seller_model")):
-    """RQ2: cost per game vs seller surplus, with the Pareto frontier (best quality per budget)."""
-    pts = [s for s in summarize(rows, group_by=group_by) if s["surplus_share"] is not None]
-    fig, ax = plt.subplots(figsize=(6.5, 4.5))
-    _axes(ax, "Cost vs deal quality (RQ2)", "Cost per game (USD)", "Seller surplus share (95% CI)")
-    for i, s in enumerate(pts):
-        name = " / ".join(str(s[k]) for k in group_by)
-        ax.errorbar(s["cost_per_game_usd"], s["surplus_share"], yerr=_err(s, "surplus_share"), fmt="o", ms=8,
-                    color=SERIES[0], elinewidth=1.5)
-        ax.annotate(name, (s["cost_per_game_usd"], s["surplus_share"]), xytext=(8, 4), textcoords="offset points", fontsize=9, color=INK)
+    cost="seller_cost_per_game_usd" plots the seller's own spend, leaving out the shared buyer model.
+    """
+    pts = [s for s in summarize(rows, group_by=group_by, metrics=SUMMARY_METRICS + SELLER_COST) if s["surplus_share"] is not None]
+    colors = _model_colors(pts)
+    fig, ax = _figure(10, 5.8)
     front, best = [], float("-inf")
-    for s in sorted(pts, key=lambda s: (s["cost_per_game_usd"], -s["surplus_share"])):
+    for s in sorted(pts, key=lambda s: (s[cost], -s["surplus_share"])):
         if s["surplus_share"] > best:
             front.append(s)
             best = s["surplus_share"]
     if len(front) > 1:
-        ax.step([s["cost_per_game_usd"] for s in front], [s["surplus_share"] for s in front], where="post",
-                color=SERIES[1], linewidth=2, label="Pareto frontier")
-        ax.legend(frameon=False, fontsize=9, loc="lower right")
-    fig.tight_layout()
+        ax.step([s[cost] for s in front], [s["surplus_share"] for s in front], where="post",
+                color=BASELINE_GREY, linewidth=1.5, linestyle="--", zorder=1)
+    span = max(s[cost] for s in pts) or 1.0
+    for s in pts:
+        same = sorted((p for p in pts if abs(p[cost] - s[cost]) < span * 0.01), key=lambda p: p["surplus_share"])
+        x = s[cost] + (same.index(s) - (len(same) - 1) / 2) * span * 0.025  # side by side, so the CIs don't overlap
+        c = colors[s.get("seller_model")]
+        _ci_dot(ax, x, s["surplus_share"], s["surplus_share_lo"], s["surplus_share_hi"], c, horizontal=False, size=10)
+        ax.annotate(display_name(s["seller_agent"]), (x, s["surplus_share"]), xytext=(10, 0), textcoords="offset points",
+                    va="center", fontsize=12, color=INK, zorder=4,
+                    bbox={"boxstyle": "round,pad=0.2", "facecolor": SURFACE, "edgecolor": "none"})
+    _style(ax, value_axis="both")
+    ax.spines["bottom"].set_visible(True)
+    ax.spines["bottom"].set_color(AXIS)
+    ax.axhline(0, color=AXIS, linewidth=1)
+    ax.xaxis.set_major_formatter(lambda x, _: f"${x:.3f}")
+    ax.set_xlim(-span * 0.06, span * 1.15)
+    ax.set_xlabel("Seller cost per game (USD)" if cost.startswith("seller") else "Cost per game (USD)")
+    ax.set_ylabel("Seller surplus share (mean, 95% CI)")
+    handles = [_dot(c, model_name(m)) for m, c in colors.items()] + \
+              [plt.Line2D([], [], color=BASELINE_GREY, linestyle="--", label="Best quality for the money")]
+    _header(fig, "Cost vs deal quality (RQ2)",
+            "Seller's own API cost per game; the buyer model is the same in every game. A locally served model costs $0.",
+            handles)
     return fig
 
 
-def calibration_chart(rows: list[dict]):
-    """Self-play: seller surplus share per model with CI; 0.5 is the unbiased reference."""
+# ---- slide charts: plain bars, percentages, one idea per chart ----------------------
+# Each chart takes a `title`, so the notebook can state the finding ("Competition helps the seller") while the
+# function stays generic. Values are shares of the bargaining room, shown as percentages; the thin grey line on
+# each bar is its 95% confidence range.
+
+ROOM = "bargaining room = the gap between the seller's lowest price and the buyer's highest"
+CI_NOTE = "Thin lines: 95% confidence range."
+DESIGN_DESCRIPTIONS = {"A": "A: prompt only", "A+tools": "A + price tool", "A+plan": "A + planning",
+                       "B": "B: planning + tool + reflection"}
+
+
+def _describe(agent: str) -> str:
+    name = display_name(agent)
+    return DESIGN_DESCRIPTIONS.get(name, name)
+
+
+def _bars(ax, items: list[dict], fmt, label_size=12.5):
+    """Horizontal bars with a thin CI line and the value printed past the end.
+
+    items: {"y", "value", "lo", "hi", "color"}; "text" overrides the printed value.
+    """
+    for it in items:
+        v = it["value"]
+        if v is None:
+            continue
+        ax.barh(it["y"], v, height=it.get("height", 0.62), color=it["color"], zorder=2)
+        lo, hi = it.get("lo"), it.get("hi")
+        if lo is not None and hi is not None and lo != hi:
+            ax.plot([lo, hi], [it["y"], it["y"]], color=INK2, linewidth=1.3, alpha=0.75, zorder=3, solid_capstyle="round")
+        end = max(v, hi if hi is not None else v, 0)
+        ax.annotate(it.get("text") or fmt(v), (end, it["y"]), xytext=(7, 0), textcoords="offset points", va="center",
+                    fontsize=label_size, fontweight="semibold", color=INK)
+
+
+def _pct_axis(ax, lo=None, hi=None):
+    """Percent ticks that stop at 100% (the room past it is only for value labels)."""
+    ax.set_xlim(lo, hi)
+    lo, hi = ax.get_xlim()
+    step = 0.2 if hi - lo > 0.6 else 0.1
+    first = step * math.ceil(lo / step - 1e-9)
+    ax.set_xticks([round(first + i * step, 6) for i in range(int((min(hi, 1.0) - first) / step + 1e-9) + 1)])
+    ax.xaxis.set_major_formatter(lambda x, _: f"{100 * x:.0f}%")
+
+
+def _grouped(groups: list[str], series: list, gap=0.7, height=0.62):
+    """y positions for len(series) bars per group, with a gap between groups; returns (positions, group centres)."""
+    pos, centres = {}, []
+    y = 0.0
+    for g in groups:
+        ys = [y + j * height for j in range(len(series))]
+        for s, yy in zip(series, ys):
+            pos[(g, s)] = yy
+        centres.append(sum(ys) / len(ys))
+        y = ys[-1] + height + gap
+    return pos, centres
+
+
+def ablation_chart(rows: list[dict], title: str = "Seller results by agent design (RQ1)"):
+    """RQ1: share of the bargaining room each design keeps (no deal = 0%), one bar per design."""
+    summ = sorted(summarize(rows, group_by=("seller_agent",)), key=lambda s: _design_rank(s["seller_agent"]))
+    fig, ax = _figure(11, 0.85 * len(summ) + 2.6)
+    _bars(ax, [{"y": i, "value": s["seller_payoff"], "lo": s["seller_payoff_lo"], "hi": s["seller_payoff_hi"],
+                "color": BLUE} for i, s in enumerate(summ)], _pct)
+    ax.set_yticks(range(len(summ)), [_describe(s["seller_agent"]) for s in summ])
+    ax.set_ylim(len(summ) - 0.5, -0.5)
+    _style(ax)
+    ax.axvline(0, color=AXIS, linewidth=1)
+    _pct_axis(ax, min(0, min(s["seller_payoff_lo"] for s in summ)) - 0.02, max(s["seller_payoff_hi"] for s in summ) + 0.1)
+    ax.set_xlabel("Share of the bargaining room the seller kept (no deal counts as 0%)")
+    model = model_name(rows[0]["seller_model"]) if rows else ""
+    games = summ[0]["games"] if summ else 0
+    _header(fig, title, f"All on {model}, same {games} buyers each. {ROOM.capitalize()}. {CI_NOTE}")
+    return fig
+
+
+def model_comparison_chart(rows: list[dict], title: str = "Fine-tuned vs prompted model (RQ2)"):
+    """RQ2: the same designs on two models, side by side on deal quality, below-floor sales and lying."""
+    metrics = SUMMARY_METRICS + SELLER_COST
+    summ = summarize(rows, group_by=("seller_agent", "seller_model"), metrics=metrics)
+    models = sorted({s["seller_model"] for s in summ}, key=str)
+    agents = sorted({s["seller_agent"] for s in summ
+                     if sum(1 for t in summ if t["seller_agent"] == s["seller_agent"]) == len(models)}, key=_design_rank)
+    cell = {(s["seller_agent"], s["seller_model"]): s for s in summ}
+    colors = {m: SERIES[i] for i, m in enumerate(models)}
+    pos, centres = _grouped(agents, models)
+    panels = (("seller_payoff", "Bargaining room kept"), ("below_floor_rate", "Sold below its lowest price"),
+              ("dishonest_rate", "Lied about the item"))
+    fig, axes = _figure(13, 0.75 * len(pos) + 3.0, ncols=3, sharey=True)
+    for ax, (metric, label) in zip(axes, panels):
+        items = [{"y": pos[(a, m)], "value": cell[(a, m)][metric], "lo": cell[(a, m)][f"{metric}_lo"],
+                  "hi": cell[(a, m)][f"{metric}_hi"], "color": colors[m]} for a in agents for m in models]
+        _bars(ax, items, _pct, label_size=12)
+        _style(ax)
+        ax.axvline(0, color=AXIS, linewidth=1)
+        ax.set_title(label, loc="left", fontsize=13, fontweight="semibold", color=INK, pad=10)
+        vals = [it["lo"] for it in items if it["lo"] is not None] + [0]
+        _pct_axis(ax, min(vals) - 0.03, max(it["hi"] or it["value"] for it in items) + 0.22)
+    axes[0].set_yticks(centres, [_describe(a) for a in agents])
+    axes[0].set_ylim(max(pos.values()) + 0.6, -0.6)
+
+    def cost(m):
+        c = sum(cell[(a, m)]["seller_cost_per_game_usd"] for a in agents) / len(agents)
+        return "free, runs locally" if c == 0 else f"about ${c:.3f} per game"
+
+    _header(fig, title, "Same listings and buyers for every seller. Bargaining room kept: no deal counts as 0%; below 0% means "
+            f"it sold below its lowest price on average. {CI_NOTE}",
+            [_swatch(colors[m], f"{model_name(m)} ({cost(m)})") for m in models])
+    return fig
+
+
+def attack_summary_chart(rows: list[dict], title: str = "How often attacks worked (RQ3)"):
+    """RQ3 in one look: attacks that worked out of all attack games, per seller, one panel per model."""
+    att = [r for r in rows if r["attack_category"] and r.get("attack_kind") == "attack" and r.get("outcome") != "error"]
+    models = sorted({r["seller_model"] for r in att}, key=str)
+    agents = sorted({r["seller_agent"] for r in att}, key=_design_rank)
+    fig, axes = _figure(12.5, 0.8 * len(agents) + 2.9, ncols=len(models), sharey=True)
+    axes = list(axes) if len(models) > 1 else [axes]
+    for ax, m, color in zip(axes, models, SERIES):
+        items = []
+        for i, a in enumerate(agents):
+            mine = [r for r in att if r["seller_model"] == m and r["seller_agent"] == a]
+            if not mine:
+                continue
+            k = sum(bool(r["attack_success"]) for r in mine)
+            v, lo, hi, n = bootstrap_ci([r["attack_success"] for r in mine])
+            items.append({"y": i, "value": v, "lo": lo, "hi": hi, "color": color, "text": f"{k} of {n}"})
+        _bars(ax, items, _pct)
+        _style(ax)
+        ax.axvline(0, color=AXIS, linewidth=1)
+        _pct_axis(ax, 0, 0.6)
+        ax.set_title(model_name(m), loc="left", fontsize=13, fontweight="semibold", color=INK, pad=10)
+        ax.set_xlabel("Attack games the attacker won")
+    axes[0].set_yticks(range(len(agents)), [display_name(a) for a in agents])
+    axes[0].set_ylim(len(agents) - 0.5, -0.5)
+    cats = len({r["attack_category"] for r in att})
+    _header(fig, title, f"Scripted buyers tried {cats} tricks (sob stories, fake urgency, prompt injection, ...). An attack wins "
+            "if the seller sells below its lowest price or reveals it. + defences = injection defence and message filter.")
+    return fig
+
+
+def surplus_vs_honesty(rows: list[dict], group_by=("seller_agent",), title: str = "Deal quality vs honesty (RQ4)"):
+    """RQ4: does a better negotiator lie more? Each seller's deal quality and lying rate, side by side."""
+    pts = [s for s in summarize(rows, group_by=group_by) if s["dishonest_rate"] is not None]
+    pts.sort(key=lambda s: (str(s.get("seller_model")), _design_rank(s["seller_agent"])))
+    colors = _model_colors(pts)
+    models = list(colors)
+    ys = [i + 0.7 * models.index(s.get("seller_model")) for i, s in enumerate(pts)]
+    fig, (left, right) = _figure(12.5, 0.62 * len(pts) + 3.0, ncols=2, sharey=True)
+    _bars(left, [{"y": y, "value": s["seller_payoff"], "lo": s["seller_payoff_lo"], "hi": s["seller_payoff_hi"],
+                  "color": colors[s.get("seller_model")]} for y, s in zip(ys, pts)], _pct, label_size=12)
+    _bars(right, [{"y": y, "value": s["dishonest_rate"], "lo": s["dishonest_rate_lo"], "hi": s["dishonest_rate_hi"],
+                   "color": colors[s.get("seller_model")]} for y, s in zip(ys, pts)], _pct, label_size=12)
+    for ax, label in ((left, "Better deals  →"), (right, "More lying  →")):
+        _style(ax)
+        ax.axvline(0, color=AXIS, linewidth=1)
+        ax.set_title(label, loc="left", fontsize=13, fontweight="semibold", color=INK, pad=10)
+    _pct_axis(left, min(0, min(s["seller_payoff_lo"] for s in pts)) - 0.03, max(s["seller_payoff_hi"] for s in pts) + 0.15)
+    _pct_axis(right, 0, 1.12)
+    left.set_xlabel("Bargaining room kept (no deal counts as 0%)")
+    right.set_xlabel("Games where the seller lied about the item")
+    left.set_yticks(ys, [display_name(s["seller_agent"]) for s in pts])
+    left.set_ylim(max(ys) + 0.6, -0.6)
+    handles = [_swatch(c, model_name(m)) for m, c in colors.items()] if len(colors) > 1 else None
+    _header(fig, title, "If better negotiators lied more, the longest bars on the left would also be longest on the right. "
+            f"Below 0% = sold below its lowest price on average. Lies are the LLM judge's verdicts. {CI_NOTE}", handles)
+    return fig
+
+
+def asymmetry_chart(rows: list[dict], strong: str, weak: str, title: str = "Strong vs weak model (RQ5)"):
+    """RQ5: who keeps more when a deal happens, and how often a deal happens, for each model pairing."""
+    pairs = [r for r in rows if r["seller_model"] in (strong, weak) and r["buyer_model"] in (strong, weak)]
+    summ = {(s["seller_model"], s["buyer_model"]): s for s in summarize(pairs, group_by=("seller_model", "buyer_model"))}
+    order = [k for k in [(strong, weak), (strong, strong), (weak, weak), (weak, strong)] if k in summ]
+    colors = {strong: BLUE, weak: ORANGE}
+    fig, (left, right) = _figure(12.5, 0.85 * len(order) + 3.0, ncols=2, sharey=True)
+    _bars(left, [{"y": i, "value": summ[k]["surplus_share"], "lo": summ[k]["surplus_share_lo"],
+                  "hi": summ[k]["surplus_share_hi"], "color": colors[k[0]]} for i, k in enumerate(order)], _pct)
+    _bars(right, [{"y": i, "value": summ[k]["deal_rate"], "lo": summ[k]["deal_rate_lo"], "hi": summ[k]["deal_rate_hi"],
+                   "color": colors[k[0]]} for i, k in enumerate(order)], _pct)
+    for ax, label in ((left, "Bargaining room the seller kept, when they made a deal"), (right, "Games that ended in a deal")):
+        _style(ax)
+        ax.axvline(0, color=AXIS, linewidth=1)
+        ax.set_title(label, loc="left", fontsize=13, fontweight="semibold", color=INK, pad=10)
+        _pct_axis(ax, 0, 1.22)
+    left.axvline(0.5, color=INK2, linewidth=1, linestyle=(0, (3, 3)))
+    left.annotate("even split", (0.5, len(order) - 0.5), xytext=(4, 4), textcoords="offset points", color=INK2, fontsize=10.5)
+    left.set_yticks(range(len(order)), [f"{model_name(a)} sells to {model_name(b)}" for a, b in order])
+    left.set_ylim(len(order) - 0.5, -0.5)
+    _header(fig, title, f"{ROOM.capitalize()}. {CI_NOTE}",
+            [_swatch(colors[strong], f"Seller: {model_name(strong)}"), _swatch(colors[weak], f"Seller: {model_name(weak)}")])
+    return fig
+
+
+def calibration_chart(rows: list[dict], title: str = "Self-play calibration"):
+    """Self-play: the same model on both sides; a fair setup gives the seller about 50%."""
     cal = [c for c in self_play_calibration(rows) if c["surplus_share"] is not None]
-    fig, ax = plt.subplots(figsize=(6.5, 0.5 * len(cal) + 1.8))
-    _axes(ax, "Self-play calibration", "Seller surplus share when both sides run the same model (95% CI)")
-    for i, c in enumerate(cal):
-        ax.errorbar(c["surplus_share"], i, xerr=[[c["surplus_share"] - c["surplus_share_lo"]], [c["surplus_share_hi"] - c["surplus_share"]]],
-                    fmt="o", ms=8, color=SERIES[0], elinewidth=1.5)
-    ax.axvline(0.5, color=MUTED, linewidth=1, linestyle="--")
-    ax.set_yticks(range(len(cal)), [c["model"] for c in cal])
-    fig.tight_layout()
+    fig, ax = _figure(11, 0.9 * len(cal) + 2.7)
+    _bars(ax, [{"y": i, "value": c["surplus_share"], "lo": c["surplus_share_lo"], "hi": c["surplus_share_hi"],
+                "color": BLUE} for i, c in enumerate(cal)], _pct)
+    ax.set_yticks(range(len(cal)), [model_name(c["model"]) for c in cal])
+    ax.set_ylim(len(cal) - 0.5, -0.8)
+    _style(ax)
+    ax.axvline(0, color=AXIS, linewidth=1)
+    ax.axvline(0.5, color=INK2, linewidth=1, linestyle=(0, (3, 3)))
+    ax.annotate("fair split", (0.5, -0.65), xytext=(5, 0), textcoords="offset points", color=INK2, fontsize=10.5, va="center")
+    _pct_axis(ax, 0, 1.08)
+    ax.set_xlabel("Bargaining room the seller kept, when they made a deal")
+    _header(fig, title, f"Both sides run the same model, so a fair setup would give the seller about 50%. {CI_NOTE}")
+    return fig
+
+
+def competition_chart(solo: list, competition: list, label="Three buyers at once", title="Competition between buyers (RQ6)"):
+    """RQ6: each seller with one buyer vs three buyers at once: the price it got and how fast it sold."""
+    rows = market_rows(solo, "solo") + market_rows(competition, "comp")
+    sellers = sorted({r["seller_agent"] for r in rows}, key=_design_rank)
+    settings = [("solo", BASELINE_GREY, "One buyer"), ("comp", BLUE, label)]
+    pos, centres = _grouped(sellers, [s for s, *_ in settings])
+    fig, (left, right) = _figure(12.5, 0.75 * len(pos) + 3.0, ncols=2, sharey=True)
+    for ax, metric, scale, fmt in ((left, "payoff", 1.0, _pct), (right, "days_to_sale", 24.0, lambda v: f"{v:.0f} hours")):
+        items = []
+        for seller in sellers:
+            for setting, color, _ in settings:
+                v, lo, hi, _n = bootstrap_ci([r[metric] for r in rows if r["seller_agent"] == seller and r["setting"] == setting])
+                items.append({"y": pos[(seller, setting)], "value": None if v is None else v * scale,
+                              "lo": None if lo is None else lo * scale, "hi": None if hi is None else hi * scale, "color": color})
+        _bars(ax, items, fmt)
+        _style(ax)
+        ax.axvline(0, color=AXIS, linewidth=1)
+        ax.set_xlim(0, max(it["hi"] or it["value"] for it in items) * 1.3)
+    _pct_axis(left, 0, left.get_xlim()[1])
+    left.set_title("Price achieved  (higher is better)", loc="left", fontsize=13, fontweight="semibold", color=INK, pad=10)
+    right.set_title("Time until sold  (shorter is better)", loc="left", fontsize=13, fontweight="semibold", color=INK, pad=10)
+    left.set_xlabel("Share of the gap between the lowest price and the asking price")
+    right.set_xlabel("Hours")
+    left.set_yticks(centres, [_describe(s) for s in sellers])
+    left.set_ylim(max(pos.values()) + 0.6, -0.6)
+    _header(fig, title, f"Same 20 listings and lowest prices in both setups; unsold counts as 0%. {CI_NOTE}",
+            [_swatch(c, name) for _, c, name in settings])
     return fig
 
 
 def save(fig, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=200, bbox_inches="tight")
+    fig.savefig(path, dpi=200, bbox_inches="tight", pad_inches=0.25)
     return path
