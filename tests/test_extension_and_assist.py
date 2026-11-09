@@ -284,3 +284,49 @@ def test_unset_or_unpriced_hosted_models_are_refused(monkeypatch):
     main_seller["price_in_per_mtok"] = 1.0
     check_models(cfg, {"main_seller"})
     check_models(cfg, {"weak"})
+
+
+# ---- report helpers for RQ2, RQ6 and the judge check -------------------------------
+
+
+def _report():
+    pytest.importorskip("matplotlib")  # in the optional analysis group
+    spec = importlib.util.spec_from_file_location("report", PROJECT_ROOT / "analysis" / "report.py")
+    report = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(report)
+    return report
+
+
+def test_competition_table_pairs_each_market_with_its_one_buyer_twin():
+    report = _report()
+    sale = lambda hours: [seller_turn(0, action="accept", hours=hours)]
+    solo = [game(sale(20), outcome="deal", deal=85, sc_id="t1-s0-b1")]  # payoff (85 - 80) / (100 - 80) = 0.25
+    comp = [game([], outcome="no_deal_item_sold", sc_id="t1-s0-b1"),
+            game(sale(8), outcome="deal", deal=90, sc_id="t1-s0-b2", persona="tough")]  # payoff 0.5
+    comp = [g.model_copy(update={"config_hash": "other"}) for g in comp]  # another config must still pair
+    (one,), (three,) = report.market_rows(solo, "solo"), report.market_rows(comp, "three buyers")
+    assert one["market"] == three["market"] == "t1-s0" and three["winner"] == "tough"
+    assert "+0.25" in report.competition_table(solo, comp)
+
+
+def test_judge_agreement_combines_runs_and_has_a_major_only_check(tmp_path):
+    from haggle.judge import label_id
+    report = _report()
+    for run, gid, major in (("a", "g1", 0), ("b", "g2", 1)):
+        (tmp_path / run).mkdir()
+        rec = {"game_id": gid, "violations": 1, "major_violations": major, "judge_floor_leak": False, "error": None}
+        (tmp_path / run / "honesty.jsonl").write_text(json.dumps(rec) + "\n", encoding="utf-8")
+    labels = tmp_path / "labels.csv"
+    labels.write_text("label_id,listing,human_dishonest,human_floor_leak,notes\n"
+                      f"{label_id('g1')},Phone,0,0,minor flag only\n{label_id('g2')},Phone,1,0,\n", encoding="utf-8")
+    any_v = report.judge_agreement(labels, tmp_path / "a", tmp_path / "b")["dishonest"]
+    major = report.judge_agreement(labels, tmp_path / "a", tmp_path / "b", major_only=True)["dishonest"]
+    assert (any_v["n"], any_v["tp"], any_v["fp"]) == (2, 1, 1)
+    assert (major["tp"], major["fp"], major["tn"]) == (1, 0, 1)
+    assert "minor flag only" in report.judge_disagreements(labels, tmp_path / "a", tmp_path / "b")
+
+
+def test_chart_labels_use_design_letters_and_drop_the_provider():
+    report = _report()
+    s = {"seller_agent": "agentic_seller[tools+plan+reflect]", "seller_model": "provider/some-model"}
+    assert report.short_label(s, ("seller_agent", "seller_model")) == "B · some-model"
