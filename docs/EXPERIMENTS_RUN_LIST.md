@@ -22,11 +22,14 @@
 | 8 | `attacks` | ✅ Done | ZY | 2026-11-07 | `runs/attacks/20261107-202916/` |
 | 9 | `attacks_finetuned` | ✅ Done | Fayaz, ZY | 2026-11-06, 2026-11-07 | `runs/attacks_finetuned/20261107-172310/` (ZY, judged; the notebook reads this newest run). Fayaz's Mac run: `runs/attacks_finetuned/20261106-125948/` |
 | 10 | `honesty` | ✅ Done | ZY | 2026-11-07 | `runs/honesty/20261107-213142/` |
-| 11 | `judge` | ✅ Done (hand labels pending) | ZY | 2026-11-08 | `honesty.jsonl` in the tournament, honesty, tournament_finetuned, pilot_sol, attacks and attacks_finetuned runs above; `labels/hand_labels_30.csv` |
+| 11 | `judge` | ✅ Done (30 hand labels in) | ZY; labels Fayaz, ZY, Anya | 2026-11-08, 2026-11-09 | `honesty.jsonl` in the tournament, honesty, tournament_finetuned, pilot_sol, attacks, attacks_finetuned, tournament_base and tournament_finetuned_ablation runs above; `labels/hand_labels_30.csv` |
 | 12 | `asymmetry` | ✅ Done | ZY | 2026-11-07 | `runs/asymmetry/20261107-225514/` |
 | 13 | `opponent` | ✅ Done | ZY | 2026-11-08 | `runs/opponent/20261108-013713/` |
 | 14 | `extension` (RQ6, competition) | ✅ Done | ZY | 2026-11-08 | `runs/extension/20261108-142244/` (superseded first design: `runs/extension/20261108-024342/`) |
 | 15 | `extension_solo` (RQ6, baseline) | ✅ Done | ZY | 2026-11-08 | `runs/extension_solo/20261108-135244/` |
+| 16 | `tournament_base` (RQ1/RQ2, untuned base model) | ✅ Done | ZY | 2026-11-09 | `runs/tournament_base/20261109-153143/` |
+| 17 | `tournament_finetuned_ablation` (RQ1, fine-tuned A+tools, A+plan) | ✅ Done | ZY | 2026-11-09 | `runs/tournament_finetuned_ablation/20261109-170454/` |
+| 18 | `attacks_base` (RQ3, untuned base model) | ✅ Done | ZY | 2026-11-09 | `runs/attacks_base/20261109-183201/` |
 
 ---
 
@@ -155,11 +158,15 @@
 
 ---
 
-## 11. `judge` (`configs/judge.yaml`) — Post-processing pass *(Done by ZY on 2026-11-08; hand labels pending)*
+## 11. `judge` (`configs/judge.yaml`) — Post-processing pass *(Done by ZY on 2026-11-08 and 2026-11-09; 30 hand labels in)*
 - **Commands & Output Paths:**
   - Judge runs (each writes `honesty.jsonl` inside the run folder): 1,331 games, 0 failed verdicts, about $0.70.
     `uv run python -m haggle.judge judge configs/judge.yaml runs/<exp>/<ts>` for `tournament/20261107-175240`, `honesty/20261107-213142`,
     `tournament_finetuned/20261107-232336`, `pilot_sol/20261105-162801`, `attacks/20261107-202916` and `attacks_finetuned/20261107-172310`.
+    On 9 Nov also `tournament_base/20261109-153143` and `tournament_finetuned_ablation/20261109-170454` (360 games).
+  - Agreement on all 30 labels (9 Nov): floor leak accuracy 0.93, precision 0.89, recall 0.89. Dishonesty: accuracy 0.77 but
+    precision 0.25 when any flagged claim counts (6 false alarms, all minor sales talk such as "in great condition"); counting only
+    major violations, precision 1.00 and recall 0.33. The notebook therefore charts major lies and tables both.
   - Hand labels: `labels/hand_labels_30.csv`, 30 judged games picked for agreement (8 the judge called dishonest, 7 it called
     a floor leak, 15 it passed), spread across sellers and blind to seller and model. Fill `human_dishonest`, `human_floor_leak`
     (0 or 1) and `labeller`; the rules are the judge's, in `haggle/prompts/judge_honesty.md`.
@@ -218,3 +225,36 @@
 - **Models:**
   - Seller: `main_seller` (`anthropic/claude-haiku-5.5`)
   - Buyer: `buyer_pool` (`openai/gpt-6-luna`)
+
+---
+
+## 16. `tournament_base` (`configs/tournament_base.yaml`) — 240 games *(Done by ZY on 2026-11-09)*
+- **Command:** `uv run python -m haggle.runner configs/tournament_base.yaml`
+- **Output Path:** `runs/tournament_base/20261109-153143/` (0 crashed games, $0.14 of buyer calls)
+- **What it is & Aim:** The four RQ1 designs (A, A+tools, A+plan, B) on the untuned base model, `qwen2.5:3b`, which is the model we fine-tuned. Same scenarios, buyers and seed as `tournament` (a test checks the games match), so RQ1 covers every model and RQ2 compares base -> fine-tuned -> Haiku game by game.
+- **RQs Answered:** **RQ1** (does the design help on a weak model?), **RQ2** (how much did fine-tuning help?).
+- **Models:**
+  - Seller: `weak` (`qwen2.5:3b` on local Ollama)
+  - Buyer: `buyer_pool` (`openai/gpt-6-luna`)
+
+---
+
+## 17. `tournament_finetuned_ablation` (`configs/tournament_finetuned_ablation.yaml`) — 120 games *(Done by ZY on 2026-11-09)*
+- **Command:** `uv run python -m haggle.runner configs/tournament_finetuned_ablation.yaml`
+- **Output Path:** `runs/tournament_finetuned_ablation/20261109-170454/` (0 crashed games, $0.15 of buyer calls)
+- **What it is & Aim:** The two middle designs (A+tools, A+plan) on the fine-tuned model, which `tournament_finetuned` left out. Pooled with that run, the fine-tuned model has all four designs on the same games as Haiku and the base model.
+- **RQs Answered:** **RQ1** (design on the fine-tuned model).
+- **Models:**
+  - Seller: `finetuned` (`qwen2.5-3b-haggle` on local Ollama)
+  - Buyer: `buyer_pool` (`openai/gpt-6-luna`)
+
+---
+
+## 18. `attacks_base` (`configs/attacks_base.yaml`) — 400 games *(Done by ZY on 2026-11-09)*
+- **Command:** `uv run python -m haggle.runner configs/attacks_base.yaml`
+- **Output Path:** `runs/attacks_base/20261109-183201/` (scripted buyers and a local seller, so $0)
+- **What it is & Aim:** The RQ3 attack scripts and their plain twins against the untuned base model, with defences off and on, on the same games as `attacks` (Haiku) and `attacks_finetuned`.
+- **RQs Answered:** **RQ3** (exploitability on all three models).
+- **Models:**
+  - Seller: `weak` (`qwen2.5:3b` on local Ollama)
+  - Buyers: scripted attackers from `data/attacks.json`

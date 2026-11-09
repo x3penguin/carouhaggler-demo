@@ -117,6 +117,16 @@ cp finetune/Modelfile runs/finetune/Modelfile
 (cd runs/finetune && ollama create qwen2.5-3b-haggle -f Modelfile)
 uv run python -m haggle.runner configs/tournament_finetuned.yaml   # 120 games
 uv run python -m haggle.runner configs/attacks_finetuned.yaml      # 400 games, no API key needed
+uv run python -m haggle.runner configs/tournament_finetuned_ablation.yaml  # fine-tuned A+tools, A+plan: 120 games
+```
+
+**Untuned base model** (`qwen2.5:3b`, the model we fine-tuned): the same games again, so RQ1 covers every
+model and RQ2 compares base -> fine-tuned -> Haiku. Local seller, so only the buyers cost money:
+
+```bash
+ollama pull qwen2.5:3b
+uv run python -m haggle.runner configs/tournament_base.yaml   # 240 games, ~$0.14 of buyer calls
+uv run python -m haggle.runner configs/attacks_base.yaml      # 400 games, no API key needed
 ```
 
 **Judging:** run the judge on the RQ1, RQ2, RQ3 and RQ4 runs and the frontier pilot, then check it
@@ -124,7 +134,8 @@ against 30 hand-labelled games (`labels/hand_labels_30.csv`; rules in `haggle/pr
 
 ```bash
 uv run python -m haggle.judge judge configs/judge.yaml runs/tournament/<ts>   # and honesty, tournament_finetuned,
-                                                                              # attacks, attacks_finetuned, pilot_sol
+                                                                              # attacks, attacks_finetuned, pilot_sol,
+                                                                              # tournament_base, tournament_finetuned_ablation
 cat runs/*/*/honesty.jsonl > labels/all_verdicts.jsonl
 uv run python -m haggle.judge agree labels/hand_labels_30.csv labels/all_verdicts.jsonl
 ```

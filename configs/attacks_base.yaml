@@ -1,0 +1,33 @@
+# RQ3 on the untuned base model (qwen2.5:3b): 50 attack scripts and 50 plain twins x Agents A and B x defences
+# off/on (400 games), the same games as attacks.yaml (Haiku) and attacks_finetuned.yaml. Keep seed, seeds,
+# listing_sample and buyers the same as attacks.yaml.
+experiment_name: attacks_base
+seed: 42
+max_budget_usd: 0.0   # a local seller against scripted buyers, so nothing is spent
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 1
+  sellers:
+    - {agent: prompted_seller, model: weak}
+    - {agent: prompted_seller, model: weak, injection_defense: true,
+       guard: {leak_filter: true, grounding: block}}
+    - {agent: agentic_seller, model: weak}
+    - {agent: agentic_seller, model: weak, injection_defense: true,
+       guard: {leak_filter: true, grounding: block}}
+  buyers:
+    - {agent: attacks, categories: all, twins: true}
+
+summary_group_by: [seller_agent, attack_category, attack_kind]
+bootstrap: {n_boot: 2000, seed: 0}
