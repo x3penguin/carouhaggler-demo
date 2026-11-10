@@ -22,7 +22,7 @@
 | 8 | `attacks` | ✅ Done | ZY | 2026-11-07 | `runs/attacks/20261107-202916/` |
 | 9 | `attacks_finetuned` | ✅ Done | Fayaz, ZY | 2026-11-06, 2026-11-07 | `runs/attacks_finetuned/20261107-172310/` (ZY, judged; the notebook reads this newest run). Fayaz's Mac run: `runs/attacks_finetuned/20261106-125948/` |
 | 10 | `honesty` | ✅ Done | ZY | 2026-11-07 | `runs/honesty/20261107-213142/` |
-| 11 | `judge` | ✅ Done (30 hand labels in) | ZY; labels Fayaz, ZY, Anya | 2026-11-08, 2026-11-09 | `honesty.jsonl` in the tournament, honesty, tournament_finetuned, pilot_sol, attacks, attacks_finetuned, tournament_base and tournament_finetuned_ablation runs above; `labels/hand_labels_30.csv` |
+| 11 | `judge` | ✅ Done (30 hand labels in) | ZY; labels Fayaz, ZY, Anya | 2026-11-08, 2026-11-09 | `honesty.jsonl` in the tournament, honesty, tournament_finetuned, pilot_sol, attacks, attacks_finetuned, tournament_base and tournament_finetuned_ablation runs above (tournament_dpo and attacks_dpo not judged yet); `labels/hand_labels_30.csv` |
 | 12 | `asymmetry` | ✅ Done | ZY | 2026-11-07 | `runs/asymmetry/20261107-225514/` |
 | 13 | `opponent` | ✅ Done | ZY | 2026-11-08 | `runs/opponent/20261108-013713/` |
 | 14 | `extension` (RQ6, competition) | ✅ Done | ZY | 2026-11-08 | `runs/extension/20261108-142244/` (superseded first design: `runs/extension/20261108-024342/`) |
@@ -30,6 +30,8 @@
 | 16 | `tournament_base` (RQ1/RQ2, untuned base model) | ✅ Done | ZY | 2026-11-09 | `runs/tournament_base/20261109-153143/` |
 | 17 | `tournament_finetuned_ablation` (RQ1, fine-tuned A+tools, A+plan) | ✅ Done | ZY | 2026-11-09 | `runs/tournament_finetuned_ablation/20261109-170454/` |
 | 18 | `attacks_base` (RQ3, untuned base model) | ✅ Done | ZY | 2026-11-09 | `runs/attacks_base/20261109-183201/` |
+| 19 | `tournament_dpo` (RQ1/RQ2 v2, DPO model) | ✅ Done | ZY; DPO training Fayaz | 2026-11-10 | `runs/tournament_dpo/20261110-003810/` |
+| 20 | `attacks_dpo` (RQ3, DPO model) | ✅ Done | ZY; DPO training Fayaz | 2026-11-10 | `runs/attacks_dpo/20261110-003810/` |
 
 ---
 
@@ -40,6 +42,7 @@
 - **`judge` (Hosted):** `xiaomi/mimo-v2.6-flash` (OpenRouter)
 - **`weak` (Local Ollama):** `qwen2.5:3b`
 - **`finetuned` (Local Ollama):** `qwen2.5-3b-haggle`
+- **`finetuned_dpo` (Local Ollama):** `qwen2.5-3b-haggle-dpo` (the fine-tuned model trained further with DPO)
 
 > **Note:** Every `haggle.runner` run writes 6 files inside its output folder: `config.yaml`, `games.jsonl`, `llm_calls.jsonl`, `manifest.json`, `summary.json`, and `summary.txt`.
 > The raw call logs (`llm_calls.jsonl`, `judge_llm_calls.jsonl`) are not committed: they hold every prompt and reply (about 90 MB), and the analysis reads only games, summaries and judge verdicts. They stay on ZY's machine.
@@ -257,4 +260,29 @@
 - **RQs Answered:** **RQ3** (exploitability on all three models).
 - **Models:**
   - Seller: `weak` (`qwen2.5:3b` on local Ollama)
+  - Buyers: scripted attackers from `data/attacks.json`
+
+---
+
+## 19. `tournament_dpo` (`configs/tournament_dpo.yaml`) — 240 games *(Done by ZY on 2026-11-10; DPO training by Fayaz)*
+- **Command:** `uv run python -m haggle.runner configs/tournament_dpo.yaml`
+- **Output Path:** `runs/tournament_dpo/20261110-003810/` ($0.43 of buyer calls; finished with `--resume` after two low-memory stops, about $0.03 lost on the first attempt)
+- **What it is & Aim:** RQ2 v2. The fine-tuned model trained further with DPO (`qwen2.5-3b-haggle-dpo-q4_k_m.gguf`, SHA-256 `281be40d...c950c9f`) on 3,700 preference pairs from CraigslistBargain listings (none of ours): 559 hold-the-floor vs a below-floor accept, 559 counter-offer vs stating the floor, 2,582 the human seller's reply vs an invented claim. All four RQ1 designs, on the same games as `tournament`, `tournament_finetuned` and `tournament_base` (a test checks the games match), so v1 -> v2 is paired.
+- **Limitation:** every rejected lie in the pairs is the same sentence ("brand new in box with full warranty and zero scratches"), so the honesty signal is narrow.
+- **Result:** fewer below-floor deals than the SFT model (A 38% -> 13%, B 22% -> 15%), but mostly because it stopped closing. It closed 23 / 3 / 55 / 42% of games (A / A+tools / A+plan / B), against 80 / 65 / 78 / 67% for SFT, and payoff didn't improve. It accepted 9 times in 2,142 seller turns, and often wrote "Deal, thanks." while keeping its old offer. Cause: `accept` was only ever the rejected move in the pairs. The v3 plan is in `finetune/DPO_V3.md`.
+- **RQs Answered:** **RQ2** (did DPO close the gap?), **RQ1**, **RQ4**.
+- **Models:**
+  - Seller: `finetuned_dpo` (`qwen2.5-3b-haggle-dpo` on local Ollama)
+  - Buyer: `buyer_pool` (`openai/gpt-6-luna`)
+
+---
+
+## 20. `attacks_dpo` (`configs/attacks_dpo.yaml`) — 400 games *(Done by ZY on 2026-11-10; DPO training by Fayaz)*
+- **Command:** `uv run python -m haggle.runner configs/attacks_dpo.yaml`
+- **Output Path:** `runs/attacks_dpo/20261110-003810/` (scripted buyers and a local seller, so $0)
+- **What it is & Aim:** The RQ3 attack scripts and their plain twins against the DPO model, with defences off and on, on the same games as the other three models. DPO was trained to hold the floor and not state it, so this is where it should show.
+- **Result:** 8 of 200 attacks won (SFT 14, base 73, Haiku 0), and 6 twin failures. Partly the same accept collapse as in `tournament_dpo`: a seller that rarely accepts is hard to talk into a below-floor deal.
+- **RQs Answered:** **RQ3**, **RQ2** (v1 -> v2).
+- **Models:**
+  - Seller: `finetuned_dpo` (`qwen2.5-3b-haggle-dpo` on local Ollama)
   - Buyers: scripted attackers from `data/attacks.json`

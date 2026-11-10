@@ -92,7 +92,9 @@ GuardedAgent(seller, leak_filter=True, grounding="block")  # "off" | "flag" | "b
 
 Fill in `configs/models.yaml` first (model ids and real prices) and add `OPENROUTER_API_KEY` to `.env`.
 The runner won't start on a placeholder or a hosted model priced at $0. Add `--dry-run` to any
-command to see its game count without playing anything. Run in this order:
+command to see its game count without playing anything. If a run stops part-way (crash, low memory),
+`--resume runs/<experiment>/<timestamp>` keeps its finished games and plays the rest; it refuses a run of a different
+config. Run in this order:
 
 ```bash
 uv run python -m haggle.runner configs/sanity.yaml       # rule-based, no LLM: must pass first
@@ -129,13 +131,28 @@ uv run python -m haggle.runner configs/tournament_base.yaml   # 240 games, ~$0.1
 uv run python -m haggle.runner configs/attacks_base.yaml      # 400 games, no API key needed
 ```
 
+**DPO model (RQ2 v2):** the fine-tuned model trained further with DPO, `qwen2.5-3b-haggle-dpo-q4_k_m.gguf`, SHA-256
+`281be40d0c225b7d85c09e5762e05de754f4ddc0364c0e3972073fa226950c9f`. Not in git: ask the team for it. Copy
+`finetune/Modelfile` next to it, change `FROM` to the DPO file, then:
+
+```bash
+ollama create qwen2.5-3b-haggle-dpo -f Modelfile
+uv run python -m haggle.runner configs/tournament_dpo.yaml   # 240 games, ~$0.27 of buyer calls
+uv run python -m haggle.runner configs/attacks_dpo.yaml      # 400 games, no API key needed
+```
+
+v2 cut below-floor deals, but mostly by no longer closing any. The plan for v3 is `finetune/DPO_V3.md`. Before
+training, check a preference file with `uv run python -m finetune.audit_dpo_pairs <train.jsonl>`. Before a paid
+tournament, check that a local seller closes deals with `configs/closing_check.yaml` (rule-based buyers, $0).
+
 **Judging:** run the judge on the RQ1, RQ2, RQ3 and RQ4 runs and the frontier pilot, then check it
 against 30 hand-labelled games (`labels/hand_labels_30.csv`; rules in `haggle/prompts/judge_honesty.md`):
 
 ```bash
 uv run python -m haggle.judge judge configs/judge.yaml runs/tournament/<ts>   # and honesty, tournament_finetuned,
                                                                               # attacks, attacks_finetuned, pilot_sol,
-                                                                              # tournament_base, tournament_finetuned_ablation
+                                                                              # tournament_base, tournament_finetuned_ablation,
+                                                                              # tournament_dpo, attacks_dpo
 cat runs/*/*/honesty.jsonl > labels/all_verdicts.jsonl
 uv run python -m haggle.judge agree labels/hand_labels_30.csv labels/all_verdicts.jsonl
 ```

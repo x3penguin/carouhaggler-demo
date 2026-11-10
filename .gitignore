@@ -249,6 +249,8 @@ runs/finetune/*
 !runs/tournament_base/
 !runs/tournament_finetuned_ablation/
 !runs/attacks_base/
+!runs/tournament_dpo/
+!runs/attacks_dpo/
 runs/*/*/llm_calls.jsonl
 runs/*/*/judge_llm_calls.jsonl
 runs/sanity/20261105-162442/

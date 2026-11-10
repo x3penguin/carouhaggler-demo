@@ -439,8 +439,11 @@ def short_label(s: dict, group_by) -> str:
 
 
 # A model keeps one colour and one name in every chart. Both come from its role in configs/models.yaml, so no model
-# name is written here: the hosted main seller is blue, the fine-tuned model orange, its untuned base aqua.
-ROLE_STYLE = [("main_seller", BLUE, ""), ("finetuned", ORANGE, " (fine-tuned)"), ("weak", AQUA, " (base)")]
+# name is written here: the hosted main seller is blue, the fine-tuned model orange, its untuned base aqua, and the
+# DPO model magenta (a 4th colour that passes the palette checks with the other three). List order = reverse story order.
+DPO_MAGENTA = "#c13584"
+ROLE_STYLE = [("main_seller", BLUE, ""), ("finetuned_dpo", DPO_MAGENTA, " (DPO)"), ("finetuned", ORANGE, " (fine-tuned)"),
+              ("weak", AQUA, " (base)")]
 
 
 def _roles() -> dict:
@@ -462,7 +465,7 @@ def model_label(model) -> str:
 
 
 def model_order(models) -> list:
-    """Base model first, then fine-tuned, then the main seller, then anything else: the order of the RQ2 story."""
+    """Base model first, then fine-tuned, then DPO, then the main seller, then anything else: the order of the RQ2 story."""
     rank = {m: (-v[0], "") for m, v in MODEL_ROLES.items()}
     return sorted(set(models), key=lambda m: rank.get(m, (1, str(m))))
 

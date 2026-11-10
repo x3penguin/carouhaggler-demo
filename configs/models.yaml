@@ -53,3 +53,13 @@ models:
     max_tokens: 300
     price_in_per_mtok: 0.0
     price_out_per_mtok: 0.0
+
+  finetuned_dpo:          # RQ2 v2: the SFT model further trained with DPO (Fayaz, 9 Nov). On Ollama:
+    provider: openai_compatible   # `ollama create qwen2.5-3b-haggle-dpo -f Modelfile` next to the GGUF
+    model: qwen2.5-3b-haggle-dpo  # qwen2.5-3b-haggle-dpo-q4_k_m.gguf, SHA-256 281be40d...c950c9f
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

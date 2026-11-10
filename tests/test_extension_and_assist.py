@@ -207,6 +207,7 @@ def test_paired_report_table_finds_pairs_by_seller_variant():
     ("asymmetry", 120), ("opponent", 60),
     ("tournament_finetuned", 120), ("attacks_finetuned", 400),
     ("tournament_base", 240), ("tournament_finetuned_ablation", 120), ("attacks_base", 400),
+    ("tournament_dpo", 240), ("attacks_dpo", 400),
 ])
 def test_experiment_sizes_match_the_plan(name, games):
     assert len(runner.build_jobs(load_config(f"configs/{name}.yaml"))) == games
@@ -245,7 +246,8 @@ def test_honesty_uses_the_same_scenarios_as_the_tournament():
 
 @pytest.mark.parametrize("frontier,other", [("tournament", "tournament_finetuned"), ("attacks", "attacks_finetuned"),
                                             ("tournament", "tournament_base"), ("tournament", "tournament_finetuned_ablation"),
-                                            ("attacks", "attacks_base")])
+                                            ("attacks", "attacks_base"), ("tournament", "tournament_dpo"),
+                                            ("attacks", "attacks_dpo")])
 def test_finetuned_sellers_face_the_same_games_as_the_frontier_sellers(frontier, other):
     # RQ2 compares C with A and D with B game by game, across two separate runs. The whole
     # scenario is compared, so a different floor, budget or listing would fail here.
@@ -257,7 +259,8 @@ def test_finetuned_sellers_face_the_same_games_as_the_frontier_sellers(frontier,
 
 @pytest.mark.parametrize("name,model", [("tournament_finetuned", "finetuned"), ("attacks_finetuned", "finetuned"),
                                         ("tournament_finetuned_ablation", "finetuned"), ("tournament_base", "weak"),
-                                        ("attacks_base", "weak")])
+                                        ("attacks_base", "weak"), ("tournament_dpo", "finetuned_dpo"),
+                                        ("attacks_dpo", "finetuned_dpo")])
 def test_finetuned_configs_only_use_the_finetuned_seller(name, model):
     cfg = load_config(f"configs/{name}.yaml")
     assert {s["model"] for s in cfg["matrix"]["sellers"]} == {model}
@@ -268,7 +271,7 @@ def test_every_seller_variant_gets_its_own_name():
     from fake_llm import FakeClient
 
     for name in ("tournament", "honesty", "attacks", "tournament_finetuned", "attacks_finetuned", "tournament_base",
-                 "tournament_finetuned_ablation", "attacks_base"):
+                 "tournament_finetuned_ablation", "attacks_base", "tournament_dpo", "attacks_dpo"):
         cfg = load_config(f"configs/{name}.yaml")
         job = runner.build_jobs(cfg)[0]
         ctx = runner.BuildContext(cfg, job.scenario(), None)
