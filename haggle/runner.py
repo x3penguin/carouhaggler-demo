@@ -367,7 +367,38 @@ def _protections(cfg: dict) -> list:
     return p if isinstance(p, list) else [p]
 
 
-def run(config_path: str | Path, out_root: Path | None = None, dry_run: bool = False) -> Path | None:
+def _games_done(out: Path, jobs: list, cfg_hash: str) -> tuple[list[GameResult], int]:
+    """The finished games of an interrupted run, checked against the jobs they claim to be, and how many jobs
+    they cover.
+
+    Jobs run in a fixed order and each finished job is flushed to games.jsonl, so the file holds the first jobs
+    in order. A half-written last line (killed mid-write) is dropped and that game is played again.
+    """
+    done = []
+    for line in (out / "games.jsonl").read_text(encoding="utf-8").splitlines():
+        try:
+            done.append(GameResult.model_validate_json(line))
+        except ValueError:
+            break
+    kept, i, n_jobs = [], 0, 0
+    for job in jobs:
+        n = len(job.buyers) if isinstance(job, MarketJob) else 1
+        batch = done[i:i + n]
+        if len(batch) < n:
+            break  # a market is only done when all its chats are
+        want = [s.id for s in job.scenarios()] if isinstance(job, MarketJob) else [job.scenario().id]
+        if [r.scenario.id for r in batch] != want or any(r.config_hash != cfg_hash for r in batch):
+            raise SystemExit(f"{out} doesn't match this config at game {i + 1}: start a fresh run instead.")
+        kept += batch
+        i += n
+        n_jobs += 1
+    return kept, n_jobs
+
+
+def run(config_path: str | Path, out_root: Path | None = None, dry_run: bool = False,
+        resume: str | Path | None = None) -> Path | None:
+    """Play every job in the config. With resume=<run dir>, keep that run's finished games and play the rest,
+    so a run stopped part-way (crash, low memory, closed laptop) doesn't have to start again."""
     cfg = load_config(config_path)
     jobs = build_jobs(cfg)
     budget = float(cfg["max_budget_usd"])
@@ -381,17 +412,31 @@ def run(config_path: str | Path, out_root: Path | None = None, dry_run: bool = F
 
     check_models(cfg, _models_used(jobs))
     cfg_hash = config_hash(cfg)
-    out = (out_root or PROJECT_ROOT / cfg.get("log_dir", "runs")) / cfg["experiment_name"] / datetime.now().strftime("%Y%m%d-%H%M%S")
-    out.mkdir(parents=True, exist_ok=True)
+    if resume:
+        out = Path(resume)
+        results, skip = _games_done(out, jobs, cfg_hash)
+    else:
+        out = (out_root or PROJECT_ROOT / cfg.get("log_dir", "runs")) / cfg["experiment_name"] / datetime.now().strftime("%Y%m%d-%H%M%S")
+        out.mkdir(parents=True, exist_ok=True)
+        results, skip = [], 0
     # The resolved config (shared models merged in), so the run records what really ran.
     (out / "config.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
     llm_log = out / "llm_calls.jsonl"
-    tracker = CostTracker(budget)
 
-    spent, played, errors, aborted = 0.0, 0, 0, None
-    results: list[GameResult] = []
+    # Resumed games count towards the budget, so the cap still covers the whole run.
+    spent = sum(t.cost_usd for r in results for t in r.turns)
+    played, errors, aborted = len(results), 0, None
+    tracker = CostTracker(budget)
+    tracker.spent_usd = spent
+    if resume:
+        print(f"  resuming {out}: {played} games kept (${spent:.4f}), {len(jobs) - skip} jobs left")
     with (out / "games.jsonl").open("w", encoding="utf-8") as f:
+        for r in results:
+            f.write(r.model_dump_json() + "\n")
+        f.flush()
         for i, job in enumerate(jobs):
+            if i < skip:
+                continue
             projected = spent + (spent / i if i else 0.0)  # per job: a market is several games
             if projected > budget:
                 aborted = f"budget: spent ${spent:.4f}, next game projected to exceed ${budget:.2f}"
@@ -456,8 +501,9 @@ def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("config", help="path to configs/<experiment>.yaml")
     p.add_argument("--dry-run", action="store_true", help="print the matrix size, play nothing")
+    p.add_argument("--resume", metavar="RUN_DIR", help="finish an interrupted run of this config, keeping its games")
     args = p.parse_args(argv)
-    run(args.config, dry_run=args.dry_run)
+    run(args.config, dry_run=args.dry_run, resume=args.resume)
 
 
 if __name__ == "__main__":

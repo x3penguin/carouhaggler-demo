@@ -49,6 +49,31 @@ def test_sanity_run_writes_all_artifacts_and_is_reproducible(tmp_path):
     assert [r.model_dump() for r in results] == [r.model_dump() for r in again]
 
 
+SANITY_MATRIX = {"listings": THREE, "seeds": [0, 1], "sellers": [{"agent": "sanity:accept_above_floor"}],
+                 "buyers": [{"agent": "sanity:full_budget"}, {"agent": "sanity:floor"}]}
+
+
+def test_resume_finishes_an_interrupted_run_with_the_same_games(tmp_path):
+    cfg = write_cfg(tmp_path, "t", matrix=SANITY_MATRIX)
+    full = load_results(runner.run(cfg, out_root=tmp_path / "full"))
+    # Simulate a run killed after 5 games, mid-way through writing the 6th.
+    out = runner.run(cfg, out_root=tmp_path / "cut")
+    lines = (out / "games.jsonl").read_text(encoding="utf-8").splitlines()
+    (out / "games.jsonl").write_text("\n".join(lines[:5]) + "\n" + lines[5][:40], encoding="utf-8")
+    (out / "manifest.json").unlink()
+
+    assert runner.run(cfg, resume=out) == out
+    assert [r.model_dump() for r in load_results(out)] == [r.model_dump() for r in full]
+    assert json.loads((out / "manifest.json").read_text())["games_played"] == len(full)
+
+
+def test_resume_refuses_a_run_of_another_config(tmp_path):
+    out = runner.run(write_cfg(tmp_path, "t", matrix=SANITY_MATRIX), out_root=tmp_path / "runs")
+    other = write_cfg(tmp_path, "t", matrix={**SANITY_MATRIX, "seeds": [5]})
+    with pytest.raises(SystemExit, match="doesn't match"):
+        runner.run(other, resume=out)
+
+
 def test_max_games_and_seed_major_order(tmp_path):
     cfg = {**BASE, "experiment_name": "x", "max_games": 4,
            "matrix": {"listings": THREE, "seeds": {"start": 0, "count": 3},
