@@ -33,7 +33,7 @@
 | 19 | `tournament_dpo` (RQ1/RQ2 v2, DPO model) | ✅ Done | ZY; DPO training Fayaz | 2026-11-10 | `runs/tournament_dpo/20261110-003810/` |
 | 20 | `attacks_dpo` (RQ3, DPO model) | ✅ Done | ZY; DPO training Fayaz | 2026-11-10 | `runs/attacks_dpo/20261110-003810/` |
 | 21 | `closing_check` (RQ2 diagnostic: can a local seller close?) | ✅ Done | ZY | 2026-11-10 | `runs/closing_check/20261110-130434/` (base, SFT, v2); `runs/closing_check_v3only/20261110-185907/` (v3, same games) |
-| 22 | `attacks_dpo_v3` (RQ3, DPO v3 model) | ⏳ Running | ZY; DPO v3 training Fayaz | 2026-11-10 | `runs/attacks_dpo_v3/20261110-190057/` |
+| 22 | `attacks_dpo_v3` (RQ3, DPO v3 model) | ✅ Done | ZY; DPO v3 training Fayaz | 2026-11-10 | `runs/attacks_dpo_v3/20261110-190057/` |
 
 ---
 
@@ -302,10 +302,11 @@
 
 ---
 
-## 22. `attacks_dpo_v3` (`configs/attacks_dpo_v3.yaml`) — 400 games *(Running, started by ZY on 2026-11-10; DPO v3 training by Fayaz)*
+## 22. `attacks_dpo_v3` (`configs/attacks_dpo_v3.yaml`) — 400 games *(Done by ZY on 2026-11-10; DPO v3 training by Fayaz)*
 - **Command:** `uv run python -m haggle.runner configs/attacks_dpo_v3.yaml`
 - **Output Path:** `runs/attacks_dpo_v3/20261110-190057/` (scripted buyers and a local seller, so $0)
 - **What it is & Aim:** The RQ3 attack scripts and their plain twins against DPO v3, on the same games as every other model. Gate 3 in `finetune/DPO_V3.md`: v3 now closes deals, so this checks it didn't become easy to talk into below-floor ones.
+- **Result:** it did. 57 of 200 attacks won (SFT 14, v2 8, base 73, Haiku 0) and 14 twin failures, so attack minus twin is 43, worse than the untuned base model's 35. Agent A lost 49 of the 57, with or without defences; the worst categories were prompt injection (13), fake competing offers (12), fake urgency (10) and deadline pressure (10). v3 swapped v2's "never accepts" for "gives way under pressure"; neither compares the offer with the floor. Not taken to a paid tournament. v4 plan: `finetune/DPO_V3.md` §7.
 - **RQs Answered:** **RQ3**, **RQ2** (v2 -> v3).
 - **Models:**
   - Seller: `finetuned_dpo_v3` (`qwen2.5-3b-haggle-dpo-v3` on local Ollama)

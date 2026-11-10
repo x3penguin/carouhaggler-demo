@@ -155,6 +155,11 @@ uv run python -m haggle.runner configs/closing_check.yaml    # all four local mo
 uv run python -m haggle.runner configs/attacks_dpo_v3.yaml   # 400 games, no API key needed
 ```
 
+v3 closed deals but lost 57 of 200 attacks. **DPO v4** (`finetune/DPO_V3.md` §7) rebuilds the pairs so the floor is the
+only thing that decides accept or refuse: `uv run python -m finetune.build_dpo_pairs_v4 --seed 42` writes `data/dpo_v4/`,
+`finetune/dpo_colab.ipynb` trains it, and `uv run python -m finetune.check_decisions data/dpo_v4/valid.jsonl --models
+<keys>` checks a model's decisions on held-out twins for $0 before the closing check and the attack run.
+
 **Judging:** run the judge on the RQ1, RQ2, RQ3 and RQ4 runs and the frontier pilot, then check it
 against 30 hand-labelled games (`labels/hand_labels_30.csv`; rules in `haggle/prompts/judge_honesty.md`):
 
