@@ -32,6 +32,8 @@
 | 18 | `attacks_base` (RQ3, untuned base model) | ✅ Done | ZY | 2026-11-09 | `runs/attacks_base/20261109-183201/` |
 | 19 | `tournament_dpo` (RQ1/RQ2 v2, DPO model) | ✅ Done | ZY; DPO training Fayaz | 2026-11-10 | `runs/tournament_dpo/20261110-003810/` |
 | 20 | `attacks_dpo` (RQ3, DPO model) | ✅ Done | ZY; DPO training Fayaz | 2026-11-10 | `runs/attacks_dpo/20261110-003810/` |
+| 21 | `closing_check` (RQ2 diagnostic: can a local seller close?) | ✅ Done | ZY | 2026-11-10 | `runs/closing_check/20261110-130434/` (base, SFT, v2); `runs/closing_check_v3only/20261110-185907/` (v3, same games) |
+| 22 | `attacks_dpo_v3` (RQ3, DPO v3 model) | ⏳ Running | ZY; DPO v3 training Fayaz | 2026-11-10 | `runs/attacks_dpo_v3/20261110-190057/` |
 
 ---
 
@@ -43,6 +45,7 @@
 - **`weak` (Local Ollama):** `qwen2.5:3b`
 - **`finetuned` (Local Ollama):** `qwen2.5-3b-haggle`
 - **`finetuned_dpo` (Local Ollama):** `qwen2.5-3b-haggle-dpo` (the fine-tuned model trained further with DPO)
+- **`finetuned_dpo_v3` (Local Ollama):** `qwen2.5-3b-haggle-dpo-v3` (DPO retrained from the SFT model with close pairs, `finetune/DPO_V3.md`)
 
 > **Note:** Every `haggle.runner` run writes 6 files inside its output folder: `config.yaml`, `games.jsonl`, `llm_calls.jsonl`, `manifest.json`, `summary.json`, and `summary.txt`.
 > The raw call logs (`llm_calls.jsonl`, `judge_llm_calls.jsonl`) are not committed: they hold every prompt and reply (about 90 MB), and the analysis reads only games, summaries and judge verdicts. They stay on ZY's machine.
@@ -285,4 +288,25 @@
 - **RQs Answered:** **RQ3**, **RQ2** (v1 -> v2).
 - **Models:**
   - Seller: `finetuned_dpo` (`qwen2.5-3b-haggle-dpo` on local Ollama)
+  - Buyers: scripted attackers from `data/attacks.json`
+
+---
+
+## 21. `closing_check` (`configs/closing_check.yaml`) — 120 games *(Done by ZY on 2026-11-10)*
+- **Command:** `uv run python -m haggle.runner configs/closing_check.yaml`
+- **Output Path:** `runs/closing_check/20261110-130434/` (base, SFT, v2; 90 games) and `runs/closing_check_v3only/20261110-185907/` (v3 only, the same 30 games, so the first three weren't replayed). $0.
+- **What it is & Aim:** Agent A on each local model against rule-based buyers with known behaviour (offers its full budget at once; climbs from 60% of asking to its budget; offers exactly the floor). Every budget is above the floor, so a no-deal is the seller's fault. A free check before a paid tournament, written after v2 stopped closing.
+- **Result (deals out of 10 vs full budget / climbing / floor; below-floor deals):** base 6 / 8 / 3, 8 of 17 below floor; SFT 3 / 10 / 1, 1 of 14; v2 0 / 3 / 0, 0 of 3; v3 9 / 7 / 10, 3 of 26 below floor (it accepted the climbing buyer's 60%-of-asking opening offer 3 times; see `finetune/DPO_V3.md` §6).
+- **RQs Answered:** **RQ2** (diagnostic for v2 and v3).
+- **Models:** Seller: `weak`, `finetuned`, `finetuned_dpo`, `finetuned_dpo_v3` (local Ollama). Buyers: `sanity:full_budget`, `sanity:linear`, `sanity:floor` (rule-based).
+
+---
+
+## 22. `attacks_dpo_v3` (`configs/attacks_dpo_v3.yaml`) — 400 games *(Running, started by ZY on 2026-11-10; DPO v3 training by Fayaz)*
+- **Command:** `uv run python -m haggle.runner configs/attacks_dpo_v3.yaml`
+- **Output Path:** `runs/attacks_dpo_v3/20261110-190057/` (scripted buyers and a local seller, so $0)
+- **What it is & Aim:** The RQ3 attack scripts and their plain twins against DPO v3, on the same games as every other model. Gate 3 in `finetune/DPO_V3.md`: v3 now closes deals, so this checks it didn't become easy to talk into below-floor ones.
+- **RQs Answered:** **RQ3**, **RQ2** (v2 -> v3).
+- **Models:**
+  - Seller: `finetuned_dpo_v3` (`qwen2.5-3b-haggle-dpo-v3` on local Ollama)
   - Buyers: scripted attackers from `data/attacks.json`

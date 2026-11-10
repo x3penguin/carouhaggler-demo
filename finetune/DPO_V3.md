@@ -357,3 +357,63 @@ result for the evaluation section.
 
 **Deadline:** we present on **Fri 13 Nov**, so the model has to arrive by **Wed 11 Nov night**. That leaves Thursday
 for the runs, the judge and the charts.
+
+---
+
+## 6. v3 as trained (10 Nov)
+
+**Model:** `qwen2.5-3b-haggle-dpo-v3-q4_k_m.gguf`, SHA-256
+`2c98a50508f8574ced40292f42b7aef4387d477e510683abb5a0cca7d1d8240a`. Registered as `finetuned_dpo_v3`.
+
+**Pairs:**
+- `uv run python -m finetune.build_dpo_pairs --seed 42` writes `data/dpo_v3/train.jsonl` (3,043 pairs) and
+  `valid.jsonl` (351 pairs). Re-running it on ZY's machine reproduced Fayaz's files exactly (line endings aside).
+- The audit passes all 8 checks:
+
+| Type | Pairs | Chosen > rejected |
+|---|---|---|
+| close | 866 | accept > chat 433, accept > offer 433 |
+| hallucination | 746 | same move both sides |
+| leak | 499 | counter > counter that names the floor |
+| subfloor | 499 | counter > accept |
+| consistency | 433 | same words: accept > chat 317, accept > offer 116 |
+
+`accept` wins in 1,299 pairs and loses in 499, about 2.6 to 1.
+
+**Training** (`finetune/dpo_colab.ipynb`, TRL on a Colab T4):
+- started from the merged SFT model, which is also the reference;
+- LoRA r 16, alpha 32, `q k v o`;
+- beta 0.1, lr 5e-6, batch 2 × 4 accumulation, 1 epoch (about 380 steps);
+- `rpo_alpha` 1.0 only if the installed TRL supports it (to confirm);
+- no checkpoints saved, so this is the final weights;
+- `valid.jsonl` not used during training.
+
+Loss every 25 steps: 0.673, 0.611, 0.551, 0.478, 0.419, 0.333, 0.302, 0.252, 0.226, 0.189, 0.181, 0.174, 0.171, 0.165.
+It falls smoothly and flattens after about step 250.
+
+**Gate 2 (closing check, same 30 games as the baseline):**
+
+| Seller | vs full_budget | vs linear | vs floor | Deals below floor |
+|---|---|---|---|---|
+| SFT (v1) | 3/10 | 10/10 | 1/10 | 1 of 14 |
+| DPO v2 | 0/10 | 3/10 | 0/10 | 0 of 3 |
+| **DPO v3** | **9/10** | 7/10 | **10/10** | **3 of 26** |
+
+What the check shows:
+- **Closing is fixed.** v3 accepts on 38% of turns with an acceptable offer on the table (v2: 0%). It never says
+  "deal" without accepting.
+- **It overshoots.** It accepted the linear buyer's opening offer (60% of asking, always below the floor) in 3 of 10
+  games. That fails the "0 below floor" target.
+- **The data has no example of this.** No chosen accept in the pairs is of an offer under 70% of asking.
+- **Two likely causes:**
+  - the 2.6 : 1 accept balance;
+  - a shortcut: close-pair offers are 75–97% of asking and subfloor offers 50–80%, so offer size relative to asking
+    predicts the answer without reading the floor.
+
+**If there's a v4:**
+- Drop close pairs until accept wins and loses about equally often.
+- Add subfloor pairs at the buyer's **first** offer. Only 7% of subfloor pairs are there now.
+- Add subfloor pairs whose offer is 80–90% of asking with a floor above it, so offer size alone no longer gives the
+  answer.
+
+**Gate 3 (attacks):** running. Results go in `docs/EXPERIMENTS_RUN_LIST.md` §22.

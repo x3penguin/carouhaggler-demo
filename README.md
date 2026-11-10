@@ -145,6 +145,16 @@ v2 cut below-floor deals, but mostly by no longer closing any. The plan for v3 i
 training, check a preference file with `uv run python -m finetune.audit_dpo_pairs <train.jsonl>`. Before a paid
 tournament, check that a local seller closes deals with `configs/closing_check.yaml` (rule-based buyers, $0).
 
+**DPO v3:** retrained from the SFT model on pairs that also teach closing (`uv run python -m finetune.build_dpo_pairs
+--seed 42` rebuilds `data/dpo_v3/`; training in `finetune/dpo_colab.ipynb`). The model is
+`qwen2.5-3b-haggle-dpo-v3-q4_k_m.gguf`, SHA-256 `2c98a50508f8574ced40292f42b7aef4387d477e510683abb5a0cca7d1d8240a`.
+Register it the same way, as `qwen2.5-3b-haggle-dpo-v3`, then:
+
+```bash
+uv run python -m haggle.runner configs/closing_check.yaml    # all four local models, $0
+uv run python -m haggle.runner configs/attacks_dpo_v3.yaml   # 400 games, no API key needed
+```
+
 **Judging:** run the judge on the RQ1, RQ2, RQ3 and RQ4 runs and the frontier pilot, then check it
 against 30 hand-labelled games (`labels/hand_labels_30.csv`; rules in `haggle/prompts/judge_honesty.md`):
 
