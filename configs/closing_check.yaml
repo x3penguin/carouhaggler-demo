@@ -1,0 +1,37 @@
+# Free check that a local seller can close a deal: Agent A against rule-based buyers with known behaviour, no API calls.
+# Written for DPO v3 (finetune/DPO_V3.md): v2 stopped pressing `accept` and closed 23% of tournament games, which this
+# catches in minutes for $0 before a paid tournament. A good seller closes almost every game here:
+#   sanity:full_budget offers its whole budget at once and accepts any seller price within it
+#   sanity:linear      starts at 60% of asking and climbs to its budget in 5 steps, accepting a seller price it has reached
+#   sanity:floor       offers exactly the floor and never moves: the seller closes only by accepting it (surplus share 0)
+# Every budget is above the floor, so any no-deal here is the seller's fault. Add the v3 model as another seller line.
+experiment_name: closing_check
+seed: 42
+max_budget_usd: 0.0
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false   # off, so a below-floor accept shows up instead of being blocked
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 10
+  sellers:
+    - {agent: prompted_seller, model: weak}
+    - {agent: prompted_seller, model: finetuned}
+    - {agent: prompted_seller, model: finetuned_dpo}
+    # - {agent: prompted_seller, model: finetuned_dpo_v3}
+  buyers:
+    - {agent: "sanity:full_budget"}
+    - {agent: "sanity:linear"}
+    - {agent: "sanity:floor"}
+
+summary_group_by: [seller_model, buyer_persona]
+bootstrap: {n_boot: 2000, seed: 0}

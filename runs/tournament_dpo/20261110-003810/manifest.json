@@ -1,0 +1,11 @@
+{
+  "experiment": "tournament_dpo",
+  "config_hash": "f9be142284b6",
+  "games_planned": 240,
+  "games_played": 240,
+  "error_games": 0,
+  "spent_usd": 0.4347908000000001,
+  "cost_per_game_usd": 0.0018116283333333336,
+  "budget_usd": 0.6,
+  "aborted": null
+}

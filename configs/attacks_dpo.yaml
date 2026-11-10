@@ -1,0 +1,32 @@
+# RQ3 on the DPO model (RQ2 v2): 50 attack scripts and 50 plain twins x A and B x defences off/on (400 games). Keep seed, seeds, listing_sample and buyers
+# the same as attacks.yaml: that's what gives C and D the same scenarios as A and B.
+experiment_name: attacks_dpo
+seed: 42
+max_budget_usd: 0.0   # a local seller against scripted buyers, so nothing is spent
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: false
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 1
+  sellers:
+    - {agent: prompted_seller, model: finetuned_dpo}
+    - {agent: prompted_seller, model: finetuned_dpo, injection_defense: true,
+       guard: {leak_filter: true, grounding: block}}
+    - {agent: agentic_seller, model: finetuned_dpo}
+    - {agent: agentic_seller, model: finetuned_dpo, injection_defense: true,
+       guard: {leak_filter: true, grounding: block}}
+  buyers:
+    - {agent: attacks, categories: all, twins: true}
+
+summary_group_by: [seller_agent, attack_category, attack_kind]
+bootstrap: {n_boot: 2000, seed: 0}
