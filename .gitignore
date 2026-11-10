@@ -251,6 +251,9 @@ runs/finetune/*
 !runs/attacks_base/
 !runs/tournament_dpo/
 !runs/attacks_dpo/
+!runs/attacks_dpo_v3/
+!runs/closing_check/
+!runs/closing_check_v3only/
 runs/*/*/llm_calls.jsonl
 runs/*/*/judge_llm_calls.jsonl
 runs/sanity/20261105-162442/

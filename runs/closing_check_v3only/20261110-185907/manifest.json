@@ -1,0 +1,11 @@
+{
+  "experiment": "closing_check_v3only",
+  "config_hash": "564352f8008d",
+  "games_planned": 30,
+  "games_played": 30,
+  "error_games": 0,
+  "spent_usd": 0.0,
+  "cost_per_game_usd": 0.0,
+  "budget_usd": 0.0,
+  "aborted": null
+}

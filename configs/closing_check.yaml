@@ -27,7 +27,7 @@ matrix:
     - {agent: prompted_seller, model: weak}
     - {agent: prompted_seller, model: finetuned}
     - {agent: prompted_seller, model: finetuned_dpo}
-    # - {agent: prompted_seller, model: finetuned_dpo_v3}
+    - {agent: prompted_seller, model: finetuned_dpo_v3}
   buyers:
     - {agent: "sanity:full_budget"}
     - {agent: "sanity:linear"}

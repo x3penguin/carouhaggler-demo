@@ -63,3 +63,13 @@ models:
     max_tokens: 300
     price_in_per_mtok: 0.0
     price_out_per_mtok: 0.0
+
+  finetuned_dpo_v3:       # RQ2 v3: DPO retrained with close pairs (finetune/DPO_V3.md; Fayaz, 10 Nov). On Ollama:
+    provider: openai_compatible      # `ollama create qwen2.5-3b-haggle-dpo-v3 -f Modelfile` next to the GGUF
+    model: qwen2.5-3b-haggle-dpo-v3  # qwen2.5-3b-haggle-dpo-v3-q4_k_m.gguf, SHA-256 2c98a505...d1d8240a
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

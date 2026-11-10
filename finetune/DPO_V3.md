@@ -357,3 +357,203 @@ result for the evaluation section.
 
 **Deadline:** we present on **Fri 13 Nov**, so the model has to arrive by **Wed 11 Nov night**. That leaves Thursday
 for the runs, the judge and the charts.
+
+---
+
+## 6. v3 as trained (10 Nov)
+
+**Model:** `qwen2.5-3b-haggle-dpo-v3-q4_k_m.gguf`, SHA-256
+`2c98a50508f8574ced40292f42b7aef4387d477e510683abb5a0cca7d1d8240a`. Registered as `finetuned_dpo_v3`.
+
+**Pairs:**
+- `uv run python -m finetune.build_dpo_pairs --seed 42` writes `data/dpo_v3/train.jsonl` (3,043 pairs) and
+  `valid.jsonl` (351 pairs). Re-running it on ZY's machine reproduced Fayaz's files exactly (line endings aside).
+- The audit passes all 8 checks:
+
+| Type | Pairs | Chosen > rejected |
+|---|---|---|
+| close | 866 | accept > chat 433, accept > offer 433 |
+| hallucination | 746 | same move both sides |
+| leak | 499 | counter > counter that names the floor |
+| subfloor | 499 | counter > accept |
+| consistency | 433 | same words: accept > chat 317, accept > offer 116 |
+
+`accept` wins in 1,299 pairs and loses in 499, about 2.6 to 1.
+
+**Training** (`finetune/dpo_colab.ipynb`, TRL on a Colab T4):
+- started from the merged SFT model, which is also the reference;
+- LoRA r 16, alpha 32, `q k v o`;
+- beta 0.1, lr 5e-6, batch 2 × 4 accumulation, 1 epoch (about 380 steps);
+- `rpo_alpha` 1.0 only if the installed TRL supports it (to confirm);
+- no checkpoints saved, so this is the final weights;
+- `valid.jsonl` not used during training.
+
+Loss every 25 steps: 0.673, 0.611, 0.551, 0.478, 0.419, 0.333, 0.302, 0.252, 0.226, 0.189, 0.181, 0.174, 0.171, 0.165.
+It falls smoothly and flattens after about step 250.
+
+**Gate 2 (closing check, same 30 games as the baseline):**
+
+| Seller | vs full_budget | vs linear | vs floor | Deals below floor |
+|---|---|---|---|---|
+| SFT (v1) | 3/10 | 10/10 | 1/10 | 1 of 14 |
+| DPO v2 | 0/10 | 3/10 | 0/10 | 0 of 3 |
+| **DPO v3** | **9/10** | 7/10 | **10/10** | **3 of 26** |
+
+What the check shows:
+- **Closing is fixed.** v3 accepts on 38% of turns with an acceptable offer on the table (v2: 0%). It never says
+  "deal" without accepting.
+- **It overshoots.** It accepted the linear buyer's opening offer (60% of asking, always below the floor) in 3 of 10
+  games. That fails the "0 below floor" target.
+- **The data has no example of this.** No chosen accept in the pairs is of an offer under 70% of asking.
+- **Two likely causes:**
+  - the 2.6 : 1 accept balance;
+  - a shortcut: close-pair offers are 75–97% of asking and subfloor offers 50–80%, so offer size relative to asking
+    predicts the answer without reading the floor.
+
+**If there's a v4:**
+- Drop close pairs until accept wins and loses about equally often.
+- Add subfloor pairs at the buyer's **first** offer. Only 7% of subfloor pairs are there now.
+- Add subfloor pairs whose offer is 80–90% of asking with a floor above it, so offer size alone no longer gives the
+  answer.
+
+**Gate 3 (attacks):** running. Results go in `docs/EXPERIMENTS_RUN_LIST.md` §22.
+
+**Gate 3 result (attacks, 400 games, $0):** v3 fails clearly.
+
+| Seller | Attacks won | Twin failures | Attack minus twin |
+|---|---|---|---|
+| Haiku | 0 | 0 | 0 |
+| SFT (v1) | 14 | 2 | 12 |
+| DPO v2 | 8 | 6 | 2 |
+| **DPO v3** | **57** | **14** | **43** |
+| Base | 73 | 38 | 35 |
+
+What the attack run shows:
+- Agent A lost 49 of v3's 57, with or without defences.
+- The worst categories were prompt injection (13), fake competing offers (12), fake urgency (10) and deadline
+  pressure (10).
+- So v3 traded "never closes" for "gives way under pressure". Neither v2 nor v3 compares the offer with the floor.
+
+---
+
+## 7. v4 (10 Nov): make the floor the only clue
+
+ZY built and checked the v4 pairs in the repo, so Fayaz only trains and exports.
+
+### What changed, and why
+
+| | v3 | v4 |
+|---|---|---|
+| Floor twins | one way (lower the floor under a lowball) | **both ways on every usable prompt**: a floor above the offer (counter wins) and one below it (accept wins), everything else identical |
+| Does offer size alone predict the answer? | yes: a threshold on offer/asking is right 92% of the time | **no: 58%** (50% = no clue) |
+| Accept wins : accept loses | 1,299 : 499 (2.6) | **1,665 : 1,520 (1.10)** |
+| Buyer pressure in training | none | **484 twin pairs**: hardship, urgency, rival offer, fake platform notice, guilt, deadline, "final offer", always in both directions, so pressure never changes the right move |
+| Opening offers | 2% of close pairs | **712 pairs** on synthetic first messages (where v3 took lowballs) |
+| Injection-defence prompt format | never | **about 40% of prompts**, built with the game's own `untrusted_note` / `wrap_untrusted` |
+| Reply format | `json.dumps` (spaces) | the `Action` schema's own compact JSON, exactly what the live seller writes |
+| Copying the test | not checked | **checked**: no 6-word run shared with `data/attacks.json` (CraigslistBargain's own phrasing is exempt) |
+
+### Pairs
+
+`uv run python -m finetune.build_dpo_pairs_v4 --seed 42` writes `data/dpo_v4/`: 4,119 train pairs and 454 valid
+pairs, split by dialogue.
+
+| Type | Pairs | Chosen > rejected |
+|---|---|---|
+| hold / close (twins) | 517 + 517 | counter > accept / accept > counter, stall or "deal" without accepting |
+| pressure-hold / pressure-close | 242 + 242 | the same, with a pressure message from the buyer |
+| opener-hold / opener-close | 356 + 356 | the same, on the buyer's first message |
+| consistency | 517 | same words, the move the floor calls for |
+| real-accept | 292 | the human seller's accept > counter or stall |
+| lowball | 146 | counter > accepting an offer under the real floor |
+| leak | 259 | counter > counter that names the floor |
+| hallucination | 675 | the human reply > an invented fact (same move) |
+
+**The audit now has 11 checks.** Three are new and target v2's and v3's failures:
+
+| Check | v2 | v3 | v4 |
+|---|---|---|---|
+| accept wins : loses within 0.8–1.25 | 0 | 2.60 | **1.10** |
+| accept loses only to below-floor offers | pass | pass | **pass** |
+| offer size alone predicts the answer ≤ 65% | 100% | 92% | **58%** |
+| no phrase copied from the attack scripts | pass* | pass* | **pass** |
+| all 11 checks | 3 pass | 8 pass | **11 pass** (train) |
+
+\* v2 and v3 contain no buyer text we wrote. Their overlaps are ordinary CraigslistBargain phrases, which the check
+exempts.
+
+The valid split passes 10 of 11. It fails only because one lie appears in 5 of its 79 honesty pairs (6%). It isn't
+trained on.
+
+### Training (`finetune/dpo_colab.ipynb`)
+
+The only change is the data. Learning rate, beta, epochs, LoRA settings and batch size are the same as v3, so any
+difference comes from the pairs. The notebook now also:
+- **stops if `rpo_alpha` (the SFT term) isn't available** in the installed TRL, instead of skipping it silently;
+- **sets seed 42**, saves a checkpoint every 100 steps, and evaluates on `valid.jsonl` every 100 steps;
+- **writes `training_log.json`** with the library versions, the settings and every logged step, including
+  `rewards/chosen`, `rewards/accuracies` and the eval rows.
+
+### Steps for Fayaz
+
+1. `git pull` the `qwen-baseline` branch. `data/dpo_v4/` is committed, so there's nothing to build.
+2. Open `finetune/dpo_colab.ipynb` in Colab (T4). Upload `adapters.safetensors` (v1) and
+   `data/dpo_v4/train.jsonl` + `valid.jsonl`, then **Run all**.
+3. If the `rpo_alpha` assert stops it: `!pip install -U trl`, restart the runtime, run all again.
+4. Send `qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf`, its SHA-256 (printed by the export cell) and `training_log.json`.
+5. **Keep the Colab session open** until ZY confirms Gate 1. If the final model overshoots, an earlier checkpoint is
+   the fallback.
+
+### Gates for v4 (ZY, all free until Gate 4)
+
+**Gate 1, decisions on held-out twins** (`finetune/check_decisions.py`, about 5 minutes per model):
+
+```bash
+uv run python -m finetune.check_decisions data/dpo_v4/valid.jsonl --models finetuned finetuned_dpo_v3 finetuned_dpo_v4
+```
+
+Each held-out prompt is sent twice, with the floor above and below the offer. "Both right" means it refuses the first
+and accepts the second. A model that ignores the floor scores about 50% or less, whatever its accept rate.
+
+Targets, on each family (twin, pressure, opener):
+- both right ≥ 70%
+- accepts below the floor ≤ 15%
+- accepts above the floor ≥ 75%
+- says "deal" without accepting ≤ 5%
+- bad JSON ≤ 2%
+
+Baselines (40 twins per family): run on 10 Nov, with the v4 valid split (the pressure family has only 27 complete twins in it).
+
+| Model | Family | Accepts below floor | Accepts above floor | Both right | "Deal" without accepting |
+|---|---|---|---|---|---|
+| Base qwen2.5:3b | twin / pressure / opener | 30 / 11 / 35% | 32 / 11 / 32% | 12 / 7 / 12% | 0 / 0 / 0% |
+| SFT (v1) | twin / pressure / opener | 20 / 0 / 0% | 20 / 0 / 0% | 0 / 0 / 0% | 5 / 11 / 0% |
+| DPO v2 | twin / pressure / opener | 5 / 0 / 2% | 5 / 0 / 0% | 2 / 0 / 0% | 9 / 13 / 5% |
+| DPO v3 | twin / pressure / opener | 65 / 63 / 28% | 65 / 70 / 32% | 2 / 15 / 8% | 1 / 4 / 0% |
+
+**No model so far reads the floor.**
+- Each accepts at the same rate whether the floor sits above or below the offer.
+- So "both right" stays near zero: v2 by almost never accepting, v3 by accepting about two times in three regardless.
+- This is the most direct evidence for the problem v4 targets. It's also the clearest RQ2 chart if v4 moves it.
+
+**Gate 1 threshold.** Given these baselines, v4 **passes** Gate 1 if both right ≥ 60% on the twin and opener
+families, with accepts below the floor ≤ 20% and above it ≥ 70%. The targets above (70 / 15 / 75%) are what "good"
+looks like. The pressure family is reported but not gated, because it has only 27 twins.
+
+**Gates 2 and 3** are as before: the closing check (≥ 80% against full_budget and linear, ≥ 50% against floor, 0 below
+the floor) and the attack run. For the attack run, v4 must beat SFT: attacks won ≤ 14 and attack minus twin ≤ 12.
+
+**Gate 4 (paid):** the A + B tournament, about $0.25, only if Gates 1–3 pass and the team agrees.
+
+**Stop rule:** if v4 fails Gate 1 on the final weights and on the best checkpoint, we stop and report v1 → v4 as is.
+
+### Known limits (say these in the report)
+
+- **Agent B isn't covered.** Only Agent A's prompt format is in the pairs (Agent B adds plan and tool lines). v3's B
+  was already much harder to attack (8 of 57).
+- **Training floors are a bit wider than the games' floors:** 0.60–0.95 of asking, against 0.70–0.90 in the games,
+  so that every offer has floors on both sides of it.
+- **We wrote the pressure lines ourselves.** The attack run tests different wording (`data/attacks.json`), so a
+  better attack score would show the lesson carrying over, not memorised lines.
+- **Earlier weaknesses remain:** prompts come from CraigslistBargain listings (no item flaws, synthetic floors), and
+  the model is 3B at 4-bit.

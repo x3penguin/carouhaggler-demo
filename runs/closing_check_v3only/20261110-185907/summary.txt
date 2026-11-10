@@ -1,0 +1,5 @@
+seller_model              buyer_persona       games  deal_rate             surplus_share           seller_payoff           below_floor_rate      floor_leak_rate       attack_success_rate  cost_per_game_usd
+------------------------  ------------------  -----  --------------------  ----------------------  ----------------------  --------------------  --------------------  -------------------  -----------------
+qwen2.5-3b-haggle-dpo-v3  sanity:floor        10     1.000                 0.000                   0.000                   0.000                 0.000                 —                    0.000            
+qwen2.5-3b-haggle-dpo-v3  sanity:full_budget  10     0.900 [0.700, 1.000]  1.000                   0.900 [0.700, 1.000]    0.000                 0.000                 —                    0.000            
+qwen2.5-3b-haggle-dpo-v3  sanity:linear       10     0.700 [0.400, 1.000]  -0.829 [-2.308, 0.354]  -0.580 [-1.751, 0.240]  0.300 [0.000, 0.600]  0.100 [0.000, 0.300]  —                    0.000            
