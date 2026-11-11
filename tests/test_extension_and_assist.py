@@ -208,6 +208,7 @@ def test_paired_report_table_finds_pairs_by_seller_variant():
     ("tournament_finetuned", 120), ("attacks_finetuned", 400),
     ("tournament_base", 240), ("tournament_finetuned_ablation", 120), ("attacks_base", 400),
     ("tournament_dpo", 240), ("attacks_dpo", 400), ("attacks_dpo_v3", 400), ("closing_check", 120),
+    ("attacks_floorguard", 200),
 ])
 def test_experiment_sizes_match_the_plan(name, games):
     assert len(runner.build_jobs(load_config(f"configs/{name}.yaml"))) == games
@@ -247,7 +248,8 @@ def test_honesty_uses_the_same_scenarios_as_the_tournament():
 @pytest.mark.parametrize("frontier,other", [("tournament", "tournament_finetuned"), ("attacks", "attacks_finetuned"),
                                             ("tournament", "tournament_base"), ("tournament", "tournament_finetuned_ablation"),
                                             ("attacks", "attacks_base"), ("tournament", "tournament_dpo"),
-                                            ("attacks", "attacks_dpo"), ("attacks", "attacks_dpo_v3")])
+                                            ("attacks", "attacks_dpo"), ("attacks", "attacks_dpo_v3"),
+                                            ("attacks", "attacks_floorguard")])
 def test_finetuned_sellers_face_the_same_games_as_the_frontier_sellers(frontier, other):
     # RQ2 compares C with A and D with B game by game, across two separate runs. The whole
     # scenario is compared, so a different floor, budget or listing would fail here.
