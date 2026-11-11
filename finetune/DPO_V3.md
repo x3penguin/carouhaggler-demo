@@ -384,7 +384,11 @@ for the runs, the judge and the charts.
 - started from the merged SFT model, which is also the reference;
 - LoRA r 16, alpha 32, `q k v o`;
 - beta 0.1, lr 5e-6, batch 2 × 4 accumulation, 1 epoch (about 380 steps);
-- `rpo_alpha` 1.0 only if the installed TRL supports it (to confirm);
+- `rpo_alpha` 1.0 only if the installed TRL supports it. Current TRL (1.x) has no `rpo_alpha`, so on an up-to-date
+  Colab the SFT term was most likely **skipped** (to confirm with Fayaz's TRL version);
+- `max_length` 1,024 (plus `max_prompt_length` 768 on old TRL): 315 of the 3,043 pairs are longer than 1,024 tokens, so
+  they were cut. Current TRL cuts the end (the reply, i.e. the decision); old TRL cut the start of the prompt (where
+  the floor is);
 - no checkpoints saved, so this is the final weights;
 - `valid.jsonl` not used during training.
 
@@ -487,9 +491,13 @@ trained on.
 
 ### Training (`finetune/dpo_colab.ipynb`)
 
-The only change is the data. Learning rate, beta, epochs, LoRA settings and batch size are the same as v3, so any
-difference comes from the pairs. The notebook now also:
-- **stops if `rpo_alpha` (the SFT term) isn't available** in the installed TRL, instead of skipping it silently;
+Learning rate, beta, epochs, LoRA settings and the effective batch (8) are the same as v3. The notebook now also:
+- **always applies the SFT term**: `rpo_alpha=1.0` on old TRL, or `loss_type=["sigmoid", "sft"]` with equal weights on
+  TRL 1.x, which removed `rpo_alpha`. Use the current TRL; don't downgrade (old TRL needs old `transformers`, and old
+  `DPOConfig` turns gradient checkpointing off, which runs a T4 out of memory);
+- **never truncates a pair**: `max_length` 1,536 (the longest v4 pair is about 1,500 tokens; 577 of 4,119 exceed
+  1,024), and the load cell stops if any pair is longer. To fit that in memory: 1 pair per step × 8 accumulation,
+  with gradient checkpointing on;
 - **sets seed 42**, saves a checkpoint every 100 steps, and evaluates on `valid.jsonl` every 100 steps;
 - **writes `training_log.json`** with the library versions, the settings and every logged step, including
   `rewards/chosen`, `rewards/accuracies` and the eval rows.
@@ -499,7 +507,8 @@ difference comes from the pairs. The notebook now also:
 1. `git pull` the `qwen-baseline` branch. `data/dpo_v4/` is committed, so there's nothing to build.
 2. Open `finetune/dpo_colab.ipynb` in Colab (T4). Upload `adapters.safetensors` (v1) and
    `data/dpo_v4/train.jsonl` + `valid.jsonl`, then **Run all**.
-3. If the `rpo_alpha` assert stops it: `!pip install -U trl`, restart the runtime, run all again.
+3. Use a **fresh runtime** (Runtime → Disconnect and delete runtime) so no downgraded `trl`/`transformers` is left
+   over. The install cell takes the latest versions; don't pin older ones.
 4. Send `qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf`, its SHA-256 (printed by the export cell) and `training_log.json`.
 5. **Keep the Colab session open** until ZY confirms Gate 1. If the final model overshoots, an earlier checkpoint is
    the fallback.
@@ -557,3 +566,36 @@ the floor) and the attack run. For the attack run, v4 must beat SFT: attacks won
   better attack score would show the lesson carrying over, not memorised lines.
 - **Earlier weaknesses remain:** prompts come from CraigslistBargain listings (no item flaws, synthetic floors), and
   the model is 3B at 4-bit.
+
+## 8. v4 as trained (11 Nov): fails Gate 1, DPO stopped
+
+**Training worked as planned** (`training_log.json` from Fayaz; GGUF SHA-256
+`1aa7a7c6b69fd3a3944e38b96b3565c1979460937faa7d6a3b26a639a044ec37`):
+- TRL 1.17.1, transformers 5.22.2. TRL 1.x has no `rpo_alpha`, so the SFT term was `loss_type=["sigmoid", "sft"]`
+  with equal weights. This also means v3, trained on a current Colab, most likely ran **without** its SFT term.
+- No pair was truncated (`max_length` 1,536; longest pair 1,503 tokens). v3 used 1,024, which cut 315 of its 3,043
+  pairs, removing the reply on current TRL.
+- 515 steps. `rewards/chosen` rose steadily (0.01 → 0.40, never below 0), `rewards/rejected` fell (0 → −0.41), and the
+  held-out eval loss fell at every evaluation (1.64 → 1.33) with reward accuracy about 0.87.
+
+**Gate 1** (`finetune/check_decisions.py`, 40 held-out twins per family; all models in
+`finetune/check_decisions_results.json`):
+
+| Model | accepts below floor (twin / pressure / opener) | accepts above floor | both right |
+|---|---|---|---|
+| Base `qwen2.5:3b` | 30 / 11 / 35% | 32 / 11 / 32% | 12 / 7 / 12% |
+| SFT (v1) | 20 / 0 / 0% | 20 / 0 / 0% | 0 / 0 / 0% |
+| DPO v2 | 5 / 0 / 2% | 5 / 0 / 0% | 2 / 0 / 0% |
+| DPO v3 | 65 / 63 / 28% | 65 / 70 / 32% | 2 / 15 / 8% |
+| **DPO v4** | **72 / 67 / 22%** | **68 / 52 / 22%** | **0 / 0 / 5%** |
+
+v4 fails (needed both right ≥ 60%). Like every earlier version it accepts about as often whether the floor is above or
+below the offer. The checkpoints were not converted: the last (step 500) is almost the final model, and earlier ones
+lie between SFT and v4 on the same line, so none reads the floor. Per the stop rule, Gates 2–4 were not run.
+
+**What the four versions show.** Each DPO version moved *how often* the model accepts (v2 down; v3 and v4 up) but never
+*when*: none learned to compare the offer with its private floor, even when v4's pairs made the floor the only
+difference between the right and the wrong answer. With our data, model size (3B, 4-bit) and training budget (one
+epoch, LoRA, lr 5e-6), preference training did not teach the rule. We don't claim DPO cannot; we tried one setup.
+The practical conclusion is the one RQ3 points to: enforce the floor in code (the engine's floor guardrail), and treat
+training as a way to shape style, not to guarantee a hard constraint.
