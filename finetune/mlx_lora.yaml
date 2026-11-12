@@ -1,7 +1,7 @@
-# QLoRA on Apple Silicon. From the repo root:
+# QLoRA with MLX (Apple-silicon Macs). From the repo root:
 #   uv run --with mlx-lm==0.32.2 mlx_lm.lora --config finetune/mlx_lora.yaml 2>&1 | tee runs/finetune/train.log
-# The settings match finetune/qlora_colab.ipynb where MLX allows it. See finetune/HANDOVER.md.
-model: runs/finetune/base-4bit                  # pinned download (see HANDOVER); a quantized base makes this QLoRA
+# The settings match finetune/qlora_colab.ipynb where MLX allows it. See finetune/README.md.
+model: runs/finetune/base-4bit                  # pinned download (finetune/download_base.py); a quantized base makes this QLoRA
 train: true
 data: data/craigslist/sft                       # train.jsonl and valid.jsonl from prepare_data.py
 adapter_path: runs/finetune/adapters

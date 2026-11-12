@@ -1,7 +1,7 @@
 """Gate 1 for a DPO model: on held-out floor twins, does it accept when the offer clears the floor and refuse when it doesn't?
 
 Run from the repo root (local models through Ollama, so $0):
-    uv run python -m finetune.check_decisions data/dpo_v4/valid.jsonl --models finetuned finetuned_dpo finetuned_dpo_v3
+    uv run python -m finetune.check_decisions finetune/dpo/v4/valid.jsonl --models finetuned finetuned_dpo finetuned_dpo_v3
 
 A twin is one prompt shown twice with only the floor changed (see build_dpo_pairs_v4.py), so the
 floor is the only thing that should change the answer. Per model this reports how often it

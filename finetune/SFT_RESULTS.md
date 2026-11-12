@@ -1,8 +1,8 @@
-# Fine-Tuning Handover & Evaluation Report (RQ2)
+# SFT training and evaluation report (RQ2)
 
 
 **Trained Model:** `qwen2.5-3b-haggle` (Base: `mlx-community/Qwen2.5-3B-Instruct-4bit`, 4-bit QLoRA, rank 16)
-**Hardware & Run Time:** Apple M2 Pro (16 GB unified memory); ran 430 of 1,570 planned iterations in **2 hours 10 minutes** (20:34 to 22:43 on 5 Nov 2026, ~8–11 tok/s training throughput plus ~140s per validation pass). Stopped early after validation loss rose at step 400 (`0.986` vs `0.975` at step 300).
+**Run Time:** MLX route (`finetune/mlx_lora.yaml`); ran 430 of 1,570 planned iterations in **2 hours 10 minutes** (20:34 to 22:43 on 5 Nov 2026). Stopped early after validation loss rose at step 400 (`0.986` vs `0.975` at step 300).
 **Selected Checkpoint:** Checkpoint 300 (`0000300_adapters.safetensors`, validation loss: **0.975**)
 **Artifact Format:** GGUF `Q4_K_M` (1.83 GB, SHA-256 `2b57f5c2d5c62ab2a46d2d8a47f94e3b5c935baa71eb27ca1aba78edf0ed6175`)
 
@@ -32,7 +32,7 @@ Evaluation performed on **100 held-out seller turns** sampled from the **Craigsl
 
 ## 2. Where to Put the Downloaded Files
 
-Download the files from Google Drive (or zip) and place them directly into your local `carouhaggler-demo` project repository under `runs/finetune/`.
+Download the files (links in `finetune/README.md`) and place them in the repository under `runs/finetune/`.
 
 ### Exact Directory Structure:
 
@@ -47,7 +47,7 @@ carouhaggler-demo/
 │           ├── train.jsonl
 │           └── valid.jsonl
 ├── runs/
-│   └── finetune/                   <-- PUT ALL DOWNLOADED DRIVE FILES HERE
+│   └── finetune/                   <-- PUT THE DOWNLOADED FILES HERE (links in finetune/README.md)
 │       ├── Modelfile               <-- Ollama registration file
 │       ├── qwen2.5-3b-haggle-q4_k_m.gguf  <-- 1.83 GB quantized model
 │       ├── loss_curve.png          <-- Plot for final report
@@ -57,7 +57,7 @@ carouhaggler-demo/
 │       └── adapters/               <-- LoRA adapter weights folder
 │           ├── adapter_config.json
 │           └── adapters.safetensors (or 0000300_adapters.safetensors)
-└── fay_handover.md
+└── finetune/SFT_RESULTS.md
 ```
 
 ### Destination Summary Table:
@@ -73,7 +73,7 @@ carouhaggler-demo/
 
 ---
 
-## 3. Teammate Setup Guide (Step-by-Step)
+## 3. Setup Guide (Step-by-Step)
 
 ### Step 1: Ensure Ollama is Running & Pull Stock Baseline
 

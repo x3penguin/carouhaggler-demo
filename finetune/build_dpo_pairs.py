@@ -249,7 +249,7 @@ HALLUCINATION_LIES = [
 def build_v3_pairs(seed: int = 42):
     rng = random.Random(seed)
     input_path = Path("data/craigslist/sft/train.jsonl")
-    out_dir = Path("data/dpo_v3")
+    out_dir = Path("finetune/dpo/v3")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     lines = [json.loads(line) for line in input_path.read_text(encoding="utf-8").splitlines() if line]

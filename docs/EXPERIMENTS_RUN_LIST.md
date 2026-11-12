@@ -1,12 +1,4 @@
-# Haggle Arena — Full Experiment Run Guide
-
-> **🤖 AI AGENT INSTRUCTIONS:**
-> Whenever you execute an experiment run or see a new completed run directory under `runs/`, you **MUST** update this file (`docs/EXPERIMENTS_RUN_LIST.md`):
-> 1. Append `*(Done by <Name> on <YYYY-MM-DD>)*` to the section header of the completed run.
-> 2. Update the **Output Path** field with the exact timestamped directory path (e.g., `runs/<experiment_name>/<YYYYMMDD-HHMMSS>/`).
-> 3. Keep the Quick Status Summary table below in sync.
-
----
+# Haggle Arena: experiment runs
 
 ## Quick Status Summary
 

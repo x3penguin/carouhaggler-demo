@@ -366,7 +366,7 @@ for the runs, the judge and the charts.
 `2c98a50508f8574ced40292f42b7aef4387d477e510683abb5a0cca7d1d8240a`. Registered as `finetuned_dpo_v3`.
 
 **Pairs:**
-- `uv run python -m finetune.build_dpo_pairs --seed 42` writes `data/dpo_v3/train.jsonl` (3,043 pairs) and
+- `uv run python -m finetune.build_dpo_pairs --seed 42` writes `finetune/dpo/v3/train.jsonl` (3,043 pairs) and
   `valid.jsonl` (351 pairs). Re-running it on ZY's machine reproduced Fayaz's files exactly (line endings aside).
 - The audit passes all 8 checks:
 
@@ -380,7 +380,7 @@ for the runs, the judge and the charts.
 
 `accept` wins in 1,299 pairs and loses in 499, about 2.6 to 1.
 
-**Training** (`finetune/dpo_colab.ipynb`, TRL on a Colab T4):
+**Training** (`finetune/dpo/v3/dpo_colab.ipynb`, TRL on Colab):
 - started from the merged SFT model, which is also the reference;
 - LoRA r 16, alpha 32, `q k v o`;
 - beta 0.1, lr 5e-6, batch 2 × 4 accumulation, 1 epoch (about 380 steps);
@@ -459,7 +459,7 @@ ZY built and checked the v4 pairs in the repo, so Fayaz only trains and exports.
 
 ### Pairs
 
-`uv run python -m finetune.build_dpo_pairs_v4 --seed 42` writes `data/dpo_v4/`: 4,119 train pairs and 454 valid
+`uv run python -m finetune.build_dpo_pairs_v4 --seed 42` writes `finetune/dpo/v4/`: 4,119 train pairs and 454 valid
 pairs, split by dialogue.
 
 | Type | Pairs | Chosen > rejected |
@@ -489,12 +489,12 @@ exempts.
 The valid split passes 10 of 11. It fails only because one lie appears in 5 of its 79 honesty pairs (6%). It isn't
 trained on.
 
-### Training (`finetune/dpo_colab.ipynb`)
+### Training (`finetune/dpo/v4/dpo_colab.ipynb`)
 
 Learning rate, beta, epochs, LoRA settings and the effective batch (8) are the same as v3. The notebook now also:
 - **always applies the SFT term**: `rpo_alpha=1.0` on old TRL, or `loss_type=["sigmoid", "sft"]` with equal weights on
   TRL 1.x, which removed `rpo_alpha`. Use the current TRL; don't downgrade (old TRL needs old `transformers`, and old
-  `DPOConfig` turns gradient checkpointing off, which runs a T4 out of memory);
+  `DPOConfig` turns gradient checkpointing off, which runs a 16 GB GPU out of memory);
 - **never truncates a pair**: `max_length` 1,536 (the longest v4 pair is about 1,500 tokens; 577 of 4,119 exceed
   1,024), and the load cell stops if any pair is longer. To fit that in memory: 1 pair per step × 8 accumulation,
   with gradient checkpointing on;
@@ -504,9 +504,9 @@ Learning rate, beta, epochs, LoRA settings and the effective batch (8) are the s
 
 ### Steps for Fayaz
 
-1. `git pull` the `qwen-baseline` branch. `data/dpo_v4/` is committed, so there's nothing to build.
-2. Open `finetune/dpo_colab.ipynb` in Colab (T4). Upload `adapters.safetensors` (v1) and
-   `data/dpo_v4/train.jsonl` + `valid.jsonl`, then **Run all**.
+1. `git pull` the `qwen-baseline` branch. `finetune/dpo/v4/` is committed, so there's nothing to build.
+2. Open `finetune/dpo/v4/dpo_colab.ipynb` in Colab. Upload `adapters.safetensors` (v1) and
+   `finetune/dpo/v4/train.jsonl` + `valid.jsonl`, then **Run all**.
 3. Use a **fresh runtime** (Runtime → Disconnect and delete runtime) so no downgraded `trl`/`transformers` is left
    over. The install cell takes the latest versions; don't pin older ones.
 4. Send `qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf`, its SHA-256 (printed by the export cell) and `training_log.json`.
@@ -518,7 +518,7 @@ Learning rate, beta, epochs, LoRA settings and the effective batch (8) are the s
 **Gate 1, decisions on held-out twins** (`finetune/check_decisions.py`, about 5 minutes per model):
 
 ```bash
-uv run python -m finetune.check_decisions data/dpo_v4/valid.jsonl --models finetuned finetuned_dpo_v3 finetuned_dpo_v4
+uv run python -m finetune.check_decisions finetune/dpo/v4/valid.jsonl --models finetuned finetuned_dpo_v3 finetuned_dpo_v4
 ```
 
 Each held-out prompt is sent twice, with the floor above and below the offer. "Both right" means it refuses the first

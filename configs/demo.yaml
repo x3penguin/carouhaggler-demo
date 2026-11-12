@@ -48,7 +48,7 @@ models:
 #    price_in_per_mtok: 0.0
 #    price_out_per_mtok: 0.0
 
-  local_finetuned:          # RQ2 Agent C: register it first (fay_handover.md step 2)
+  local_finetuned:          # RQ2 Agent C: register it first (finetune/README.md step 3)
     provider: openai_compatible
     model: qwen2.5-3b-haggle
     base_url: http://localhost:11434/v1

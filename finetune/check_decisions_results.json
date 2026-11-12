@@ -1,5 +1,5 @@
 {
-  "command": "uv run python -m finetune.check_decisions data/dpo_v4/valid.jsonl --models weak finetuned finetuned_dpo finetuned_dpo_v3 finetuned_dpo_v4 --per-family 40",
+  "command": "uv run python -m finetune.check_decisions finetune/dpo/v4/valid.jsonl --models weak finetuned finetuned_dpo finetuned_dpo_v3 finetuned_dpo_v4 --per-family 40",
   "note": "Gate 1 (finetune/DPO_V3.md section 8). Run on 10-11 Nov 2026 against the Ollama models in configs/models.yaml.",
   "results": {
     "weak": {

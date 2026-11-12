@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 INPUT_PATH = Path("data/craigslist/sft/train.jsonl")
-OUTPUT_DIR = Path("data/dpo")
+OUTPUT_DIR = Path("finetune/dpo/v2")
 OUTPUT_PATH = OUTPUT_DIR / "train.jsonl"
 
 RE_FLOOR = re.compile(r"Your minimum acceptable price \(your floor\) is SGD (\d+)")
@@ -20,7 +20,7 @@ RE_BUYER_OFFER = re.compile(r"\[Buyer's action: offer \$?(\d+)\]")
 
 def make_dpo_pairs():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    lines = [json.loads(line) for line in INPUT_PATH.read_text().splitlines()]
+    lines = [json.loads(line) for line in INPUT_PATH.read_text(encoding="utf-8").splitlines()]
     
     pairs = []
     

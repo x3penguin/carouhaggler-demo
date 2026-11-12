@@ -76,7 +76,7 @@ class MultiGameOrchestrator:
         self.enforce_floor_protection = enforce_floor_protection
         self.enforce_price_direction = enforce_price_direction
         self.max_turns_per_side = max_turns_per_side
-        # Team decision (ROLE_SPLIT item 4): real marketplaces hide rival offers from buyers.
+        # Team decision: real marketplaces hide rival offers from buyers.
         self.buyers_see_competing_offers = buyers_see_competing_offers
 
         self.sessions: dict[str, Session] = {}

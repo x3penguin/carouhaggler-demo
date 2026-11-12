@@ -1,7 +1,7 @@
 """Build the DPO v4 preference pairs (RQ2; plan and reasons in finetune/DPO_V3.md §7).
 
 Run from the repo root:  uv run python -m finetune.build_dpo_pairs_v4 --seed 42
-Writes data/dpo_v4/train.jsonl and valid.jsonl. Check them with `python -m finetune.audit_dpo_pairs`.
+Writes finetune/dpo/v4/train.jsonl and valid.jsonl. Check them with `python -m finetune.audit_dpo_pairs`.
 
 v2 learned "never accept" and v3 learned "accept readily"; neither learned to compare the offer
 with the floor. v4 is built so that the floor is the only thing that tells the right move:
@@ -36,7 +36,7 @@ from haggle.agents.llm_agent import money
 from haggle.schemas import Action
 
 SFT_TRAIN = Path("data/craigslist/sft/train.jsonl")
-OUT_DIR = Path("data/dpo_v4")
+OUT_DIR = Path("finetune/dpo/v4")
 
 RE_FLOOR = re.compile(r"Your minimum acceptable price \(your floor\) is SGD (\d+)")
 RE_ASKING = re.compile(r"Asking price: SGD (\d+)")

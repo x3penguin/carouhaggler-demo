@@ -2,7 +2,7 @@
 """Local DPO fine-tuning on Apple Silicon (MPS).
 
 Trains a LoRA DPO adapter directly on top of the pre-fused v1 model (runs/finetune/fused),
-evaluates contrastive loss on data/dpo/train.jsonl, merges weights, and exports GGUF for Ollama.
+evaluates contrastive loss on finetune/dpo/v2/train.jsonl, merges weights, and exports GGUF for Ollama.
 """
 
 import json
@@ -21,7 +21,7 @@ from trl import DPOConfig, DPOTrainer
 def main():
     repo_root = Path(__file__).resolve().parent.parent
     fused_v1_dir = repo_root / "runs" / "finetune" / "fused"
-    dpo_data_path = repo_root / "data" / "dpo" / "train.jsonl"
+    dpo_data_path = repo_root / "finetune" / "dpo" / "v2" / "train.jsonl"
     out_dir = repo_root / "runs" / "finetune" / "dpo_v2_fused"
     out_dir.mkdir(parents=True, exist_ok=True)
 

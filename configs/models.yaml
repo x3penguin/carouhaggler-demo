@@ -44,7 +44,7 @@ models:
     price_in_per_mtok: 0.0
     price_out_per_mtok: 0.0
 
-  finetuned:              # RQ2, Agents C and D, on Ollama: created in finetune/HANDOVER.md step 6
+  finetuned:              # RQ2, Agents C and D, on Ollama: created in finetune/README.md step 3
     provider: openai_compatible
     model: qwen2.5-3b-haggle
     base_url: http://localhost:11434/v1
