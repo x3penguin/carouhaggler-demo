@@ -1,0 +1,136 @@
+{
+  "command": "uv run python -m finetune.check_decisions data/dpo_v4/valid.jsonl --models weak finetuned finetuned_dpo finetuned_dpo_v3 finetuned_dpo_v4 --per-family 40",
+  "note": "Gate 1 (finetune/DPO_V3.md section 8). Run on 10-11 Nov 2026 against the Ollama models in configs/models.yaml.",
+  "results": {
+    "weak": {
+      "twin": {
+        "n": 40,
+        "accepts_below_floor": 0.3,
+        "accepts_above_floor": 0.325,
+        "both_right": 0.125,
+        "says_deal_no_accept": 0.0,
+        "bad_json": 0.0
+      },
+      "pressure": {
+        "n": 27,
+        "accepts_below_floor": 0.1111111111111111,
+        "accepts_above_floor": 0.1111111111111111,
+        "both_right": 0.07407407407407407,
+        "says_deal_no_accept": 0.0,
+        "bad_json": 0.0
+      },
+      "opener": {
+        "n": 40,
+        "accepts_below_floor": 0.35,
+        "accepts_above_floor": 0.325,
+        "both_right": 0.125,
+        "says_deal_no_accept": 0.0,
+        "bad_json": 0.0
+      }
+    },
+    "finetuned": {
+      "twin": {
+        "n": 40,
+        "accepts_below_floor": 0.2,
+        "accepts_above_floor": 0.2,
+        "both_right": 0.0,
+        "says_deal_no_accept": 0.05,
+        "bad_json": 0.0
+      },
+      "pressure": {
+        "n": 27,
+        "accepts_below_floor": 0.0,
+        "accepts_above_floor": 0.0,
+        "both_right": 0.0,
+        "says_deal_no_accept": 0.1111111111111111,
+        "bad_json": 0.0
+      },
+      "opener": {
+        "n": 40,
+        "accepts_below_floor": 0.0,
+        "accepts_above_floor": 0.0,
+        "both_right": 0.0,
+        "says_deal_no_accept": 0.0,
+        "bad_json": 0.0
+      }
+    },
+    "finetuned_dpo": {
+      "twin": {
+        "n": 40,
+        "accepts_below_floor": 0.05,
+        "accepts_above_floor": 0.05,
+        "both_right": 0.025,
+        "says_deal_no_accept": 0.0875,
+        "bad_json": 0.0125
+      },
+      "pressure": {
+        "n": 27,
+        "accepts_below_floor": 0.0,
+        "accepts_above_floor": 0.0,
+        "both_right": 0.0,
+        "says_deal_no_accept": 0.12962962962962962,
+        "bad_json": 0.0
+      },
+      "opener": {
+        "n": 40,
+        "accepts_below_floor": 0.025,
+        "accepts_above_floor": 0.0,
+        "both_right": 0.0,
+        "says_deal_no_accept": 0.05,
+        "bad_json": 0.075
+      }
+    },
+    "finetuned_dpo_v3": {
+      "twin": {
+        "n": 40,
+        "accepts_below_floor": 0.65,
+        "accepts_above_floor": 0.65,
+        "both_right": 0.025,
+        "says_deal_no_accept": 0.0125,
+        "bad_json": 0.0
+      },
+      "pressure": {
+        "n": 27,
+        "accepts_below_floor": 0.6296296296296297,
+        "accepts_above_floor": 0.7037037037037037,
+        "both_right": 0.14814814814814814,
+        "says_deal_no_accept": 0.037037037037037035,
+        "bad_json": 0.0
+      },
+      "opener": {
+        "n": 40,
+        "accepts_below_floor": 0.275,
+        "accepts_above_floor": 0.325,
+        "both_right": 0.075,
+        "says_deal_no_accept": 0.0,
+        "bad_json": 0.0
+      }
+    },
+    "finetuned_dpo_v4": {
+      "twin": {
+        "n": 40,
+        "accepts_below_floor": 0.725,
+        "accepts_above_floor": 0.675,
+        "both_right": 0.0,
+        "says_deal_no_accept": 0.025,
+        "bad_json": 0.0
+      },
+      "pressure": {
+        "n": 27,
+        "accepts_below_floor": 0.6666666666666666,
+        "accepts_above_floor": 0.5185185185185185,
+        "both_right": 0.0,
+        "says_deal_no_accept": 0.037037037037037035,
+        "bad_json": 0.0
+      },
+      "opener": {
+        "n": 40,
+        "accepts_below_floor": 0.225,
+        "accepts_above_floor": 0.225,
+        "both_right": 0.05,
+        "says_deal_no_accept": 0.0375,
+        "bad_json": 0.0
+      }
+    }
+  }
+}

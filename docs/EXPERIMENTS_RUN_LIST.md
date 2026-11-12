@@ -34,6 +34,7 @@
 | 20 | `attacks_dpo` (RQ3, DPO model) | ✅ Done | ZY; DPO training Fayaz | 2026-11-10 | `runs/attacks_dpo/20261110-003810/` |
 | 21 | `closing_check` (RQ2 diagnostic: can a local seller close?) | ✅ Done | ZY | 2026-11-10 | `runs/closing_check/20261110-130434/` (base, SFT, v2); `runs/closing_check_v3only/20261110-185907/` (v3, same games) |
 | 22 | `attacks_dpo_v3` (RQ3, DPO v3 model) | ✅ Done | ZY; DPO v3 training Fayaz | 2026-11-10 | `runs/attacks_dpo_v3/20261110-190057/` |
+| 23 | `attacks_floorguard` (report §6.3: floor guardrail on) | ✅ Done | ZY | 2026-11-11 | `runs/attacks_floorguard/20261111-144121/` |
 
 ---
 
@@ -311,3 +312,18 @@
 - **Models:**
   - Seller: `finetuned_dpo_v3` (`qwen2.5-3b-haggle-dpo-v3` on local Ollama)
   - Buyers: scripted attackers from `data/attacks.json`
+
+---
+
+## 23. `attacks_floorguard` (`configs/attacks_floorguard.yaml`) — 200 games *(Done by ZY on 2026-11-11)*
+- **Command:** `uv run python -m haggle.runner configs/attacks_floorguard.yaml`
+- **Output Path:** `runs/attacks_floorguard/20261111-144121/` (scripted buyers and local sellers, so $0)
+- **What it is & Aim:** Every other run had the engine floor guardrail off, to measure the failure. This one turns it on
+  (`floor_protection: true`) for Agent A on the base and fine-tuned models, on the same attack and twin games as
+  `attacks`, `attacks_base` and `attacks_finetuned` (a test checks this), so the guardrail is the only difference.
+- **Result (Agent A, off -> on):** below-floor deals base 34 -> 0, fine-tuned 3 -> 0. Attacks won base 32 -> 9 and
+  fine-tuned 5 -> 3; the wins left are all floor leaks, which the price rule cannot stop. Leak games unchanged (base 31 ->
+  32), so the re-ask does not leak. The base model hit the guardrail 60 times in 33 games and was forced to reject 11
+  times. The run cannot show lost good deals: the scripts never offer above the floor.
+- **RQs Answered:** **RQ3** and report Section 6 (does the code-level guardrail do what the prompt-level defences don't?).
+- **Models:** Seller: `weak` and `finetuned` (local Ollama). Buyers: scripted attackers from `data/attacks.json`.

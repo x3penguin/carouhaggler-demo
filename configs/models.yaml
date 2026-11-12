@@ -73,3 +73,12 @@ models:
     max_tokens: 300
     price_in_per_mtok: 0.0
     price_out_per_mtok: 0.0
+  finetuned_dpo_v4:       # RQ2 v4: DPO on two-way floor twins + SFT term (finetune/DPO_V3.md §7; Fayaz, 11 Nov). On Ollama:
+    provider: openai_compatible      # `ollama create qwen2.5-3b-haggle-dpo-v4 -f Modelfile` next to the GGUF
+    model: qwen2.5-3b-haggle-dpo-v4  # qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf, SHA-256 1aa7a7c6...a044ec37
+    base_url: http://localhost:11434/v1
+    api_key_env: OLLAMA_API_KEY
+    temperature: 0.7
+    max_tokens: 300
+    price_in_per_mtok: 0.0
+    price_out_per_mtok: 0.0

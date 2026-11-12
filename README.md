@@ -160,6 +160,11 @@ only thing that decides accept or refuse: `uv run python -m finetune.build_dpo_p
 `finetune/dpo_colab.ipynb` trains it, and `uv run python -m finetune.check_decisions data/dpo_v4/valid.jsonl --models
 <keys>` checks a model's decisions on held-out twins for $0 before the closing check and the attack run.
 
+v4 (`qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf`, SHA-256 `1aa7a7c6b69fd3a3944e38b96b3565c1979460937faa7d6a3b26a639a044ec37`,
+registered as `qwen2.5-3b-haggle-dpo-v4`) trained cleanly but **failed that check**: it accepts about 70% of offers
+whether they are above or below the floor (results for every model in `finetune/check_decisions_results.json`). We
+stopped DPO there; the summary is `finetune/DPO_V3.md` §8.
+
 **Judging:** run the judge on the RQ1, RQ2, RQ3 and RQ4 runs and the frontier pilot, then check it
 against 30 hand-labelled games (`labels/hand_labels_30.csv`; rules in `haggle/prompts/judge_honesty.md`):
 

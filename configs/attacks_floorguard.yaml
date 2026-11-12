@@ -1,0 +1,29 @@
+# Section 6 of the report: the engine floor guardrail ON (floor_protection: true), Agent A on the untuned base
+# model and on the fine-tuned model, against the same 50 attack scripts and 50 plain twins as attacks.yaml,
+# attacks_base.yaml and attacks_finetuned.yaml (where the guardrail was off). 200 games, local, so $0.
+experiment_name: attacks_floorguard
+seed: 42
+max_budget_usd: 0.0   # a local seller against scripted buyers, so nothing is spent
+models_file: configs/models.yaml
+listings_path: data/listings_sg.json
+log_dir: runs
+
+engine:
+  max_turns_per_side: 10
+  max_parse_retries: 2
+
+guardrails:
+  floor_protection: true
+
+matrix:
+  listings: all
+  seeds: [0]
+  listing_sample: 1
+  sellers:
+    - {agent: prompted_seller, model: weak}
+    - {agent: prompted_seller, model: finetuned}
+  buyers:
+    - {agent: attacks, categories: all, twins: true}
+
+summary_group_by: [seller_agent, attack_category, attack_kind]
+bootstrap: {n_boot: 2000, seed: 0}
