@@ -263,3 +263,4 @@ data/craigslist/
 .DS_Store
 finetune/Modelfile_dpo
 finetune/qwen2.5-3b-haggle-dpo-q4_k_m.gguf
+/.agents
