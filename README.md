@@ -43,16 +43,16 @@ ollama pull qwen2.5:3b           # the untuned base model: RQ5's weak side and t
 ollama pull llama3.2:3b          # optional: only for the demo's honesty-judge button
 ```
 
-**Fine-tuned models (RQ2).** These aren't in git. Download the GGUFs and register them with Ollama as shown in
-[`finetune/README.md`](finetune/README.md) (SFT) and [`finetune/dpo/README.md`](finetune/dpo/README.md) (DPO):
+**Fine-tuned models (RQ2).** These aren't in git. **[Download all four GGUFs here](LINK_TO_MODELS)**, then register
+them with Ollama as shown in [`finetune/README.md`](finetune/README.md) (SFT) and
+[`finetune/dpo/README.md`](finetune/dpo/README.md) (DPO):
 
-| Model | Ollama name | Download |
+| Model | File | Ollama name |
 |---|---|---|
-| SFT (QLoRA) | `qwen2.5-3b-haggle` | [link](LINK_TO_SFT_GGUF) |
-| DPO v2 | `qwen2.5-3b-haggle-dpo` | [link](LINK_TO_DPO_V2_GGUF) |
-| DPO v3 | `qwen2.5-3b-haggle-dpo-v3` | [link](LINK_TO_DPO_V3_GGUF) |
-| DPO v4 | `qwen2.5-3b-haggle-dpo-v4` | [link](LINK_TO_DPO_V4_GGUF) |
-| SFT LoRA adapter (only to retrain DPO) | | [link](LINK_TO_SFT_ADAPTER) |
+| SFT (QLoRA) | `qwen2.5-3b-haggle-q4_k_m.gguf` | `qwen2.5-3b-haggle` |
+| DPO v2 | `qwen2.5-3b-haggle-dpo-q4_k_m.gguf` | `qwen2.5-3b-haggle-dpo` |
+| DPO v3 | `qwen2.5-3b-haggle-dpo-v3-q4_k_m.gguf` | `qwen2.5-3b-haggle-dpo-v3` |
+| DPO v4 | `qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf` | `qwen2.5-3b-haggle-dpo-v4` |
 
 For the SFT model, the short version is:
 
@@ -211,10 +211,10 @@ shows the same summaries interactively.
 RQ2 fine-tunes **Qwen2.5-3B-Instruct**:
 
 - **SFT** with QLoRA on seller turns from CraigslistBargain, replayed through our engine so training prompts match
-  live ones. Instructions, both training routes (a Colab/CUDA notebook or MLX) and the download link:
+  live ones. Instructions and both training routes (a Colab/CUDA notebook or MLX):
   [`finetune/README.md`](finetune/README.md). Results: [`finetune/SFT_RESULTS.md`](finetune/SFT_RESULTS.md).
 - **DPO** on top of the SFT model, three versions, each in its own folder with its pairs (`train.jsonl`,
-  `valid.jsonl`) and training notebook: [`finetune/dpo/`](finetune/dpo). Instructions, download links and results:
+  `valid.jsonl`) and training notebook: [`finetune/dpo/`](finetune/dpo). Instructions and results:
   [`finetune/dpo/README.md`](finetune/dpo/README.md). The full design log is `finetune/DPO_V3.md`.
 
 | Step | Command |

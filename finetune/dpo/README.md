@@ -22,11 +22,13 @@ with its private floor, so the floor rule has to live in code (the engine's floo
 
 ## Download the trained models
 
-| Model | Ollama name | `configs/models.yaml` key | SHA-256 | Link |
-|---|---|---|---|---|
-| `qwen2.5-3b-haggle-dpo-q4_k_m.gguf` (v2) | `qwen2.5-3b-haggle-dpo` | `finetuned_dpo` | `281be40d0c225b7d85c09e5762e05de754f4ddc0364c0e3972073fa226950c9f` | [download](LINK_TO_DPO_V2_GGUF) |
-| `qwen2.5-3b-haggle-dpo-v3-q4_k_m.gguf` | `qwen2.5-3b-haggle-dpo-v3` | `finetuned_dpo_v3` | `2c98a50508f8574ced40292f42b7aef4387d477e510683abb5a0cca7d1d8240a` | [download](LINK_TO_DPO_V3_GGUF) |
-| `qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf` | `qwen2.5-3b-haggle-dpo-v4` | `finetuned_dpo_v4` | `1aa7a7c6b69fd3a3944e38b96b3565c1979460937faa7d6a3b26a639a044ec37` | [download](LINK_TO_DPO_V4_GGUF) |
+**[Download the models here](LINK_TO_MODELS)** (the same link as the SFT model).
+
+| Model | Ollama name | `configs/models.yaml` key | SHA-256 |
+|---|---|---|---|
+| `qwen2.5-3b-haggle-dpo-q4_k_m.gguf` (v2) | `qwen2.5-3b-haggle-dpo` | `finetuned_dpo` | `281be40d0c225b7d85c09e5762e05de754f4ddc0364c0e3972073fa226950c9f` |
+| `qwen2.5-3b-haggle-dpo-v3-q4_k_m.gguf` | `qwen2.5-3b-haggle-dpo-v3` | `finetuned_dpo_v3` | `2c98a50508f8574ced40292f42b7aef4387d477e510683abb5a0cca7d1d8240a` |
+| `qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf` | `qwen2.5-3b-haggle-dpo-v4` | `finetuned_dpo_v4` | `1aa7a7c6b69fd3a3944e38b96b3565c1979460937faa7d6a3b26a639a044ec37` |
 
 Each GGUF is about 1.9 GB. Register one with Ollama by copying `finetune/Modelfile` next to it and pointing `FROM` at
 the file, e.g. for v4:
@@ -57,8 +59,8 @@ sed -i 's#^FROM .*#FROM ./qwen2.5-3b-haggle-dpo-v4-q4_k_m.gguf#' runs/finetune/M
    ```
 
 3. **Train** with that version's notebook, `finetune/dpo/<version>/dpo_colab.ipynb`, on Colab (pick a GPU runtime) or
-   any CUDA machine with Jupyter. Upload the SFT adapter `adapters.safetensors` (from the SFT training, or the link in
-   [`../README.md`](../README.md)) and the version's `train.jsonl` (v4 also `valid.jsonl`), then Run all. The
+   any CUDA machine with Jupyter. Upload the SFT adapter `adapters.safetensors` (produced by the SFT training in
+   [`../README.md`](../README.md), in `runs/finetune/adapters/`) and the version's `train.jsonl` (v4 also `valid.jsonl`), then Run all. The
    notebook converts the MLX adapter to PEFT, merges it into the base model, trains a new LoRA with TRL's
    `DPOTrainer`, then merges and exports a Q4_K_M GGUF with llama.cpp.
 

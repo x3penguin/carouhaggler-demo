@@ -13,12 +13,12 @@ code is needed: both load from config once the model is registered in Ollama.
 
 ## Download the trained model
 
-You don't need to retrain to run the experiments. Download the GGUF, then go to step 3 below.
+You don't need to retrain to run the experiments. **[Download the models here](LINK_TO_MODELS)** (the SFT model and
+the three DPO versions), then go to step 3 below.
 
-| File | SHA-256 | Link |
-|---|---|---|
-| `qwen2.5-3b-haggle-q4_k_m.gguf` (SFT model, about 1.9 GB) | `2b57f5c2d5c62ab2a46d2d8a47f94e3b5c935baa71eb27ca1aba78edf0ed6175` | [download](LINK_TO_SFT_GGUF) |
-| `adapters.safetensors` + `adapter_config.json` (SFT LoRA adapter, needed only to retrain DPO) | | [download](LINK_TO_SFT_ADAPTER) |
+| File | SHA-256 |
+|---|---|
+| `qwen2.5-3b-haggle-q4_k_m.gguf` (SFT model, about 1.9 GB) | `2b57f5c2d5c62ab2a46d2d8a47f94e3b5c935baa71eb27ca1aba78edf0ed6175` |
 
 The training log, loss curve and before/after check are committed in `runs/finetune/`; the write-up is
 [`SFT_RESULTS.md`](SFT_RESULTS.md).

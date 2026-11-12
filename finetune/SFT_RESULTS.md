@@ -53,10 +53,7 @@ carouhaggler-demo/
 │       ├── loss_curve.png          <-- Plot for final report
 │       ├── report.json             <-- 100-turn evaluation metrics
 │       ├── train.log               <-- Training terminal output
-│       ├── training_log.json       <-- Loss data per checkpoint
-│       └── adapters/               <-- LoRA adapter weights folder
-│           ├── adapter_config.json
-│           └── adapters.safetensors (or 0000300_adapters.safetensors)
+│       └── training_log.json       <-- Loss data per checkpoint
 └── finetune/SFT_RESULTS.md
 ```
 
@@ -66,7 +63,6 @@ carouhaggler-demo/
 | ------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
 | `qwen2.5-3b-haggle-q4_k_m.gguf`     | `runs/finetune/qwen2.5-3b-haggle-q4_k_m.gguf` | Quantized model loaded by Ollama                            |
 | `Modelfile`                         | `runs/finetune/Modelfile`                     | Ollama blueprint (`FROM ./qwen2.5-3b-haggle-q4_k_m.gguf`) |
-| `adapters/` (folder)                | `runs/finetune/adapters/`                     | LoRA weights (Checkpoint 300) for MLX                       |
 | `loss_curve.png`                    | `runs/finetune/loss_curve.png`                | Training vs Validation loss figure for paper                |
 | `report.json`                       | `runs/finetune/report.json`                   | Quantitative evaluation numbers for paper table             |
 | `train.log` & `training_log.json` | `runs/finetune/`                              | Training logs verifying convergence at step 300             |
