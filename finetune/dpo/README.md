@@ -22,7 +22,7 @@ with its private floor, so the floor rule has to live in code (the engine's floo
 
 ## Download the trained models
 
-**[Download the models here](LINK_TO_MODELS)** (the same link as the SFT model).
+**[Download the models here](https://drive.google.com/drive/folders/1aKUYzpfbQcsWh74ZykdyrNYQ9n4BywcJ?usp=sharing)** (the same link as the SFT model).
 
 | Model | Ollama name | `configs/models.yaml` key | SHA-256 |
 |---|---|---|---|

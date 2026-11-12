@@ -43,7 +43,7 @@ ollama pull qwen2.5:3b           # the untuned base model: RQ5's weak side and t
 ollama pull llama3.2:3b          # optional: only for the demo's honesty-judge button
 ```
 
-**Fine-tuned models (RQ2).** These aren't in git. **[Download all four GGUFs here](LINK_TO_MODELS)**, then register
+**Fine-tuned models (RQ2).** These aren't in git. **[Download all four GGUFs here](https://drive.google.com/drive/folders/1aKUYzpfbQcsWh74ZykdyrNYQ9n4BywcJ?usp=sharing)**, then register
 them with Ollama as shown in [`finetune/README.md`](finetune/README.md) (SFT) and
 [`finetune/dpo/README.md`](finetune/dpo/README.md) (DPO):
 

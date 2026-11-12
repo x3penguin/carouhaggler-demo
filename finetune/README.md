@@ -13,7 +13,7 @@ code is needed: both load from config once the model is registered in Ollama.
 
 ## Download the trained model
 
-You don't need to retrain to run the experiments. **[Download the models here](LINK_TO_MODELS)** (the SFT model and
+You don't need to retrain to run the experiments. **[Download the models here](https://drive.google.com/drive/folders/1aKUYzpfbQcsWh74ZykdyrNYQ9n4BywcJ?usp=sharing)** (the SFT model and
 the three DPO versions), then go to step 3 below.
 
 | File | SHA-256 |
